@@ -1,0 +1,101 @@
+﻿@page "/AltaUbicacion"
+@page "/AltaUbicacion/{id:int}"
+@inject IJSRuntime JsRuntime
+@inject NavigationManager NavigationManager
+
+<div class="rounded w-75 bg-light mx-auto" style="margin:15px;">
+    <h3 class="text-center">Alta de Ubicación</h3>
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-10">
+            <table class="table">
+                <tbody>
+
+                    <tr>
+                        <td colspan="4">
+                            <input type="text" class="form-control" placeholder="Clave" aria-label="Id_historia">
+                        </td>
+                        <td colspan="8">
+                            <input type="text" class="form-control" placeholder="Nombre" aria-label="Id_historia">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">
+                            <input type="number" class="form-control" placeholder="Alto" aria-label="Id_historia"><label>metros</label>
+                        </td>
+                        <td colspan="4">
+                            <input type="number" class="form-control" placeholder="Ancho" aria-label="Id_historia"><label>metros</label>
+                        </td>
+                        <td colspan="4">
+                            <input type="number" class="form-control" placeholder="Largo" aria-label=""><label>metros</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">
+                            <input type="number" class="form-control" placeholder="Pasillo" aria-label="pasillo"><label></label>
+                        </td>
+                        <td colspan="4">
+                            <input type="number" class="form-control" placeholder="No. de secciones" aria-label="Id_historia"><label></label>
+                        </td>
+                        <td colspan="4">
+                            <select class="form-control" aria-label="Default select example">
+                                <option selected>Estatus</option>
+                                <option value="1"> Activo </option>
+                                <option value="2"> Inactivo </option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="12">
+                            <textarea class="form-control" placeholder="Descripción" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-sm-11" style="text-align:right;">
+            <Button Type="primary" @onclick="savedMessage">@saveValue</Button>
+            <Button Type="default" @onclick="cancel" Danger>Cancelar</Button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+
+    public String saveValue { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (id != 0)
+        {
+            saveValue = "Editar";
+        }
+        else
+        {
+            saveValue = "Guardar";
+        }
+    }
+
+    public async Task savedMessage()
+    {
+        //if (id != 0)
+          //  await JsRuntime.InvokeAsync<object>(identifier: "swal", "Editar", "Almacen Editado correctamente");
+        //else
+          //  await JsRuntime.InvokeAsync<object>(identifier: "swal", "Guardar", "Nuevo Almacen Guardado correctamente");
+
+        NavigationManager.NavigateTo("/ListaUbicacion");
+    }
+    public async Task newCaso()
+    {
+        //var res = await JsRuntime.InvokeAsync<object>(identifier: "swal", "Nuevo", "Nuevo Caso de Uso agregado!");
+    }
+
+    public async Task cancel()
+    {
+        //await JsRuntime.InvokeAsync<object>(identifier: "swal", "Cancelar", "Usted cancelo la acción");
+        NavigationManager.NavigateTo("/ListaUbicacion");
+    }
+}
+

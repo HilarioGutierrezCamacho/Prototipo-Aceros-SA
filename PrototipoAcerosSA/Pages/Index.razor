@@ -1,0 +1,218 @@
+﻿@page "/index"
+
+<style>
+    .ant-carousel .slick-slide {
+        text-align: center;
+        height: 160px;
+        line-height: 160px;
+        background: #364d79;
+        overflow: hidden;
+    }
+
+    .ant-carousel .slick-slide h3 {
+        color: #fff;
+        padding-bottom: 50px;
+    }
+</style>
+
+<div style="background-color: #ececec; padding: 20px;">
+
+    <Row Gutter="24">
+
+        <Col Span="14">
+            <Row>
+                <Col Flex="3">
+                    <Carousel Autoplay="TimeSpan.FromSeconds(5)">
+                        <CarouselSlick>
+                            <h3>Materia Prima</h3>
+                        </CarouselSlick>
+                        <CarouselSlick>
+                            <h3>Refacciones</h3>
+                        </CarouselSlick>
+                        <CarouselSlick>
+                            <h3>Productos Varios</h3>
+                        </CarouselSlick>
+                    </Carousel>
+                </Col>
+            </Row>
+            <hr />
+            <Row>
+                <Card Bordered="false" Title=@("Articulos Recientes")>
+                    <Body>
+                        <Table DataSource="articulos" PageSize="5">
+                            <AntDesign.Column @bind-Field="@context.Nombre" />
+                            <AntDesign.Column @bind-Field="@context.Descripción" />
+                            <AntDesign.Column @bind-Field="@context.Almacen" />
+                            <AntDesign.Column @bind-Field="@context.Estatus" />
+                            <AntDesign.Column @bind-Field="@context.FechaAdd" />
+                        </Table>
+                    </Body>
+                </Card>
+            </Row>
+        </Col>
+
+        <Col Span="10">
+            <Row>
+                <Col Flex="3">
+                    <Card Bordered="false" Title=@("Consumo por valor")>
+                        <Body>
+                            <Pie Data="userStoriesByCriteria" Config="pieConfig" />
+                        </Body>
+                    </Card>
+                </Col>
+            </Row>
+            <hr />
+            <Row>
+                <Col Flex="3">
+                <Card Bordered="false" Title=@("Consumo por unidad")>
+                    <Body>
+                        <Pie Data="consumoUnidadData" Config="pieConfigConsumoUnidad" />
+                    </Body>
+                </Card>
+                </Col>
+            </Row>
+        </Col>
+
+    </Row>
+
+</div>
+
+@code{
+
+    /* GRAFICA POR VALOR*/
+
+    object[] data = new object[] {
+        new  { year= "1991", value= 3 },
+        new  { year= "1992", value= 4 },
+        new  { year= "1993", value= 3.5 },
+        new  { year= "1994", value= 5 },
+        new  { year= "1995", value= 4.9 },
+        new  { year= "1996", value= 6 },
+        new  { year= "1997", value= 7 },
+        new  { year= "1998", value= 9 },
+        new  { year= "1999", value= 13 },
+    };
+
+    object[] userStoriesByCriteria = new object[]
+    {
+        new { criterio="Libretas", value = 36 },
+        new { criterio="Acero", value = 96 },
+        new { criterio="Tornillos", value = 126 },
+    };
+
+    LineConfig config = new LineConfig()
+    {
+        Title = new AntDesign.Charts.Title()
+        {
+            Visible = true,
+            Text = "Mi gráfica",
+        },
+        Description = new Description()
+        {
+            Visible = true,
+            Text = "Mi prueba",
+        },
+        Padding = "auto",
+        ForceFit = true,
+        XField = "year",
+        YField = "value",
+        Smooth = true,
+    };
+
+    PieConfig pieConfig = new PieConfig()
+    {
+        Title = new AntDesign.Charts.Title()
+        {
+            Visible = true,
+            Text = "Consumo por Valor",
+        },
+        Description = new Description()
+        {
+            Visible = true,
+            Text = "Indica el numero de movimientos por valor de articulo.",
+        },
+
+        Radius = 0.8,
+        AngleField = "value",
+        ColorField = "criterio",
+
+        Label = new PieLabelConfig
+        {
+            Visible = true,
+            Type = "inner"
+        }
+    };
+
+    /* GRAFICA POR UNIDAD */
+
+    object[] consumoUnidadData = new object[]
+    {
+        new { criterio="Libretas", value = 36 },
+        new { criterio="Acero", value = 96 },
+        new { criterio="Tornillos", value = 126 },
+    };
+
+    LineConfig configConsumoUnidad = new LineConfig()
+    {
+        Title = new AntDesign.Charts.Title()
+        {
+            Visible = true,
+            Text = "Consumo por Unidad",
+        },
+        Description = new Description()
+        {
+            Visible = true,
+            Text = "Indica el numero de movimientos por unidad de articulos.",
+        },
+        Padding = "auto",
+        ForceFit = true,
+        XField = "year",
+        YField = "value",
+        Smooth = true,
+    };
+
+    PieConfig pieConfigConsumoUnidad = new PieConfig()
+    {
+        Title = new AntDesign.Charts.Title()
+        {
+            Visible = true,
+            Text = "Consumo por Valor",
+        },
+        Description = new Description()
+        {
+            Visible = true,
+            Text = "Indica el numero de movimientos por valor de articulo.",
+        },
+
+        Radius = 0.8,
+        AngleField = "value",
+        ColorField = "criterio",
+
+        Label = new PieLabelConfig
+        {
+            Visible = true,
+            Type = "inner"
+        }
+    };
+
+    class Column
+    {
+        public string Nombre { get; set; }
+
+        public string Descripción { get; set; }
+
+        public string Almacen { get; set; }
+
+        public string Estatus { get; set; }
+
+        public string FechaAdd { get; set; }
+    }
+
+    Column[] articulos = new Column[]
+    {
+        new Column() { Nombre = "Fierro 1", Descripción = "Material Fuerte", Almacen = "MP", Estatus = "Activo", FechaAdd = "02/06/2021"},
+        new Column() { Nombre = "Libreta", Descripción = "Sirve para escribir en ella", Almacen = "VA", Estatus = "Activo", FechaAdd = "02/06/2021"},
+        new Column() { Nombre = "Tornillos", Descripción = "Material ", Almacen = "RF   ", Estatus = "Activo", FechaAdd = "02/06/2021"}
+    };
+
+}

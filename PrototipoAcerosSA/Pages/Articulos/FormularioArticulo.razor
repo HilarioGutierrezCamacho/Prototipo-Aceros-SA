@@ -1,0 +1,202 @@
+﻿@page "/nuevo-articulo"
+@page "/editar-articulo/{IdArticulo}"
+
+@using System.Text.RegularExpressions
+@using PrototipoAcerosSA.Data
+@inject NavigationManager UriHelper
+
+<style>
+    .about-section {
+        padding: 20px;
+        text-align: center;
+        background-color: #474e5d;
+        color: white;
+        width: 100%;
+    }
+</style>
+
+<div class="about-section">
+    <h3 style="color: white;">Nuevo Articulo</h3>
+</div>
+
+<br />
+
+<div style="background-color: #ffffff; padding: 20px;">
+    <div style="background: #ffffff; padding: 20px; border-radius: 5px; width: 100%;">
+        <Form Model="@FormArticulo">
+            <Card Bordered="true" Style="align-self: center;">
+                <Body>
+                    <Row Gutter="24">
+                        <Col Span="8">
+                        <FormItem Label="Clave:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
+                            <Input @bind-Value="@FormArticulo.Clave" style="margin: 2px;" />
+                        </FormItem>
+                        </Col>
+                        <Col Span="16">
+                        <FormItem Label="Descripcion:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
+                            <Input @bind-Value="@FormArticulo.Descripcion" style="margin: 2px;" />
+                        </FormItem>
+                        </Col>
+                    </Row>
+                    <Row Gutter="24">
+                        <Col Span="24">
+                        <FormItem Label="Marca:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
+                            <Input @bind-Value="@FormArticulo.Marca" style="margin: 2px;" />
+                        </FormItem>
+                        </Col>
+                    </Row>
+                    <Row Gutter="24">
+                        <Col Span="12">
+                        <FormItem Label="Almacen:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
+                            <Select DataSource="@almacenes"
+                                    @bind-Value="@FormArticulo.IdAlmacen"
+                                    DefaultValue="@(0)"
+                                    ValueName="@nameof(Almacen.IdAlmacen)"
+                                    LabelName="@nameof(Almacen.Nombre)">
+                            </Select>
+                        </FormItem>
+                        </Col>
+                        <Col Span="12">
+                        <FormItem Label="Ubicacion:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
+                            <Select DataSource="@ubicaciones"
+                                    @bind-Value="@FormArticulo.IdUbicacion"
+                                    DefaultValue="@(0)"
+                                    ValueName="@nameof(Ubicacion.IdUbicacion)"
+                                    LabelName="@nameof(Ubicacion.Nombre)">
+                            </Select>
+                        </FormItem>
+                        </Col>
+                    </Row>
+                    <Row Gutter="24">
+                        <Col Span="12">
+                        <FormItem Label="Unidad:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
+                            <Select DataSource="@unidades"
+                                    @bind-Value="@FormArticulo.IdUnidad"
+                                    DefaultValue="@(0)"
+                                    ValueName="@nameof(Unidad.IdUnidad)"
+                                    LabelName="@nameof(Unidad.Nombre)">
+                            </Select>
+                        </FormItem>
+                        </Col>
+                        <Col Span="12">
+                        <FormItem Label="Precio Unitario:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
+                            <AntDesign.InputNumber Formatter="FormatoPesos" Parser="ParseoPesos" DefaultValue="0d" @bind-Value="@FormArticulo.PrecioUnitario" style="margin: 2px; width: 100%;" />
+                        </FormItem>
+                        </Col>
+                    </Row>
+                    <Row Gutter="24">
+                        <Col Span="8">
+                        <FormItem Label="Maximo:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
+                            <Input @bind-Value="@FormArticulo.Maximo" style="margin: 2px;" />
+                        </FormItem>
+                        </Col>
+                        <Col Span="8">
+                        <FormItem Label="Minimo:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
+                            <Input @bind-Value="@FormArticulo.Minimo" style="margin: 2px;" />
+                        </FormItem>
+                        </Col>
+                        <Col Span="8">
+                        <FormItem Label="Punto Reorden:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
+                            <Input @bind-Value="@FormArticulo.PuntoReorden" style="margin: 2px;" />
+                        </FormItem>
+                        </Col>
+                    </Row>
+                </Body>
+                <ActionTemplate>
+                    @if (IdArticulo != "")
+                    {
+<CardAction><Icon Type="file-done" Theme="outline" OnClick="() => AddArticulo()" /> Guardar</CardAction> }
+                    else
+                    {
+<CardAction><Icon Type="edit" Theme="outline" /> Editar</CardAction>                    }
+                    <CardAction Style="color: red;"><Icon Style="color: red;" Type="rollback" Theme="outline" /> Cancelar</CardAction>
+                </ActionTemplate>
+            </Card>
+        </Form>
+    </div>
+</div>
+
+@code { [Inject]
+            private IArticuloService articuloService { get; set; } 
+
+            public class Articulo
+            {
+                public int IdArticulo { get; set; }
+                public string Clave { get; set; }
+                public string Descripcion { get; set; }
+                public string Marca { get; set; }
+                public int IdAlmacen { get; set; }
+                public string Almacen { get; set; }
+                public int IdUbicacion { get; set; }
+                public string Ubicacion { get; set; }
+                public int IdUnidad { get; set; }
+                public string Unidad { get; set; }
+                public Double PrecioUnitario { get; set; }
+                public int Maximo { get; set; }
+                public int PuntoReorden { get; set; }
+                public int Minimo { get; set; }
+            }
+
+            public class Almacen
+            {
+                public int IdAlmacen { get; set; }
+                public string Nombre { get; set; }
+            }
+
+            public class Ubicacion
+            {
+                public int IdUbicacion { get; set; }
+                public string Nombre { get; set; }
+            }
+
+            public class Unidad
+            {
+                public int IdUnidad { get; set; }
+                public string Nombre { get; set; }
+            }
+
+            public Articulo FormArticulo = new Articulo();
+            public List<Almacen> almacenes = new List<Almacen>();
+            public List<Ubicacion> ubicaciones = new List<Ubicacion>();
+            public List<Unidad> unidades = new List<Unidad>();
+
+            [Parameter]
+            public string IdArticulo { get; set; } = "";
+
+            protected override async Task OnInitializedAsync()
+            {
+
+                almacenes.Add(new Almacen() { IdAlmacen = 0, Nombre = "Seleccione.." });
+                almacenes.Add(new Almacen() { IdAlmacen = 1, Nombre = "MP" });
+                almacenes.Add(new Almacen() { IdAlmacen = 2, Nombre = "VA" });
+                almacenes.Add(new Almacen() { IdAlmacen = 3, Nombre = "RF" });
+
+                ubicaciones.Add(new Ubicacion() { IdUbicacion = 0, Nombre = "Seleccione.." });
+                ubicaciones.Add(new Ubicacion() { IdUbicacion = 1, Nombre = "001 - Estante 1" });
+                ubicaciones.Add(new Ubicacion() { IdUbicacion = 2, Nombre = "001 - Estante 2" });
+                ubicaciones.Add(new Ubicacion() { IdUbicacion = 3, Nombre = "001 - Estante 3" });
+
+                unidades.Add(new Unidad() { IdUnidad = 0, Nombre = "Seleccione.." });
+                unidades.Add(new Unidad() { IdUnidad = 1, Nombre = "Pieza" });
+                unidades.Add(new Unidad() { IdUnidad = 2, Nombre = "Caja" });
+                unidades.Add(new Unidad() { IdUnidad = 3, Nombre = "Botella" });
+
+            }
+
+
+            private string FormatoPesos(double value)
+            {
+                return "$ " + value.ToString("n0");
+            }
+
+            private string ParseoPesos(string value)
+            {
+                return Regex.Replace(value, @"\$\s?|(,*)", "");
+            }
+
+            public async Task AddArticulo()
+            {
+                await articuloService.AddArticulo();
+                var arts = await articuloService.GetTodosArticulos();
+                UriHelper.NavigateTo($"listado-articulos");
+            } }

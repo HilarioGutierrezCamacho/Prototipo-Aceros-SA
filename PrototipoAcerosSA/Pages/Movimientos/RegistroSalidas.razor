@@ -1,0 +1,148 @@
+﻿@page "/capturar-salidas"
+
+@using AntDesign.TableModels
+
+<Alert Message="Captura de Requisiciones" Type="@AlertType.Info" />
+<br />
+<div style="background-color: #ececec; padding: 20px;">
+    <EditForm Model="@FacturaForm">
+        <Row Gutter="24">
+            <Col Span="10">
+            <Card Bordered="false" Title=@("Datos Generales")>
+                <Body>
+                    <div class="form-group row">
+                        <label for="lastName" class="col-sm-3">Folio Requisición: </label>
+                        <InputText id="lastName" class="form-control col-sm-8" @bind-Value="@FacturaForm.FolioFactura" placeholder="Ingresa el folio"></InputText>
+                    </div>
+                    <div class="form-group row">
+                        <label for="lastName" class="col-sm-3">Fecha Captura: </label>
+                        <InputText id="lastName" class="form-control col-sm-8" @bind-Value="@FacturaForm.FechaCaptura" placeholder="Enter last name"></InputText>
+                    </div>
+                    <div class="form-group row">
+                        <label for="lastName" class="col-sm-3">Hora Captura: </label>
+                        <InputText id="lastName" class="form-control col-sm-8" @bind-Value="@FacturaForm.HoraCaptura" placeholder="Enter last name"></InputText>
+                    </div>
+                    <div class="form-group row">
+                        <label for="lastName" class="col-sm-3">Monto Total: </label>
+                        <Input Type="number" id="lastName" class="form-control col-sm-8" @bind-Value="@FacturaForm.MontoTotal"></Input>
+                    </div>
+                </Body>
+                <ActionTemplate>
+                    <CardAction><Icon Type="file-done" Theme="outline" /> Guardar</CardAction>
+                    <CardAction><Icon Type="rollback" Theme="outline" /> Cancelar</CardAction>
+                </ActionTemplate>
+            </Card>
+            </Col>
+
+            <Col Span="14">
+            <Card Bordered="false" Title=@("Detalles")>
+                <Body>
+                    <Button Type="primary" Style="margin-bottom:16px">
+                        Agregar Fila
+                    </Button>
+                    <Table DataSource="@FacturaForm.DetallesFactura" Context="detalle" ScrollX="1000" TItem="DetalleFactura" PageSize="5">
+                        <AntDesign.Column Title="Clave" TData="string">
+                            <Input Type="text" @bind-Value="@detalle.ClaveArticulo" />
+                        </AntDesign.Column>
+                        <AntDesign.Column Title="Descripción" TData="string">
+                            <Input Type="text" @bind-Value="@detalle.Descripcion" />
+                        </AntDesign.Column>
+                        <AntDesign.Column Title="Almacen" TData="int">
+                            <Select DataSource="@almacenes"
+                                    @bind-Value="@detalle.IdAlmacen"
+                                    DefaultValue="@(0)"
+                                    ValueName="@nameof(Almacen.IdAlmacen)"
+                                    LabelName="@nameof(Almacen.Nombre)">
+                            </Select>
+                        </AntDesign.Column>
+                        <AntDesign.Column Title="Unidad" TData="int">
+                            <Select DataSource="@unidades"
+                                    @bind-Value="@detalle.IdUnidad"
+                                    DefaultValue="@(0)"
+                                    ValueName="@nameof(Unidad.IdUnidad)"
+                                    LabelName="@nameof(Unidad.Descripcion)">
+                            </Select>
+                        </AntDesign.Column>
+                        <AntDesign.Column Title="Cantidad" TData="int">
+                            <Input Type="number" @bind-Value="@detalle.Cantidad" />
+                        </AntDesign.Column>
+                        <AntDesign.Column Title="Precio" TData="float">
+                            <Input Type="number" step="0.01" @bind-Value="@detalle.Precio" />
+                        </AntDesign.Column>
+                        <AntDesign.Column Title="Subtotal" TData="float">
+                            <Input Type="number" step="0.01" @bind-Value="@detalle.Subtotal" />
+                        </AntDesign.Column>
+                        <ActionColumn Title="Acciones">
+                            <Button Icon="delete" Danger>
+                                Eliminar
+                            </Button>
+                        </ActionColumn>
+                    </Table>
+                </Body>
+            </Card>
+            </Col>
+        </Row>
+    </EditForm>
+</div>
+
+@code {
+
+    public class Factura
+    {
+        public string FolioFactura { get; set; } = "R001";
+        public string FechaCaptura { get; set; } = "14/06/2021";
+        public string HoraCaptura { get; set; } = "10:35";
+        public Double MontoTotal { get; set; } = 2000.50;
+        public List<DetalleFactura> DetallesFactura { get; set; } = new List<DetalleFactura>();
+    }
+
+    public class DetalleFactura
+    {
+        public string ClaveArticulo { get; set; }
+        public string Descripcion { get; set; }
+        public int IdAlmacen { get; set; }
+        public int IdUnidad { get; set; }
+        public int Cantidad { get; set; }
+        public float Precio { get; set; }
+        public float Subtotal { get; set; }
+    }
+
+    public class Almacen
+    {
+        public int IdAlmacen { get; set; }
+        public string Nombre { get; set; }
+    }
+
+    public class Unidad
+    {
+        public int IdUnidad { get; set; }
+        public string Descripcion { get; set; }
+    }
+
+    public Factura FacturaForm { get; set; } = new Factura();
+    public List<DetalleFactura> detallesDefault = new List<DetalleFactura>();
+    public List<Almacen> almacenes = new List<Almacen>();
+    public List<Unidad> unidades = new List<Unidad>();
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        detallesDefault.Add(new DetalleFactura { ClaveArticulo = "ART001", Descripcion = "Articulo 2", IdAlmacen = 3, IdUnidad = 1, Cantidad = 20, Precio = 1000 });
+        detallesDefault.Add(new DetalleFactura { ClaveArticulo = "ART002", Descripcion = "Articulo 2", IdAlmacen = 3, IdUnidad = 1, Cantidad = 20, Precio = 1000 });
+        detallesDefault.Add(new DetalleFactura { ClaveArticulo = "ART003", Descripcion = "Articulo 2", IdAlmacen = 3, IdUnidad = 1, Cantidad = 20, Precio = 1000 });
+
+        FacturaForm.DetallesFactura = detallesDefault;
+
+        almacenes.Add(new Almacen { IdAlmacen = 0, Nombre = "Almacen" });
+        almacenes.Add(new Almacen { IdAlmacen = 1, Nombre = "MP" });
+        almacenes.Add(new Almacen { IdAlmacen = 2, Nombre = "RF" });
+        almacenes.Add(new Almacen { IdAlmacen = 3, Nombre = "VA" });
+
+        unidades.Add(new Unidad { IdUnidad = 0, Descripcion = "Unidad" });
+        unidades.Add(new Unidad { IdUnidad = 1, Descripcion = "Pieza" });
+        unidades.Add(new Unidad { IdUnidad = 2, Descripcion = "Caja" });
+        unidades.Add(new Unidad { IdUnidad = 3, Descripcion = "Kilo" });
+
+    }
+
+}

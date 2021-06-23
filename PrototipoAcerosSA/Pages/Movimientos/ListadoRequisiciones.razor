@@ -1,0 +1,68 @@
+﻿@page "/listado-requisiciones"
+@inject IJSRuntime JsRuntime
+
+
+<div class="col-sm-12" style="text-align:center;margin-top:10px;">
+    <h3>Lista de Requisiciones</h3>
+</div>
+<div>
+    <Row Style="margin-top:10px;">
+        <Col Span="10" Offset="12" style="text-align:center">
+        <label for="personaFiltro" class="col-sm-2 col-form-label">Folio:</label>
+        <Search OnChange="(e)=>Handle(e)" EnterButton="true" OnSearch="filtrar" @bind-Value="@txtValue" />
+        </Col>
+    </Row>
+</div>
+<br />
+
+<table class="table">
+    <thead>
+        <tr>
+            <th colspan="2">Acciones</th>
+            <th>Folio</th>
+            <th>Fecha requisición</th>
+            <th>Nombre responsable</th>
+            <th>Tipo de pago</th>
+            <th>Costo</th>
+            <th>Observaciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+                <a href="requisiciones"  title="Detalles">
+                    <span class="oi oi-pencil"></span>
+                </a>
+            </td>
+            <td>
+                <a href="requisiciones-cancelacion" title="Cancelar requisición" >
+                    <span class="oi oi-x"></span>
+                </a>
+            </td>
+            <td>REQ-001</td>
+            <td>20/06/2021 09:00:00</td>
+            <td>HILARIO GUTIERREZ CAMACHO</td>
+            <td>Tarjeta</td>
+            <td>5000</td>
+            <td>ninguna</td>
+        </tr>
+    </tbody>
+</table>
+
+
+@code {
+    private async Task filtrar()
+    {
+        await JsRuntime.InvokeAsync<object>(identifier: "swal", $"Buscando{txtValue}");
+    }
+    public async Task Eliminar()
+    {
+        await JsRuntime.InvokeAsync<object>(identifier: "deleteSwal");
+    }
+    private string txtValue { get; set; }
+
+    private void Handle(string value)
+    {
+        Console.WriteLine(value);
+    }
+}

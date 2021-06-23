@@ -1,0 +1,133 @@
+﻿@page "/listado-entradas"
+@using System.ComponentModel
+@using AntDesign.TableModels
+@using PrototipoAcerosSA.Models
+@using PrototipoAcerosSA.Data
+@inject NavigationManager UriHelper
+
+
+<style>
+    .about-section {
+        padding: 20px;
+        text-align: center;
+        background-color: #474e5d;
+        color: white;
+        width: 100%;
+    }
+</style>
+
+<div class="about-section">
+    <h3 style="color: white;">Consulta de Entradas Almacen</h3>
+</div>
+
+<br />
+<br />
+
+<Row Gutter="8">
+    <Col Span="2">
+    <label style="margin: 1px;">Buscar por:</label>
+    </Col>
+    <Col Span="3">
+    <Select @bind-Value="@buscar_por"
+            Style="width: 120px; margin: 1px;"
+            TItemValue="string"
+            TItem="string">
+        <SelectOptions>
+            <SelectOption TItemValue="string" TItem="string" Value="@("Folio")" Label="Folio" />
+        </SelectOptions>
+    </Select>
+    </Col>
+    <Col Span="5">
+    <Search Style="margin: 1px;" Placeholder="Introduce tu búsqueda..." Size="@InputSize.Default" @bind-Value="@filtro" OnSearch="FiltrarFacturas" />
+    </Col>
+</Row>
+
+<hr />
+
+<Table @ref="table"
+       TItem="Factura"
+       DataSource="@facturas"
+       Total="_total"
+       @bind-PageIndex="_pageIndex"
+       @bind-PageSize="_pageSize"
+       Context="factura"
+       Class="text-center">
+    <AntDesign.Column @bind-Field="@factura.FolioFactura" Sortable />
+    <AntDesign.Column @bind-Field="@factura.FechaCaptura" Sortable />
+    <AntDesign.Column Title="Proveedor" @bind-Field="@factura.Proveedor" >
+        <label>@factura.Proveedor.Nombre</label>
+     </AntDesign.Column>
+    <AntDesign.Column @bind-Field="@factura.Subtotal" />
+    <AntDesign.Column @bind-Field="@factura.Descuento" />
+    <AntDesign.Column @bind-Field="@factura.IVA" />
+    <AntDesign.Column @bind-Field="@factura.TotalFactura" />
+    <ActionColumn Title="Acciones" Class="text-center">
+        <Button Icon="snippets" Type="primary">
+            Ver detalles
+        </Button>
+        <Button Icon="delivered-procedure" Danger OnClick="() => NavegarDevolverFacturas(factura.IdFactura)">
+            Devolver
+        </Button>
+    </ActionColumn>
+</Table>
+
+<br />
+<p>Pagina Actual: @_pageIndex | Articulos por Página: @_pageSize | Total: @_total</p>
+
+@code {
+
+    [Inject]
+    public IArticuloService _articuloService { get; set; }
+    [Inject]
+    public IProveedorService _proveedorService { get; set; }
+    [Inject]
+    public IFormaPagoService _formaPagoService { get; set; }
+    [Inject]
+    public IFacturaService _facturaService { get; set; }
+
+    List<Factura> facturas = new List<Factura>();
+    List<Factura> facturasFiltro = new List<Factura>();
+    List<Factura> facturasTodas = new List<Factura>();
+
+    ITable table;
+    int _pageIndex = 1;
+    int _pageSize = 5;
+    int _total = 0;
+
+    string buscar_por = "Folio";
+    string filtro = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        facturas = await _facturaService.GetTodasFacturas();
+        _total = facturas.Count();
+        facturasTodas = facturas;
+    }
+
+    public void FiltrarFacturas()
+    {
+        facturasFiltro = new List<Factura>();
+        if (filtro != null && filtro.Length > 0)
+        {
+            foreach (var factura in facturas)
+            {
+                if (factura.FolioFactura.Contains(filtro.Trim()))
+                {
+                    facturasFiltro.Add(factura);
+                }
+            }
+            facturas = facturasFiltro;
+        }
+        else
+        {
+            facturas = facturasTodas;
+        }
+    }
+
+
+    public void NavegarDevolverFacturas(int IdFactura)
+    {
+        UriHelper.NavigateTo($"/devolver-facturas/{IdFactura}");
+    }
+
+}

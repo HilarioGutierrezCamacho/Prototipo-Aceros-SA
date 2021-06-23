@@ -1,0 +1,63 @@
+﻿@page "/grafica-consumo-valor"
+
+@using AntDesign.Charts
+
+<style>
+    .about-section {
+        padding: 20px;
+        text-align: center;
+        background-color: #474e5d;
+        color: white;
+        width: 100%;
+    }
+</style>
+
+<div class="about-section">
+    <h3 style="color: white;">Grafica de Consumo por Valor</h3>
+</div>
+
+<br />
+<br />
+
+<Row Gutter="8">
+    <Col Span="2">
+    <label style="margin: 1px;">Rango de Fechas:</label>
+    </Col>
+    <Col Span="6">
+    <RangePicker TValue="DateTime?[]" DisabledDate="date => date <= DateTime.Now" />
+    </Col>
+</Row>
+
+<hr />
+
+<AntDesign.Charts.Column Data="data" Config="config" />
+
+@code {
+
+    object[] data = new object[] {
+        new  { articulo= "Acero", valor= 3 },
+        new  { articulo= "Tornillos", valor= 4 },
+        new  { articulo= "Libretas", valor= 3.5 },
+        new  { articulo= "Hierro", valor= 5 },
+        new  { articulo= "Aluminio", valor= 4.9 }
+    };
+
+    ColumnConfig config = new ColumnConfig()
+    {
+        Title = new AntDesign.Charts.Title()
+        {
+            Visible = false,
+            Text = "Grafica de Consumo por Valor",
+        },
+        Description = new Description()
+        {
+            Visible = false,
+            Text = "Proyecciones de ventas por el valor de cada articulo consumido。",
+        },
+        Padding = "auto",
+        ForceFit = true,
+        XField = "articulo",
+        YField = "valor"
+    };
+
+}

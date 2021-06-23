@@ -1,0 +1,143 @@
+﻿<style>
+    #components-layout-demo-side .logo {
+        height: 32px;
+        background: rgba(255, 255, 255, 0.2);
+        margin: 16px;
+    }
+
+    .site-layout .site-layout-background {
+        background: #fff;
+    }
+</style>
+
+<Sider Style="overflow: auto;height: 100vh;position: fixed;left: 0;" Breakpoint="@BreakpointType.Lg" Collapsible Collapsed=@collapsed OnCollapse=@onCollapse>
+    <div class="logo">
+        <img src="assets/CE_AcerosSA_Logo.jpg" width="165px" height="120px" class="m-3">
+    </div>
+    <br />
+    <br />
+    <Menu Theme="MenuTheme.Dark" DefaultSelectedKeys=@(new[]{"1"}) Mode="MenuMode.Inline">
+        <MenuItem Key="1">
+            <Icon Type="home" Theme="outline" />
+            <NavLink href="/home">Inicio</NavLink>
+        </MenuItem>
+        @{
+            RenderFragment Configuración =
+            @<span>
+                <Icon Type="audit" Theme="outline" />
+                <span>Configuración</span>
+            </span>;
+        }
+        <SubMenu Key="sub2" TitleTemplate=Configuración>
+            <MenuItem Key="12">
+                <NavLink href="/ListaUbicacion">Ubicación</NavLink>
+            </MenuItem>
+            <MenuItem Key="13">
+                <NavLink href="/ListaAlmacenes">Almacen</NavLink>
+            </MenuItem>
+            <MenuItem Key="14">
+                <NavLink href="/ListaUnidad">Unidad</NavLink>
+            </MenuItem>
+        </SubMenu>
+        @{
+            RenderFragment tituloArticulos =
+            @<span>
+                <Icon Type="barcode" Theme="outline" />
+                <span>Articulos</span>
+            </span>;
+        }
+        <SubMenu Key="articulos" TitleTemplate=tituloArticulos>
+            <MenuItem Key="9">
+                <Icon Type="audit" Theme="outline" />
+                <NavLink href="/nuevo-articulo">
+                    Nuevo Articulo
+                </NavLink>
+            </MenuItem>
+            <MenuItem Key="10">
+                <Icon Type="audit" Theme="outline" />
+                <NavLink href="/listado-articulos">
+                    Listado
+                </NavLink>
+            </MenuItem>
+        </SubMenu>
+        @{
+            RenderFragment tituloMovimientos =
+            @<span>
+                <Icon Type="audit" Theme="outline" />
+                <span>Movimientos</span>
+            </span>;
+        }
+        <SubMenu Key="movimientos" TitleTemplate=tituloMovimientos>
+            <MenuItem Key="3">
+                <Icon Type="audit" Theme="outline" />
+                <NavLink href="/capturar-facturas">
+                    Entradas
+                </NavLink>
+            </MenuItem>
+            <MenuItem Key="15">
+                <Icon Type="audit" Theme="outline" />
+                <NavLink href="/listado-entradas">
+                    Lista Facturas
+                </NavLink>
+            </MenuItem>
+            <MenuItem Key="17">
+                <Icon Type="snippets" Theme="outline" />
+                <NavLink href="/requisiciones">
+                    Requisiciones
+                </NavLink>
+            </MenuItem>
+            <MenuItem Key="16">
+                <Icon Type="snippets" Theme="outline" />
+                <NavLink href="/listado-requisiciones">
+                    Cancelación
+                </NavLink>
+            </MenuItem>
+        </SubMenu>
+        @{
+            RenderFragment tituloReportes =
+            @<span>
+                <Icon Type="database" Theme="outline" />
+                <span>Reportes</span>
+            </span>;
+        }
+        <SubMenu Key="reportes" TitleTemplate=tituloReportes>
+            <MenuItem Key="5">
+                <NavLink href="/puntoReorden">Punto de Reorden</NavLink>
+            </MenuItem>
+            <MenuItem Key="6">
+                <NavLink href="/existenAlmacen">Existencia en Almacen</NavLink>
+            </MenuItem>
+        </SubMenu>
+        @{
+            RenderFragment tituloGraficas =
+            @<span>
+                <Icon Type="area-chart" Theme="outline" />
+                <span>Graficas</span>
+            </span>;
+        }
+        <SubMenu Key="graficas" TitleTemplate=tituloGraficas>
+            <MenuItem Key="7">
+                <Icon Type="snippets" Theme="outline" />
+                <NavLink href="/grafica-consumo-valor">
+                    Consumo Valor
+                </NavLink>
+            </MenuItem>
+            <MenuItem Key="8">
+                <Icon Type="snippets" Theme="outline" />
+                <NavLink href="/grafica-consumo-unidad">
+                    Consumo Unidad
+                </NavLink>
+            </MenuItem>
+        </SubMenu>
+    </Menu>
+</Sider>
+
+@code {
+    bool collapsed;
+
+    void onCollapse(bool collapsed)
+    {
+        Console.WriteLine(collapsed);
+        this.collapsed = collapsed;
+    }
+}

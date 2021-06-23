@@ -1,0 +1,96 @@
+﻿@page "/puntoReorden"
+@inject IJSRuntime JsRuntime
+
+
+<div class="col-sm-12" style="text-align:center;margin-top:10px;">
+    <h3>Punto de Reorden</h3>
+</div>
+
+<br />
+<div style="text-align:left; width:87%;">
+    <button @onclick="generarReorden" title="Punto de Reorden">Generar Punto de Reorden</button>
+</div>
+
+@if (@bandera)
+{
+    <div style="text-align:right; width:87%;">
+        <button @onclick="generarReorden" title="Imprimir reporte">Imprimir reporte</button>
+    </div>
+    <br />
+    <table class="table">
+        <thead>
+            <tr>
+                <th>clave</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Cantidad en Existencia</th>
+                <th>Unidad Base</th>
+                <th>Existencia máxima</th>
+                <th>Existencia mínima</th>
+                <th>Punto de Reorden</th>
+                <th>Estatus</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th>01-101010</th>
+                <th>Producto 1</th>
+                <th>Caja de tornillos para soportes</th>
+                <th>30</th>
+                <th>Caja</th>
+                <th>20</th>
+                <th>50</th>
+                <th>20</th>
+                <th>Nivel Medio</th>
+            </tr>
+            <tr>
+                <th>02-101010</th>
+                <th>Producto 2</th>
+                <th>Hierro puro</th>
+                <th>130</th>
+                <th>kilo</th>
+                <th>100</th>
+                <th>200</th>
+                <th>70</th>
+                <th>Nivel Medio</th>
+            </tr>
+            <tr>
+                <th>03-101010</th>
+                <th>Producto 3</th>
+                <th>Caja de tornillos para soportes</th>
+                <th>30</th>
+                <th>Caja</th>
+                <th>20</th>
+                <th>50</th>
+                <th>20</th>
+                <th>Nivel Medio</th>
+            </tr>
+        </tbody>
+    </table>
+}
+
+
+
+@code {
+    Boolean bandera = false;
+    private async Task filtrar()
+    {
+        await JsRuntime.InvokeAsync<object>(identifier: "swal", $"Buscando{txtValue}");
+    }
+    public async Task Eliminar()
+    {
+        await JsRuntime.InvokeAsync<object>(identifier: "deleteSwal");
+    }
+    private string txtValue { get; set; }
+
+    private void Handle(string value)
+    {
+        Console.WriteLine(value);
+    }
+    public void generarReorden()
+    {
+        bandera = true;
+    }
+}
+

@@ -1,0 +1,108 @@
+﻿@page "/ListaUnidad"
+@inject IJSRuntime JsRuntime
+
+
+<div class="col-sm-12" style="text-align:center;margin-top:10px;">
+    <h3>Lista de Unidades</h3>
+</div>
+<div>
+    <Row Style="margin-top:10px;">
+        <Col Span="10" Offset="12" style="text-align:center">
+        <label for="personaFiltro" class="col-sm-2 col-form-label">Unidades:</label>
+        <Search OnChange="(e)=>Handle(e)" EnterButton="true" OnSearch="filtrar" @bind-Value="@txtValue" />
+        </Col>
+    </Row>
+</div>
+<br />
+<div style="text-align:right; width:87%;">
+    <a href="/AltaUnidad" title="New Book"><i style="margin-right:5px;">Agregar</i><span class="oi oi-plus"></span></a>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th colspan="2">Acciones</th>
+            <th>Clave</th>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Estatus</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+                <a href="AltaUnidad/1" title="Editar">
+                    <span class="oi oi-pencil"></span>
+                </a>
+            </td>
+            <td>
+                <a title="Eliminar" >
+                    <span class="oi oi-trash"></span>
+                </a>
+            </td>
+            <td>
+                CAJ-UNI-001
+            </td>
+            <td>Caja</td>
+            <td>Caja de carton</td>
+            <td>Activo</td>
+
+        </tr>
+        <tr>
+            <td>
+                <a href="AltaUnidad/2" title="Editar">
+                    <span class="oi oi-pencil"></span>
+                </a>
+            </td>
+            <td>
+                <a title="Eliminar" >
+                    <span class="oi oi-trash"></span>
+                </a>
+            </td>
+            <td>
+                PZA-UNI-002
+            </td>
+            <td>Pieza</td>
+            <td>Piezas individuales</td>
+            <td>Activo</td>
+
+        </tr>
+        <tr>
+            <td>
+                <a href="AltaUnidad/3" title="Editar">
+                    <span class="oi oi-pencil"></span>
+                </a>
+            </td>
+            <td>
+                <a title="Eliminar" >
+                    <span class="oi oi-trash"></span>
+                </a>
+            </td>
+            <td>
+                FRA-UNI-001
+            </td>
+            <td>Botella</td>
+            <td>Botella de plastico</td>
+            <td>Activo</td>
+
+        </tr>
+    </tbody>
+</table>
+
+
+@code {
+    private async Task filtrar()
+    {
+        await JsRuntime.InvokeAsync<object>(identifier: "swal", $"Buscando{txtValue}");
+    }
+    public async Task Eliminar()
+    {
+        await JsRuntime.InvokeAsync<object>(identifier: "deleteSwal");
+    }
+    private string txtValue { get; set; }
+
+    private void Handle(string value)
+    {
+        Console.WriteLine(value);
+    }
+}

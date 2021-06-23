@@ -1,0 +1,94 @@
+﻿@page "/existenAlmacen"
+@inject IJSRuntime JsRuntime
+
+
+<div class="col-sm-12" style="text-align:center;margin-top:10px;">
+    <h3>Reporte de Existencias en Almacen.</h3>
+</div>
+<div class=" row col-12">
+    <div class="col-6">
+        
+        <label for="personaFiltro" class="col-sm-4 col-form-label">Busqueda por</label>
+        <select class="form-control" aria-label="Default select example">
+            <option value="0" selected>clave</option>
+            <option value="1"> Nombre </option>
+            <option value="2"> Unidad Base </option>
+        </select>
+    </div>
+    <div class="col-6">
+        <label for="personaFiltro" class="col-sm-2 col-form-label">Productos</label>
+        <Search OnChange="(e)=>Handle(e)" EnterButton="true" OnSearch="filtrar" @bind-Value="@txtValue" />
+      
+    </div>
+
+</div>
+<div style="text-align:right; width:87%;">
+    <button  title="Imprimir reporte">Imprimir reporte</button>
+</div>
+<br />
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>clave</th>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Cantidad en Existencia</th>
+            <th>Unidad Base</th>
+            <th>Existencia máxima</th>
+            <th>Existencia mínima</th>
+            <th>Estatus</th>
+
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <th>01-101010</th>
+            <th>Producto 1</th>
+            <th>Caja de tornillos para soportes</th>
+            <th>30</th>
+            <th>Caja</th>
+            <th>20</th>
+            <th>50</th>
+            <th>bajo</th>
+        </tr>
+        <tr>
+            <th>02-101010</th>
+            <th>Producto 2</th>
+            <th>Hierro puro</th>
+            <th>130</th>
+            <th>kilo</th>
+            <th>100</th>
+            <th>200</th>
+            <th>Medio</th>
+        </tr>
+        <tr>
+            <th>03-101010</th>
+            <th>Producto 3</th>
+            <th>Caja de tornillos para soportes</th>
+            <th>30</th>
+            <th>Caja</th>
+            <th>20</th>
+            <th>50</th>
+            <th>Medio</th>
+        </tr>
+    </tbody>
+</table>
+
+
+@code {
+    private async Task filtrar()
+    {
+        await JsRuntime.InvokeAsync<object>(identifier: "swal", $"Buscando{txtValue}");
+    }
+    public async Task Eliminar()
+    {
+        await JsRuntime.InvokeAsync<object>(identifier: "deleteSwal");
+    }
+    private string txtValue { get; set; }
+
+    private void Handle(string value)
+    {
+        Console.WriteLine(value);
+    }
+}

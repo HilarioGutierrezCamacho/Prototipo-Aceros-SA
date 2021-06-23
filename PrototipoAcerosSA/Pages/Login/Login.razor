@@ -1,0 +1,98 @@
+﻿@layout LoginLayout
+@page "/"
+@inject IJSRuntime JsRuntime
+@inject NavigationManager NavigationManager
+@using PrototipoAcerosSA.Models
+@using PrototipoAcerosSA.Data
+
+<div class="container">
+    <div class="d-flex justify-content-center h-75" style="border-radius: 10px; padding: 50px; background-color: #56baed;">
+        <div class="card" style="width: 25rem;  margin-top: 50px;">
+            <div class="card-header d-flex justify-content-center">
+                <div class="fadeIn first">
+                    <img src="/assets/CE_AcerosSA_Logo.jpg" id="icon" alt="User Icon" width="120px" height="120px">
+                </div>
+            </div>
+            <div class="card-body">
+                <EditForm Model="@LoginForm" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="@HandleInvalidSubmit">
+                    <div class="input-group form-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text oi oi-person text-center"><i class="fas fa-user"></i></span>
+                        </div>
+                        <input type="text" class="form-control" placeholder="Usuario" @bind-value="@LoginForm.ClaveUsuario">
+                    </div>
+                    <div class="input-group form-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text oi oi-key text-center"></span>
+                        </div>
+                        <input type="password" class="form-control" placeholder="Contraseña" @bind-value="@LoginForm.Password">
+                    </div>
+                    <div class="form-group row">
+                        @if (MostrarMensaje)
+                        {
+                            <Alert Type="@AlertType.Error"
+                                   Description="@MensajeValidacion"
+                                   Closable OnClose="CerrarModal" Style="width: 100%" />
+                        }
+                    </div>
+                    <br />
+                    <Button class="w-100" Type="@ButtonType.Primary" HtmlType="submit">
+                        Iniciar Sesión
+                    </Button>
+                    <div class="form-group d-flex justify-content-center">
+                        <a href="recuperarContrasena">¿Olvidó su contraseña?</a>
+                    </div>
+                    <div class="form-group d-flex justify-content-center">
+                        <a href="generar_c">¡Registrate!</a>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    [Inject]
+    private IEmpleadosService EmpleadosService { get; set; }
+
+    public DateTime? DropVal { get; set; } = DateTime.Now;
+
+    public LoginForm LoginForm { get; set; } = new LoginForm();
+
+    public string MensajeValidacion { get; set; } = "";
+    public bool MostrarMensaje { get; set; } = false;
+
+    protected async Task HandleValidSubmit()
+    {
+        Empleado empleado = await EmpleadosService.Login(LoginForm.ClaveUsuario, LoginForm.Password);
+        if (empleado != null)
+        {
+            NavigationManager.NavigateTo("/home");
+        } else
+        {
+            MostrarMensaje = true;
+            MensajeValidacion = "Usuario y/o Password Incorrectos.";
+        }
+    }
+
+    protected void HandleInvalidSubmit()
+    {
+        if (LoginForm.ClaveUsuario == "")
+        {
+            MostrarMensaje = true;
+            MensajeValidacion = "Clave de Usuario Requerida.";
+        } else if (LoginForm.Password == "")
+        {
+            MostrarMensaje = true;
+            MensajeValidacion = "Password Requerido.";
+        }
+    }
+
+    private void CerrarModal()
+    {
+        MostrarMensaje = false;
+        MensajeValidacion = "";
+    }
+
+}

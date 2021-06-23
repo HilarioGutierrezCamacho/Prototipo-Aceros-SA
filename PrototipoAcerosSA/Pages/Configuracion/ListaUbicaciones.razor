@@ -1,0 +1,80 @@
+﻿@page "/ListaUbicacion"
+@inject IJSRuntime JsRuntime
+
+
+<div class="col-sm-12" style="text-align:center;margin-top:10px;">
+    <h3>Lista de Ubicaciones</h3>
+</div>
+<div>
+    <Row Style="margin-top:10px;">
+        <Col Span="10" Offset="12" style="text-align:center">
+        <label for="personaFiltro" class="col-sm-2 col-form-label">Ubicaciones:</label>
+        <Search OnChange="(e)=>Handle(e)" EnterButton="true" OnSearch="filtrar" @bind-Value="@txtValue" />
+        </Col>
+    </Row>
+</div>
+<br />
+<div style="text-align:right; width:87%;">
+    <a href="/AltaUbicacion" title="New Book"><i style="margin-right:5px;">Agregar</i><span class="oi oi-plus"></span></a>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th colspan="2">Acciones</th>
+            <th>Clave</th>
+            <th>Nombre</th>
+            <th>No. de secciones</th>
+            <th>Ancho(metros)</th>
+            <th>largo(metros)</th>
+            <th>Alto(metros)</th>
+            <th>Pasillo</th>
+            <th>Estatus</th>
+            <th>Descripción</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+                <a href="AltaAlmacen/1" title="Editar">
+                    <span class="oi oi-pencil"></span>
+                </a>
+            </td>
+            <td>
+                <a title="Eliminar" @onclick="Eliminar">
+                    <span class="oi oi-trash"></span>
+                </a>
+            </td>
+            <td>
+                UBI-MV-001
+            </td>
+            <td>Estante 1</td>
+            <td>4</td>
+            <td>50 m</td>
+            <td>100 m</td>
+            <td>30 m</td>
+            <td>1</td>
+            <td>Activo</td>
+            <td>Almacen para el guardado de MV</td>
+
+        </tr>
+    </tbody>
+</table>
+
+
+@code {
+    private async Task filtrar()
+    {
+        await JsRuntime.InvokeAsync<object>(identifier: "swal", $"Buscando{txtValue}");
+    }
+    public async Task Eliminar()
+    {
+        await JsRuntime.InvokeAsync<object>(identifier: "deleteSwal");
+    }
+    private string txtValue { get; set; }
+
+    private void Handle(string value)
+    {
+        Console.WriteLine(value);
+    }
+}

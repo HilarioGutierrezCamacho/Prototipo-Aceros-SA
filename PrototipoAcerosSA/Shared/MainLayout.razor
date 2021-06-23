@@ -1,0 +1,42 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
+
+<div class="main">
+    <Layout Style="min-height: 100vh; ">
+        <NavMenu />
+        <Layout Class="site-layout" Style=" margin-left: 200px">
+            <Header Style=" padding: 0 ; text-align: right; position: fixed; z-index: 1; width: 85vw;">
+                <div>
+                    <label style="color: white;">Usuario</label>
+                    <Avatar Shape="square" Icon="user" />
+                    <Button Size="small" Type="link" OnClick='()=> { NavigationManager.NavigateTo("/");}'>
+                        Cerrar Sesión
+                    </Button>
+                </div>
+            </Header>
+            <Content Style="padding: 0 50px; margin-top: 64px; overflow: initial; ">
+                <div class="site-layout-background" style="padding: 24px;">
+                    @Body
+                </div>
+            </Content>
+        </Layout>
+    </Layout>
+
+</div>
+
+@code
+{
+
+    private static string[] userList = { "Nidia", "Wendy", "Giselle", "Adan", "Erik" };
+    private static string[] colorList = { "#f56a00", "#7265e6", "#ffbf00", "#00a2ae", "#d01f00" };
+
+    private string user { get; set; } = userList[0];
+    private string color { get; set; } = colorList[0];
+
+    private void changeUser()
+    {
+        var index = Array.IndexOf(userList, user);
+        user = index < userList.Length - 1 ? userList[index + 1] : userList[0];
+        color = index < colorList.Length - 1 ? colorList[index + 1] : colorList[0];
+    }
+}
