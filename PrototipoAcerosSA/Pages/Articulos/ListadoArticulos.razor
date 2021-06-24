@@ -3,6 +3,9 @@
 @using AntDesign.TableModels
 @using PrototipoAcerosSA.Data
 @using PrototipoAcerosSA.Models
+@inject MessageService _message
+@inject ConfirmService _confirmService
+@inject ModalService _modalService
 @inject NavigationManager UriHelper
 
 
@@ -64,10 +67,12 @@
     <AntDesign.Column @bind-Field="@articulo.Marca" Sortable />
     <AntDesign.Column @bind-Field="@articulo.Almacen" Sortable />
     <AntDesign.Column @bind-Field="@articulo.Ubicacion" Sortable />
-    <AntDesign.Column @bind-Field="@articulo.Unidad" Sortable />
+    <AntDesign.Column Title="Unidad" @bind-Field="@articulo.Unidad">
+        <label>@articulo.Unidad.Descripcion</label>
+    </AntDesign.Column>
     <AntDesign.Column @bind-Field="@articulo.PrecioUnitario" Sortable />
     <ActionColumn Title="Acciones">
-        <Button Icon="delete" Danger>
+        <Button Icon="delete" Danger OnClick="() => EliminarArticulo(articulo.IdArticulo)">
             Eliminar
         </Button>
         <Button Icon="edit" Type="primary" OnClick="() => NavegarEditarArticulo(articulo.IdArticulo)">
@@ -84,9 +89,9 @@
     [Inject]
     private IArticuloService articuloService { get; set; }
 
-    List<Articulo> articulos = new List<Articulo>();
-    List<Articulo> todos = new List<Articulo>();
-    List<Articulo> articulosFiltrados = new List<Articulo>();
+    List<Articulo> articulos { get; set; } = new List<Articulo>();
+    List<Articulo> todos { get; set; } = new List<Articulo>();
+    List<Articulo> articulosFiltrados { get; set; } = new List<Articulo>();
 
     ITable table;
     int _pageIndex = 1;
@@ -96,11 +101,18 @@
     string buscar_por = "Clave";
     string filtro = "";
 
+    public string title = "Cancelar Ingreso de Articulo";
+    public bool _visible = false;
+    public string TextoSalir = "Salir";
+    public string TextoCerrar = "Cerrar";
+
+    RenderFragment icon = @<Icon Type="exclamation-circle" Theme="outline"></Icon>;
+
+    RenderFragment BotonSi = @<label>Si</label>;
+    RenderFragment BotonNo = @<label>No</label>;
+
     protected override async Task OnInitializedAsync()
     {
-        //articulos.Add(new Articulo() { IdArticulo = 1, Clave = "ART001", Descripcion = "Acero", Marca = "TRUPER", Almacen = "MP", Ubicacion = "PB", Unidad = "Pieza", PrecioUnitario = 50.50 });
-        //articulos.Add(new Articulo() { IdArticulo = 2, Clave = "ART002", Descripcion = "Libreta", Marca = "Patito", Almacen = "VA", Ubicacion = "PB", Unidad = "Pieza", PrecioUnitario = 10.50 });
-        //articulos.Add(new Articulo() { IdArticulo = 3, Clave = "ART003", Descripcion = "Tornillos", Marca = "TRUPER", Almacen = "RF", Ubicacion = "PB", Unidad = "Caja", PrecioUnitario = 25.75 });
         articulos = await articuloService.GetTodosArticulos();
         _total = articulos.Count();
         todos = articulos;
@@ -134,6 +146,44 @@
         {
             articulos = todos;
         }
+    }
+
+    public async Task EliminarArticulo(int IdArticulo)
+    {
+        var content = "Deseas eliminar este articulo?";
+        var title = "Eliminar";
+        var confirmResult =
+            await _confirmService.Show(
+                content,
+                title,
+                ConfirmButtons.YesNo,
+                ConfirmIcon.Warning,
+                new ConfirmButtonOptions()
+                {
+                    Button1Props = new AntDesign.ButtonProps()
+                    {
+                        Type = AntDesign.ButtonType.Primary,
+                        ChildContent = BotonSi
+                    },
+                    Button2Props = new AntDesign.ButtonProps()
+                    {
+                        ChildContent = BotonNo
+                    }
+                }
+            );
+
+        if (confirmResult == AntDesign.ConfirmResult.Yes)
+        {
+            await articuloService.EliminarArticulo(IdArticulo);
+            await _modalService.SuccessAsync(new ConfirmOptions()
+            {
+                Content = "Eliminación Exitosa."
+            });
+            articulos = await articuloService.GetTodosArticulos();
+            _total = articulos.Count();
+            todos = articulos;
+        }
+
     }
 
     public void NavegarEditarArticulo(int IdArticulo)

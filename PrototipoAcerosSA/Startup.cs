@@ -31,7 +31,6 @@ namespace PrototipoAcerosSA
             services.AddAntDesign();
             services.AddServerSideBlazor();
             services.AddSingleton<WeatherForecastService>();
-            services.AddSweetAlert2();
 
             services.AddScoped<IArticuloService, ArticuloService>();
             services.AddScoped<IProveedorService, ProveedorService>();
