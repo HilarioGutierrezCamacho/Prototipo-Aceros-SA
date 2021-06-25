@@ -1,101 +1,227 @@
-﻿@page "/AltaUbicacion"
-@page "/AltaUbicacion/{id:int}"
-@inject IJSRuntime JsRuntime
-@inject NavigationManager NavigationManager
+﻿@page "/nueva-ubicacion"
+@page "/editar-ubicacion/{IdUbicacion}"
 
-<div class="rounded w-75 bg-light mx-auto" style="margin:15px;">
-    <h3 class="text-center">Alta de Ubicación</h3>
-    <div class="row">
-        <div class="col-md-1"></div>
-        <div class="col-md-10">
-            <table class="table">
-                <tbody>
+@using System.Text.RegularExpressions
+@using PrototipoAcerosSA.Data
+@inject NavigationManager UriHelper
 
-                    <tr>
-                        <td colspan="4">
-                            <input type="text" class="form-control" placeholder="Clave" aria-label="Id_historia">
-                        </td>
-                        <td colspan="8">
-                            <input type="text" class="form-control" placeholder="Nombre" aria-label="Id_historia">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="4">
-                            <input type="number" class="form-control" placeholder="Alto" aria-label="Id_historia"><label>metros</label>
-                        </td>
-                        <td colspan="4">
-                            <input type="number" class="form-control" placeholder="Ancho" aria-label="Id_historia"><label>metros</label>
-                        </td>
-                        <td colspan="4">
-                            <input type="number" class="form-control" placeholder="Largo" aria-label=""><label>metros</label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="4">
-                            <input type="number" class="form-control" placeholder="Pasillo" aria-label="pasillo"><label></label>
-                        </td>
-                        <td colspan="4">
-                            <input type="number" class="form-control" placeholder="No. de secciones" aria-label="Id_historia"><label></label>
-                        </td>
-                        <td colspan="4">
-                            <select class="form-control" aria-label="Default select example">
-                                <option selected>Estatus</option>
-                                <option value="1"> Activo </option>
-                                <option value="2"> Inactivo </option>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="12">
-                            <textarea class="form-control" placeholder="Descripción" />
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="col-sm-11" style="text-align:right;">
-            <Button Type="primary" @onclick="savedMessage">@saveValue</Button>
-            <Button Type="default" @onclick="cancel" Danger>Cancelar</Button>
-        </div>
+<style>
+    .about-section {
+        padding: 20px;
+        text-align: center;
+        background-color: #474e5d;
+        color: white;
+        width: 100%;
+    }
+</style>
+
+<div class="about-section">
+    <h3 style="color: white;">@Titulo</h3>
+</div>
+
+<br />
+<div style="background-color: #ffffff; padding: 20px;">
+    <div style="background: #ffffff; padding: 20px; border-radius: 5px; width: 100%;">
+        <Form Model="@FormUbicacion">
+            <Card Bordered="true" Style="align-self: center;">
+                <Body>
+                    <Row Gutter="24">
+                        <Col Span="8">
+                        <FormItem Label="Clave:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
+                            <Input @bind-Value="@FormUbicacion.Clave" style="margin: 2px;" />
+                        </FormItem>
+                        </Col>
+                        <Col Span="16">
+                        <FormItem Label="Nombre:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
+                            <Input @bind-Value="@FormUbicacion.Nombre" style="margin: 2px;" />
+                        </FormItem>
+                        </Col>
+                    </Row>
+                    <Row Gutter="24">
+                        <Col Span="12">
+                        <FormItem Label="Número de secciones:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
+                            <Input @bind-Value="@FormUbicacion.NumeroSecciones" style="margin: 2px;" />
+                        </FormItem>
+                        </Col>
+                        <Col Span="112">
+                        <FormItem Label="Número de pasillo:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
+                            <Input @bind-Value="@FormUbicacion.NumeroPasillo" style="margin: 2px;" />
+                        </FormItem>
+                        </Col>
+                    </Row>
+                    <Row Gutter="24">
+                        <Col Span="8">
+                        <FormItem Label="Alto:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
+                            <Input @bind-Value="@FormUbicacion.Alto" style="margin: 2px;" />
+                        </FormItem>
+                        </Col>
+                        <Col Span="8">
+                        <FormItem Label="Largo:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
+                            <Input @bind-Value="@FormUbicacion.Largo" style="margin: 2px;" />
+                        </FormItem>
+                        </Col>
+                        <Col Span="8">
+                        <FormItem Label="Ancho:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
+                            <Input @bind-Value="@FormUbicacion.Ancho" style="margin: 2px;" />
+                        </FormItem>
+                        </Col>
+                    </Row>
+                    <Row Gutter="24">
+                        <Col Span="8">
+                        <FormItem Label="Estatus:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
+                            <Select DataSource="@est"
+                                    DefaultValue="@opcion"
+                                    @bind-Value="@FormUbicacion.Estatus"
+                                    ValueName="@nameof(Estatus.Nombre)"
+                                    LabelName="@nameof(Estatus.Nombre)">
+                            </Select>
+                        </FormItem>
+                        </Col>
+                        <Col Span="16">
+                        <FormItem Label="Descripción:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
+                            <Input @bind-Value="@FormUbicacion.Descripcion" style="margin: 2px;" />
+                        </FormItem>
+                        </Col>
+                    </Row>
+
+                </Body>
+                <ActionTemplate>
+                    @if (Titulo == "Nueva Ubicación")
+                    {
+                        <CardAction><Icon Type="file-done" Theme="outline" OnClick="() => AddUbicacion()" /> Guardar</CardAction>
+                    }
+                    else
+                    {
+                        <CardAction><Icon Type="edit" Theme="outline" OnClick="() => UpdateUbicacion()" /> Editar</CardAction>
+                    }
+                    <CardAction Style="color: red;"><Icon Style="color: red;" Type="rollback" Theme="outline" OnClick="() => Cancelar()" /> Cancelar</CardAction>
+                </ActionTemplate>
+            </Card>
+        </Form>
     </div>
 </div>
 
-@code {
-    [Parameter]
-    public int id { get; set; }
+@code { [Inject]
+    private IUbicacionService ubicacionService { get; set; }
 
-    public String saveValue { get; set; }
+    public class Ubicacion
+    {
+        public int IdUbicacion { get; set; }
+        public string Clave { get; set; }
+        public string Nombre { get; set; }
+        public int NumeroSecciones { get; set; }
+        public int NumeroPasillo { get; set; }
+        public int Ancho { get; set; }
+        public int Largo { get; set; }
+        public int Alto { get; set; }
+        public string Estatus { get; set; }
+        public string Descripcion { get; set; }
+    }
+
+    public string opcion = "Seleccione...";
+    public string Titulo = "Nueva Ubicación";
+    public Ubicacion FormUbicacion = new Ubicacion();
+    public List<Ubicacion> ubicaciones = new List<Ubicacion>();
+
+    [Parameter]
+    public string IdUbicacion { get; set; } = "";
+
+    public class Estatus
+    {
+        public int IdEstatus { get; set; }
+        public string Nombre { get; set; }
+    }
+
+    public Estatus estatus = new Estatus();
+    public List<Estatus> est = new List<Estatus>();
 
     protected override async Task OnInitializedAsync()
     {
-        if (id != 0)
+        est.Add(new Estatus() { IdEstatus = 0, Nombre = "Seleccione..." });
+        est.Add(new Estatus() { IdEstatus = 1, Nombre = "Activo" });
+        est.Add(new Estatus() { IdEstatus = 1, Nombre = "Inactivo" });
+
+        try
         {
-            saveValue = "Editar";
+            var valor = int.Parse(IdUbicacion);
+            if (valor > 0)
+            {
+                await ObtenerUbicacion();
+                Titulo = "Editar Ubicación";
+            }
+        }
+        catch (Exception)
+        {
+
+        }
+
+
+
+    }
+
+    public async Task AddUbicacion()
+    {
+        await ubicacionService.AddUbicacion(
+            FormUbicacion.Clave,
+            FormUbicacion.Nombre,
+            FormUbicacion.NumeroSecciones,
+            FormUbicacion.NumeroPasillo,
+            FormUbicacion.Alto,
+            FormUbicacion.Ancho,
+            FormUbicacion.Largo,
+            FormUbicacion.Estatus,
+            FormUbicacion.Descripcion);
+        var arts = await ubicacionService.GetTodosUbicacion();
+        UriHelper.NavigateTo($"listado-ubicaciones");
+    }
+
+    public async Task ObtenerUbicacion()
+    {
+        var valor = int.Parse(IdUbicacion);
+        var dto = await ubicacionService.GetUbicacionById(valor);
+        FormUbicacion.IdUbicacion = dto.IdUbicacion;
+        FormUbicacion.Clave = dto.Clave;
+        FormUbicacion.Nombre = dto.Nombre;
+        FormUbicacion.NumeroSecciones = dto.NumeroSecciones;
+        FormUbicacion.NumeroPasillo = dto.NumeroPasillo;
+        FormUbicacion.Alto = dto.Alto;
+        FormUbicacion.Ancho = dto.Ancho;
+        FormUbicacion.Largo = dto.Largo;
+        FormUbicacion.Estatus = dto.Estatus;
+        FormUbicacion.Descripcion = dto.Descripcion;
+        if (dto.Estatus == "Activo")
+        {
+            opcion = "Activo";
         }
         else
         {
-            saveValue = "Guardar";
+            opcion = "Inactivo";
         }
+        ubicaciones.Add(new Ubicacion() { IdUbicacion = dto.IdUbicacion, Clave = dto.Clave, Nombre = dto.Nombre, NumeroSecciones = dto.NumeroSecciones, NumeroPasillo = dto.NumeroPasillo, Alto = dto.Alto, Ancho = dto.Ancho, Largo = dto.Largo, Estatus = dto.Estatus, Descripcion = dto.Descripcion });
+
     }
 
-    public async Task savedMessage()
+    public async Task UpdateUbicacion()
     {
-        //if (id != 0)
-          //  await JsRuntime.InvokeAsync<object>(identifier: "swal", "Editar", "Almacen Editado correctamente");
-        //else
-          //  await JsRuntime.InvokeAsync<object>(identifier: "swal", "Guardar", "Nuevo Almacen Guardado correctamente");
+        //await almacenService.EditarAlmacen(FormAlmacen);
+        await ubicacionService.UpdateAlmacen(
+            FormUbicacion.IdUbicacion,
+            FormUbicacion.Clave,
+            FormUbicacion.Nombre,
+            FormUbicacion.NumeroSecciones,
+            FormUbicacion.NumeroPasillo,
+            FormUbicacion.Alto,
+            FormUbicacion.Ancho,
+            FormUbicacion.Largo,
+            FormUbicacion.Estatus,
+            FormUbicacion.Descripcion);
+        var arts = await ubicacionService.GetTodosUbicacion();
+        UriHelper.NavigateTo($"listado-ubicaciones");
+    }
+    public async Task Cancelar()
+    {
+        var arts = await ubicacionService.GetTodosUbicacion();
+        UriHelper.NavigateTo($"listado-ubicaciones");
+    }
 
-        NavigationManager.NavigateTo("/ListaUbicacion");
-    }
-    public async Task newCaso()
-    {
-        //var res = await JsRuntime.InvokeAsync<object>(identifier: "swal", "Nuevo", "Nuevo Caso de Uso agregado!");
-    }
-
-    public async Task cancel()
-    {
-        //await JsRuntime.InvokeAsync<object>(identifier: "swal", "Cancelar", "Usted cancelo la acción");
-        NavigationManager.NavigateTo("/ListaUbicacion");
-    }
 }
-

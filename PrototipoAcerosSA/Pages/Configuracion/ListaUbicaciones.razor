@@ -1,80 +1,161 @@
-﻿@page "/ListaUbicacion"
-@inject IJSRuntime JsRuntime
+﻿@page "/listado-ubicaciones"
+@using System.ComponentModel
+@using AntDesign.TableModels
+@using PrototipoAcerosSA.Data
+@using PrototipoAcerosSA.Models
+@inject NavigationManager UriHelper
 
 
-<div class="col-sm-12" style="text-align:center;margin-top:10px;">
-    <h3>Lista de Ubicaciones</h3>
+<style>
+    .about-section {
+        padding: 20px;
+        text-align: center;
+        background-color: #474e5d;
+        color: white;
+        width: 100%;
+    }
+</style>
+
+<div class="about-section">
+    <h3 style="color: white;">Consulta de Ubicaciones</h3>
 </div>
-<div>
-    <Row Style="margin-top:10px;">
-        <Col Span="10" Offset="12" style="text-align:center">
-        <label for="personaFiltro" class="col-sm-2 col-form-label">Ubicaciones:</label>
-        <Search OnChange="(e)=>Handle(e)" EnterButton="true" OnSearch="filtrar" @bind-Value="@txtValue" />
-        </Col>
-    </Row>
-</div>
+
 <br />
-<div style="text-align:right; width:87%;">
-    <a href="/AltaUbicacion" title="New Book"><i style="margin-right:5px;">Agregar</i><span class="oi oi-plus"></span></a>
-</div>
+<br />
 
-<table class="table">
-    <thead>
-        <tr>
-            <th colspan="2">Acciones</th>
-            <th>Clave</th>
-            <th>Nombre</th>
-            <th>No. de secciones</th>
-            <th>Ancho(metros)</th>
-            <th>largo(metros)</th>
-            <th>Alto(metros)</th>
-            <th>Pasillo</th>
-            <th>Estatus</th>
-            <th>Descripción</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>
-                <a href="AltaAlmacen/1" title="Editar">
-                    <span class="oi oi-pencil"></span>
-                </a>
-            </td>
-            <td>
-                <a title="Eliminar" @onclick="Eliminar">
-                    <span class="oi oi-trash"></span>
-                </a>
-            </td>
-            <td>
-                UBI-MV-001
-            </td>
-            <td>Estante 1</td>
-            <td>4</td>
-            <td>50 m</td>
-            <td>100 m</td>
-            <td>30 m</td>
-            <td>1</td>
-            <td>Activo</td>
-            <td>Almacen para el guardado de MV</td>
+<Row Gutter="8">
+    <Col Span="2">
+    <label style="margin: 1px;">Buscar por:</label>
+    </Col>
+    <Col Span="3">
+    <Select @bind-Value="@buscar_por"
+            Style="width: 120px; margin: 1px;"
+            TItemValue="string"
+            TItem="string">
+        <SelectOptions>
+            <SelectOption TItemValue="string" TItem="string" Value="@("Clave")" Label="Clave" />
+            <SelectOption TItemValue="string" TItem="string" Value="@("Nombre")" Label="Nombre" />
+        </SelectOptions>
+    </Select>
+    </Col>
+    <Col Span="5">
+    <Search Style="margin: 1px;" Placeholder="Introduce tu búsqueda..." Size="@InputSize.Default" @bind-Value="@filtro" OnSearch="FiltrarUbicaciones" />
+    </Col>
+</Row>
 
-        </tr>
-    </tbody>
-</table>
+<hr />
 
+<Button Icon="form" Type="primary" OnClick="() => NavegarNuevaUbicacion()">
+    Agregar Nueva Ubicación
+</Button>
+
+<br />
+<br />
+
+<Table @ref="table"
+       TItem="Ubicacion"
+       DataSource="@ubicaciones"
+       Total="_total"
+       @bind-PageIndex="_pageIndex"
+       @bind-PageSize="_pageSize"
+       Context="ubicacion">
+    <!--<AntDesign.Column Title="Id" @bind-Field="@ubicacion.IdUbicacion" Sortable />-->
+    <AntDesign.Column @bind-Field="@ubicacion.Clave" Sortable />
+    <AntDesign.Column @bind-Field="@ubicacion.Nombre" Sortable />
+    <AntDesign.Column Title="No. Secciones" @bind-Field="@ubicacion.NumeroSecciones" Sortable />
+    <AntDesign.Column Title="No. Pasillo" @bind-Field="@ubicacion.NumeroPasillo" Sortable />
+    <AntDesign.Column @bind-Field="@ubicacion.Alto" Sortable />
+    <AntDesign.Column @bind-Field="@ubicacion.Ancho" Sortable />
+    <AntDesign.Column @bind-Field="@ubicacion.Largo" Sortable />
+    <AntDesign.Column @bind-Field="@ubicacion.Estatus" Sortable />
+    <AntDesign.Column @bind-Field="@ubicacion.Descripcion" Sortable />
+    <ActionColumn Title="Acciones">
+        <Button Icon="delete" Danger OnClick="() => QuitarFilaDetalle(ubicacion)">
+            Eliminar
+        </Button>
+        <Button Icon="edit" Type="primary" OnClick="() => NavegarEditarUbicacion(ubicacion.IdUbicacion)">
+            Editar
+        </Button>
+    </ActionColumn>
+</Table>
+
+<br />
+<p>Pagina Actual: @_pageIndex | Ubicaciones por Página: @_pageSize | Total: @_total</p>
 
 @code {
-    private async Task filtrar()
-    {
-        await JsRuntime.InvokeAsync<object>(identifier: "swal", $"Buscando{txtValue}");
-    }
-    public async Task Eliminar()
-    {
-        await JsRuntime.InvokeAsync<object>(identifier: "deleteSwal");
-    }
-    private string txtValue { get; set; }
 
-    private void Handle(string value)
+    [Inject]
+    private IUbicacionService ubicacionService { get; set; }
+
+    List<Ubicacion> ubicaciones = new List<Ubicacion>();
+    List<Ubicacion> todos = new List<Ubicacion>();
+    List<Ubicacion> ubicacionFiltrados = new List<Ubicacion>();
+
+    ITable table;
+    int _pageIndex = 1;
+    int _pageSize = 5;
+    int _total = 0;
+
+    string buscar_por = "Clave";
+    string filtro = "";
+
+    protected override async Task OnInitializedAsync()
     {
-        Console.WriteLine(value);
+        ubicaciones = await ubicacionService.GetTodosUbicacion();
+        _total = ubicaciones.Count();
+        todos = ubicaciones;
     }
+
+    public void FiltrarUbicaciones()
+    {
+        ubicacionFiltrados = new List<Ubicacion>();
+        if (filtro != null && filtro.Length > 0)
+        {
+            foreach (var ubicacion in ubicaciones)
+            {
+                if (buscar_por == "Clave")
+                {
+                    if (ubicacion.Clave.Contains(filtro.Trim()))
+                    {
+                        ubicacionFiltrados.Add(ubicacion);
+                    }
+                }
+                else
+                {
+                    if (ubicacion.Nombre.Contains(filtro.Trim()))
+                    {
+                        ubicacionFiltrados.Add(ubicacion);
+                    }
+                }
+            }
+            ubicaciones = ubicacionFiltrados;
+        }
+        else
+        {
+            ubicaciones = todos;
+        }
+    }
+
+    public void NavegarEditarUbicacion(int IdUbicacion)
+    {
+        UriHelper.NavigateTo($"editar-ubicacion/{IdUbicacion}");
+    }
+
+    public void NavegarNuevaUbicacion()
+    {
+        UriHelper.NavigateTo($"nueva-ubicacion");
+    }
+
+    public async Task QuitarFilaDetalle(Ubicacion ubicacion)
+    {
+        foreach (var detalle in ubicaciones)
+        {
+            if (detalle.IdUbicacion == ubicacion.IdUbicacion)
+            {
+                ubicaciones.Remove(detalle);
+                break;
+            }
+        }
+    }
+
 }

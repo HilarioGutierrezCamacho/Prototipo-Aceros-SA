@@ -59,7 +59,7 @@
        @bind-PageIndex="_pageIndex"
        @bind-PageSize="_pageSize"
        Context="almacen">
-    <AntDesign.Column Title="Id" @bind-Field="@almacen.IdAlmacen" Sortable />
+    <!--<AntDesign.Column Title="Id" @bind-Field="@almacen.IdAlmacen" Sortable />-->
     <AntDesign.Column @bind-Field="@almacen.Clave" Sortable />
     <AntDesign.Column @bind-Field="@almacen.Nombre" Sortable />
     <AntDesign.Column @bind-Field="@almacen.Alto" Sortable />
@@ -78,7 +78,7 @@
 </Table>
 
 <br />
-<p>Pagina Actual: @_pageIndex | Articulos por Página: @_pageSize | Total: @_total</p>
+<p>Pagina Actual: @_pageIndex | Almacenes por Página: @_pageSize | Total: @_total</p>
 
 @code {
 
