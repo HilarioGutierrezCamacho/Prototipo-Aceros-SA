@@ -8,6 +8,7 @@ namespace PrototipoAcerosSA.Data
     {
         Task<Almacenn> AddAlmacen(string clave, string nombre, int alto, int ancho, int largo, string estatus, string descripcion);
         Task<Almacenn> AddAlmacenModelo(Almacenn datos);
+        Task<Almacenn> EditarAlmacen(Almacenn almacen);
         Task<Almacenn> GetAlmacenByClave(string Clave);
         Task<Almacenn> GetAlmacenById(int IdAlmacen);
         Task<List<Almacenn>> GetTodosAlmacenes();

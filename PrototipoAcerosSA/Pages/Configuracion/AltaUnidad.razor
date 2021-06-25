@@ -1,84 +1,189 @@
-﻿@page "/AltaUnidad"
-@page "/AltaUnidad/{id:int}"
-@inject IJSRuntime JsRuntime
-@inject NavigationManager NavigationManager
+﻿@page "/nueva-unidad"
+@page "/editar-unidad/{IdUnidad}"
 
-<div class="rounded w-75 bg-light mx-auto" style="margin:15px;">
-    <h3 class="text-center">Alta de Unidad</h3>
-    <div class="row">
-        <div class="col-md-1"></div>
-        <div class="col-md-10">
-            <table class="table">
-                <tbody>
+@using System.Text.RegularExpressions
+@using PrototipoAcerosSA.Data
+@inject NavigationManager UriHelper
 
-                    <tr>
-                        <td colspan="4">
-                            <input type="text" class="form-control" placeholder="Clave" aria-label="Id_historia">
-                        </td>
-                        <td colspan="8">
-                            <input type="text" class="form-control" placeholder="Nombre" aria-label="Id_historia">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="6">
-                            <select class="form-control" aria-label="Default select example">
-                                <option selected>Estatus</option>
-                                <option value="1"> Activo </option>
-                                <option value="2"> Inactivo </option>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="12">
-                            <textarea class="form-control" placeholder="Descripción" />
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="col-sm-11" style="text-align:right;">
-            <Button Type="primary" @onclick="savedMessage">@saveValue</Button>
-            <Button Type="default" @onclick="cancel" Danger>Cancelar</Button>
-        </div>
+<style>
+    .about-section {
+        padding: 20px;
+        text-align: center;
+        background-color: #474e5d;
+        color: white;
+        width: 100%;
+    }
+</style>
+
+<div class="about-section">
+    <h3 style="color: white;">@Titulo</h3>
+</div>
+
+<br />
+<div style="background-color: #ffffff; padding: 20px;">
+    <div style="background: #ffffff; padding: 20px; border-radius: 5px; width: 100%;">
+        <Form Model="@FormUnidad">
+            <Card Bordered="true" Style="align-self: center;">
+                <Body>
+                    <Row Gutter="24">
+                        <Col Span="8">
+                        <FormItem Label="Clave:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
+                            <Input @bind-Value="@FormUnidad.Clave" style="margin: 2px;" />
+                        </FormItem>
+                        </Col>
+                        <Col Span="16">
+                        <FormItem Label="Nombre:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
+                            <Input @bind-Value="@FormUnidad.Nombre" style="margin: 2px;" />
+                        </FormItem>
+                        </Col>
+                    </Row>
+                    <Row Gutter="24">
+                        <Col Span="8">
+                        <FormItem Label="Estatus:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
+                            <Select DataSource="@est"
+                                    DefaultValue="@opcion"
+                                    @bind-Value="@FormUnidad.Estatus"
+                                    ValueName="@nameof(Estatus.Nombre)"
+                                    LabelName="@nameof(Estatus.Nombre)">
+                            </Select>
+                        </FormItem>
+                        </Col>
+                        <Col Span="16">
+                        <FormItem Label="Descripción:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
+                            <Input @bind-Value="@FormUnidad.Descripcion" style="margin: 2px;" />
+                        </FormItem>
+                        </Col>
+                    </Row>
+
+                </Body>
+                <ActionTemplate>
+                    @if (Titulo == "Nueva Unidad")
+                    {
+                        <CardAction><Icon Type="file-done" Theme="outline" OnClick="() => AddUnidad()" /> Guardar</CardAction>
+                    }
+                    else
+                    {
+                        <CardAction><Icon Type="edit" Theme="outline" OnClick="() => UpdateUnidad()" /> Editar</CardAction>
+                    }
+                    <CardAction Style="color: red;"><Icon Style="color: red;" Type="rollback" Theme="outline" OnClick="() => Cancelar()" /> Cancelar</CardAction>
+                </ActionTemplate>
+            </Card>
+        </Form>
     </div>
 </div>
 
-@code {
-    [Parameter]
-    public int id { get; set; }
+@code { [Inject]
+    private IUnidadService unidadService { get; set; }
 
-    public String saveValue { get; set; }
+    public class Unidad
+    {
+        public int IdUnidad { get; set; }
+        public string Clave { get; set; }
+        public string Nombre { get; set; }
+        public string Descripcion { get; set; }
+        public string Estatus { get; set; }
+    }
+
+    public string opcion = "Seleccione...";
+    public string Titulo = "Nueva Unidad";
+    public Unidad FormUnidad = new Unidad();
+    public List<Unidad> unidades = new List<Unidad>();
+
+    [Parameter]
+    public string IdUnidad { get; set; } = "";
+
+    public class Estatus
+    {
+        public int IdEstatus { get; set; }
+        public string Nombre { get; set; }
+    }
+
+    public Estatus estatus = new Estatus();
+    public List<Estatus> est = new List<Estatus>();
 
     protected override async Task OnInitializedAsync()
     {
-        if (id != 0)
+        est.Add(new Estatus() { IdEstatus = 0, Nombre = "Seleccione.." });
+        est.Add(new Estatus() { IdEstatus = 1, Nombre = "Activo" });
+        est.Add(new Estatus() { IdEstatus = 1, Nombre = "Inactivo" });
+
+        try
         {
-            saveValue = "Editar";
+            var valor = int.Parse(IdUnidad);
+            if (valor > 0)
+            {
+                await ObtenerUnidad();
+                Titulo = "Editar Unidad";
+            }
+        }
+        catch (Exception)
+        {
+
+        }
+
+
+
+    }
+
+
+    private string FormatoPesos(double value)
+    {
+        return "$ " + value.ToString("n0");
+    }
+
+
+    private string ParseoPesos(string value)
+    {
+        return Regex.Replace(value, @"\$\s?|(,*)", "");
+    }
+
+    public async Task AddUnidad()
+    {
+        await unidadService.AddUnidad(
+            FormUnidad.Clave,
+            FormUnidad.Nombre,
+            FormUnidad.Descripcion,
+            FormUnidad.Estatus);
+        var arts = await unidadService.GetTodosUnidades();
+        UriHelper.NavigateTo($"listado-unidades");
+    }
+
+    public async Task ObtenerUnidad()
+    {
+        var valor = int.Parse(IdUnidad);
+        var dto = await unidadService.GetAlmacenById(valor);
+        FormUnidad.IdUnidad = dto.IdUnidad;
+        FormUnidad.Clave = dto.Clave;
+        FormUnidad.Nombre = dto.Nombre;
+        FormUnidad.Descripcion = dto.Descripcion;
+        FormUnidad.Estatus = dto.Estatus;
+        if (dto.Estatus == "Activo")
+        {
+            opcion = "Activo";
         }
         else
         {
-            saveValue = "Guardar";
+            opcion = "Inactivo";
         }
+        unidades.Add(new Unidad() { IdUnidad = dto.IdUnidad, Clave = dto.Clave, Nombre = dto.Nombre, Descripcion = dto.Descripcion, Estatus = dto.Estatus });
+
     }
 
-    public async Task savedMessage()
+    public async Task UpdateUnidad()
     {
-       // if (id != 0)
-         //   await JsRuntime.InvokeAsync<object>(identifier: "swal", "Editar", "Almacen Editado correctamente");
-        //else
-          //  await JsRuntime.InvokeAsync<object>(identifier: "swal", "Guardar", "Nuevo Almacen Guardado correctamente");
+        await unidadService.UpdateUnidad(
+            FormUnidad.IdUnidad,
+            FormUnidad.Clave,
+            FormUnidad.Nombre,
+            FormUnidad.Descripcion,
+            FormUnidad.Estatus);
+        var arts = await unidadService.GetTodosUnidades();
+        UriHelper.NavigateTo($"listado-unidades");
+    }
+    public async Task Cancelar()
+    {
+        var arts = await unidadService.GetTodosUnidades();
+        UriHelper.NavigateTo($"listado-unidades");
+    }
 
-        NavigationManager.NavigateTo("/ListaUnidad");
-    }
-    public async Task newCaso()
-    {
-        //var res = await JsRuntime.InvokeAsync<object>(identifier: "swal", "Nuevo", "Nuevo Caso de Uso agregado!");
-    }
-
-    public async Task cancel()
-    {
-        //await JsRuntime.InvokeAsync<object>(identifier: "swal", "Cancelar", "Usted cancelo la acción");
-        NavigationManager.NavigateTo("/ListaUnidad");
-    }
 }
-

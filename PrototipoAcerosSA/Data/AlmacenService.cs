@@ -51,8 +51,7 @@ namespace PrototipoAcerosSA.Data
 
         public async Task<Almacenn> AddAlmacen(string clave, string nombre, int alto, int ancho, int largo, string estatus,string descripcion)
         {
-            Console.WriteLine("Entro al servicio-------",clave,nombre);
-            var idIncrementable = almacenes.Count + 1;
+            var idIncrementable = almacenes.LastOrDefault().IdAlmacen + 1;
             var almacenNew = new Almacenn()
             {
                 IdAlmacen = idIncrementable,
@@ -104,10 +103,14 @@ namespace PrototipoAcerosSA.Data
                 Estatus = estatus,
                 Descripcion = descripcion
             };
-            //Nombre = addDatos.Nombre, Alto = addDatos.Alto, Ancho = addDatos.Ancho, Largo = addDatos.Largo, Estatus = addDatos.Estatus, Descripcion = addDatos.Descripcion };
-            almacenes.Add(almacenNew);
-            Console.WriteLine("Almacenes", almacenes);
+            almacenes[almacenes.FindIndex(index => index.IdAlmacen == almacenNew.IdAlmacen)] = almacenNew;            
             return almacenNew;
+        }
+
+        public async Task<Almacenn> EditarAlmacen(Almacenn almacen)
+        {
+            almacenes[almacenes.FindIndex(index => index.IdAlmacen == almacen.IdAlmacen)] = almacen;
+            return almacen;
         }
     }
 }
