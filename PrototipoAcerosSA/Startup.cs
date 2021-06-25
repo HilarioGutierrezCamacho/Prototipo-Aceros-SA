@@ -36,7 +36,10 @@ namespace PrototipoAcerosSA
             services.AddScoped<IProveedorService, ProveedorService>();
             services.AddScoped<IFormaPagoService, FormaPagoService>();
             services.AddScoped<IFacturaService, FacturaService>();
+            services.AddScoped<IAlmacenService, AlmacenService>();
             services.AddScoped<IEmpleadosService, EmpleadosService>();
+
+
 
         }
 

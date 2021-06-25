@@ -1,0 +1,159 @@
+﻿@page "/listado-almacenes"
+@using System.ComponentModel
+@using AntDesign.TableModels
+@using PrototipoAcerosSA.Data
+@using PrototipoAcerosSA.Models
+@inject NavigationManager UriHelper
+
+
+<style>
+    .about-section {
+        padding: 20px;
+        text-align: center;
+        background-color: #474e5d;
+        color: white;
+        width: 100%;
+    }
+</style>
+
+<div class="about-section">
+    <h3 style="color: white;">Consulta de Almacenes</h3>
+</div>
+
+<br />
+<br />
+
+<Row Gutter="8">
+    <Col Span="2">
+    <label style="margin: 1px;">Buscar por:</label>
+    </Col>
+    <Col Span="3">
+    <Select @bind-Value="@buscar_por"
+            Style="width: 120px; margin: 1px;"
+            TItemValue="string"
+            TItem="string">
+        <SelectOptions>
+            <SelectOption TItemValue="string" TItem="string" Value="@("Clave")" Label="Clave" />
+            <SelectOption TItemValue="string" TItem="string" Value="@("Nombre")" Label="Nombre" />
+        </SelectOptions>
+    </Select>
+    </Col>
+    <Col Span="5">
+    <Search Style="margin: 1px;" Placeholder="Introduce tu búsqueda..." Size="@InputSize.Default" @bind-Value="@filtro" OnSearch="FiltrarArticulos" />
+    </Col>
+</Row>
+
+<hr />
+
+<Button Icon="form" Type="primary" OnClick="() => NavegarNuevoArticulo()">
+    Agregar Nuevo Almacen
+</Button>
+
+<br />
+<br />
+
+<Table @ref="table"
+       TItem="Almacenn"
+       DataSource="@almacenes"
+       Total="_total"
+       @bind-PageIndex="_pageIndex"
+       @bind-PageSize="_pageSize"
+       Context="almacen">
+    <AntDesign.Column Title="Id" @bind-Field="@almacen.IdAlmacen" Sortable />
+    <AntDesign.Column @bind-Field="@almacen.Clave" Sortable />
+    <AntDesign.Column @bind-Field="@almacen.Nombre" Sortable />
+    <AntDesign.Column @bind-Field="@almacen.Alto" Sortable />
+    <AntDesign.Column @bind-Field="@almacen.Ancho" Sortable />
+    <AntDesign.Column @bind-Field="@almacen.Largo" Sortable />
+    <AntDesign.Column @bind-Field="@almacen.Estatus" Sortable />
+    <AntDesign.Column @bind-Field="@almacen.Descripcion" Sortable />
+    <ActionColumn Title="Acciones">
+        <Button Icon="delete" Danger OnClick="() => QuitarFilaDetalle(almacen)">
+            Eliminar
+        </Button>
+        <Button Icon="edit" Type="primary" OnClick="() => NavegarEditarAlmacen(almacen.IdAlmacen)">
+            Editar
+        </Button>
+    </ActionColumn>
+</Table>
+
+<br />
+<p>Pagina Actual: @_pageIndex | Articulos por Página: @_pageSize | Total: @_total</p>
+
+@code {
+
+    [Inject]
+    private IAlmacenService almacenService { get; set; }
+
+    List<Almacenn> almacenes = new List<Almacenn>();
+    List<Almacenn> todos = new List<Almacenn>();
+    List<Almacenn> almacenFiltrados = new List<Almacenn>();
+
+    ITable table;
+    int _pageIndex = 1;
+    int _pageSize = 5;
+    int _total = 0;
+
+    string buscar_por = "Clave";
+    string filtro = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        almacenes = await almacenService.GetTodosAlmacenes();
+        _total = almacenes.Count();
+        todos = almacenes;
+    }
+
+    public void FiltrarArticulos()
+    {
+        almacenFiltrados = new List<Almacenn>();
+        if (filtro != null && filtro.Length > 0)
+        {
+            foreach (var almacen in almacenes)
+            {
+                if (buscar_por == "Clave")
+                {
+                    if (almacen.Clave.Contains(filtro.Trim()))
+                    {
+                        almacenFiltrados.Add(almacen);
+                    }
+                }
+                else
+                {
+                    if (almacen.Nombre.Contains(filtro.Trim()))
+                    {
+                        almacenFiltrados.Add(almacen);
+                    }
+                }
+            }
+            almacenes = almacenFiltrados;
+        }
+        else
+        {
+            almacenes = todos;
+        }
+    }
+
+    public void NavegarEditarAlmacen(int IdAlmacen)
+    {
+        UriHelper.NavigateTo($"editar-almacen/{IdAlmacen}");
+    }
+
+    public void NavegarNuevoArticulo()
+    {
+        UriHelper.NavigateTo($"nuevo-almacen");
+    }
+
+    public async Task QuitarFilaDetalle(Almacenn almacen)
+    {
+        foreach (var detalle in almacenes)
+        {
+            if (detalle.IdAlmacen == almacen.IdAlmacen)
+            {
+                almacenes.Remove(detalle);
+                break;
+            }
+        }
+    }
+
+}

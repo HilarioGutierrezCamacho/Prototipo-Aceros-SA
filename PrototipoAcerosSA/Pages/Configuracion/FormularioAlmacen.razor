@@ -1,0 +1,222 @@
+﻿@page "/nuevo-almacen"
+@page "/editar-almacen/{IdAlmacen}"
+
+@using System.Text.RegularExpressions
+@using PrototipoAcerosSA.Data
+@inject NavigationManager UriHelper
+
+<style>
+    .about-section {
+        padding: 20px;
+        text-align: center;
+        background-color: #474e5d;
+        color: white;
+        width: 100%;
+    }
+</style>
+
+<div class="about-section">
+    <h3 style="color: white;">@Titulo</h3>
+</div>
+
+<br />
+<div style="background-color: #ffffff; padding: 20px;">
+    <div style="background: #ffffff; padding: 20px; border-radius: 5px; width: 100%;">
+        <Form Model="@FormAlmacen">
+            <Card Bordered="true" Style="align-self: center;">
+                <Body>
+                    <Row Gutter="24">
+                        <Col Span="8">
+                        <FormItem Label="Clave:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
+                            <Input @bind-Value="@FormAlmacen.Clave" style="margin: 2px;" />
+                        </FormItem>
+                        </Col>
+                        <Col Span="16">
+                        <FormItem Label="Nombre:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
+                            <Input @bind-Value="@FormAlmacen.Nombre" style="margin: 2px;" />
+                        </FormItem>
+                        </Col>
+                    </Row>
+                    <Row Gutter="24">
+                        <Col Span="8">
+                        <FormItem Label="Alto:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
+                            <Input @bind-Value="@FormAlmacen.Alto" style="margin: 2px;" />
+                        </FormItem>
+                        </Col>
+                        <Col Span="8">
+                        <FormItem Label="Largo:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
+                            <Input @bind-Value="@FormAlmacen.Largo" style="margin: 2px;" />
+                        </FormItem>
+                        </Col>
+                        <Col Span="8">
+                        <FormItem Label="Ancho:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
+                            <Input @bind-Value="@FormAlmacen.Ancho" style="margin: 2px;" />
+                        </FormItem>
+                        </Col>
+                    </Row>
+                    <Row Gutter="24">
+                        <Col Span="8">
+                        <FormItem Label="Estatus:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
+                            <Select DataSource="@est"
+                                    DefaultValue="@opcion"
+                                    @bind-Value="@FormAlmacen.Estatus"
+                                    ValueName="@nameof(Estatus.Nombre)"
+                                    LabelName="@nameof(Estatus.Nombre)">
+                            </Select>
+                        </FormItem>
+                        </Col>
+                        <Col Span="16">
+                        <FormItem Label="Descripción:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
+                            <Input @bind-Value="@FormAlmacen.Descripcion" style="margin: 2px;" />
+                        </FormItem>
+                        </Col>
+                    </Row>
+
+                </Body>
+                <ActionTemplate>
+                    @if (Titulo=="Nuevo Almacen")
+                    {
+                        <CardAction><Icon Type="file-done" Theme="outline" OnClick="() => AddAlmacen()" /> Guardar</CardAction>
+                    }
+                    else
+                    {
+                        <CardAction><Icon Type="edit" Theme="outline" OnClick="() => UpdateAlmacen()" /> Editar</CardAction>
+                    }
+                    <CardAction Style="color: red;"><Icon Style="color: red;" Type="rollback" Theme="outline" OnClick="() => Cancelar()" /> Cancelar</CardAction>
+                </ActionTemplate>
+            </Card>
+        </Form>
+    </div>
+</div>
+
+@code { [Inject]
+    private IAlmacenService almacenService { get; set; }
+
+    public class Almacenn
+    {
+        public int IdAlmacen { get; set; }
+        public string Clave { get; set; }
+        public string Nombre { get; set; }
+        public int Ancho { get; set; }
+        public int Largo { get; set; }
+        public int Alto { get; set; }
+        public string Estatus { get; set; }
+        public string Descripcion { get; set; }
+    }
+
+    public string opcion = "Seleccione..";
+    public string Titulo = "Nuevo Almacen";
+    public Almacenn FormAlmacen = new Almacenn();
+    public List<Almacenn> almacenes = new List<Almacenn>();
+
+    [Parameter]
+    public string IdAlmacen { get; set; } = "";
+
+    public class Estatus
+    {
+        public int IdEstatus { get; set; }
+        public string Nombre { get; set; }
+    }
+
+    public Estatus estatus = new Estatus();
+    public List<Estatus> est = new List<Estatus>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        est.Add(new Estatus() { IdEstatus = 0, Nombre = "Seleccione.." });
+        est.Add(new Estatus() { IdEstatus = 1, Nombre = "Activo" });
+        est.Add(new Estatus() { IdEstatus = 1, Nombre = "Inactivo" });
+
+        try {
+            var valor = int.Parse(IdAlmacen);
+            if (valor > 0)
+            {
+                await ObtenerAlmacen();
+                Titulo = "Editar Almacen";
+            }
+        }
+        catch (Exception)
+        {
+
+        }
+
+
+
+    }
+
+
+    private string FormatoPesos(double value)
+    {
+        return "$ " + value.ToString("n0");
+    }
+
+
+    private string ParseoPesos(string value)
+    {
+        return Regex.Replace(value, @"\$\s?|(,*)", "");
+    }
+
+    public async Task AddAlmacen()
+    {
+        Console.WriteLine("datos de envio");
+        Console.WriteLine(FormAlmacen.Clave);
+        Console.WriteLine(FormAlmacen.Nombre);
+        await almacenService.AddAlmacen(
+            FormAlmacen.Clave,
+            FormAlmacen.Nombre,
+            FormAlmacen.Alto,
+            FormAlmacen.Ancho,
+            FormAlmacen.Largo,
+            FormAlmacen.Estatus,
+            FormAlmacen.Descripcion);
+        var arts = await almacenService.GetTodosAlmacenes();
+        UriHelper.NavigateTo($"listado-almacenes");
+    }
+
+    public async Task ObtenerAlmacen()
+    {
+        var valor=int.Parse(IdAlmacen);
+        var dto = await almacenService.GetAlmacenById(valor);
+        FormAlmacen.IdAlmacen = dto.IdAlmacen;
+        FormAlmacen.Clave = dto.Clave;
+        FormAlmacen.Nombre = dto.Nombre;
+        FormAlmacen.Alto = dto.Alto;
+        FormAlmacen.Ancho = dto.Ancho;
+        FormAlmacen.Largo = dto.Largo;
+        FormAlmacen.Estatus = dto.Estatus;
+        FormAlmacen.Descripcion = dto.Descripcion;
+        Console.WriteLine("dto-------------");
+        Console.WriteLine(dto.Nombre);
+        if (dto.Estatus == "Activo")
+        {
+            opcion = "Activo";
+        }
+        else
+        {
+            opcion = "Inactivo";
+        }
+        almacenes.Add(new Almacenn() { IdAlmacen = dto.IdAlmacen, Clave = dto.Clave, Nombre = dto.Nombre, Alto = dto.Alto, Ancho = dto.Ancho, Largo = dto.Largo, Estatus = dto.Estatus, Descripcion = dto.Descripcion });
+
+    }
+
+    public async Task UpdateAlmacen()
+    {
+        await almacenService.UpdateAlmacen(
+            FormAlmacen.IdAlmacen,
+            FormAlmacen.Clave,
+            FormAlmacen.Nombre,
+            FormAlmacen.Alto,
+            FormAlmacen.Ancho,
+            FormAlmacen.Largo,
+            FormAlmacen.Estatus,
+            FormAlmacen.Descripcion);
+        var arts = await almacenService.GetTodosAlmacenes();
+        UriHelper.NavigateTo($"listado-almacenes");
+    }
+    public async Task Cancelar()
+    {
+        var arts = await almacenService.GetTodosAlmacenes();
+        UriHelper.NavigateTo($"listado-almacenes");
+    }
+
+}
