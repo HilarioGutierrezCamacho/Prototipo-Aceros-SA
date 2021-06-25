@@ -120,7 +120,11 @@
                             </Button>
                         </CardAction>                    
                     }
-                    <CardAction Style="color: red;"><Icon Style="color: red;" Type="rollback" Theme="outline" OnClick="@(()=>{ _visible = true; })" /> Cancelar</CardAction>
+                <CardAction Style="color: red;">
+                    <Button class="w-50" Danger OnClick="@(()=>{ _visible = true; })">
+                        <Icon Style="color: red;" Type="rollback" Theme="outline" /> Cancelar
+                    </Button>
+                </CardAction>
                 </ActionTemplate>
             </Card>
         </EditForm>

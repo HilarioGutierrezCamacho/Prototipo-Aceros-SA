@@ -17,6 +17,10 @@
         color: white;
         width: 100%;
     }
+
+    .custom-icons-list .anticon {
+        margin-right: 6px;
+    }
 </style>
 
 <div class="about-section">
@@ -72,12 +76,11 @@
     </AntDesign.Column>
     <AntDesign.Column @bind-Field="@articulo.PrecioUnitario" Sortable />
     <ActionColumn Title="Acciones">
-        <Button Icon="delete" Danger OnClick="() => EliminarArticulo(articulo.IdArticulo)">
-            Eliminar
-        </Button>
-        <Button Icon="edit" Type="primary" OnClick="() => NavegarEditarArticulo(articulo.IdArticulo)">
-            Editar
-        </Button>
+        <div class="icons-list">
+            <Icon Type="edit" Width="2em" Height="2em" Style="cursor: pointer;" Theme="outline" OnClick="() => NavegarEditarArticulo(articulo.IdArticulo)" />
+            <Icon Type="eye" Width="2em" Height="2em" Style="cursor: pointer;" Theme="outline" />
+            <Icon Type="delete" Width="2em" Height="2em" Style="cursor: pointer;" Theme="outline" OnClick="() => EliminarArticulo(articulo.IdArticulo)" />
+        </div>           
     </ActionColumn>
 </Table>
 
