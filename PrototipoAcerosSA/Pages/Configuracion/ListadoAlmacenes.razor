@@ -4,6 +4,7 @@
 @using PrototipoAcerosSA.Data
 @using PrototipoAcerosSA.Models
 @inject NavigationManager UriHelper
+@inject IJSRuntime js
 
 
 <style>
@@ -146,12 +147,17 @@
 
     public async Task QuitarFilaDetalle(Almacenn almacen)
     {
-        foreach (var detalle in almacenes)
+        var confirmacion = await js.InvokeAsync<bool>("confirmarEliminar",
+            "¿Deseas Eliminar el almacen "+ almacen.Nombre + "?","" , "question");
+        if (confirmacion)
         {
-            if (detalle.IdAlmacen == almacen.IdAlmacen)
+            foreach (var detalle in almacenes)
             {
-                almacenes.Remove(detalle);
-                break;
+                if (detalle.IdAlmacen == almacen.IdAlmacen)
+                {
+                    almacenes.Remove(detalle);
+                    break;
+                }
             }
         }
     }

@@ -4,6 +4,7 @@
 @using System.Text.RegularExpressions
 @using PrototipoAcerosSA.Data
 @inject NavigationManager UriHelper
+@inject IJSRuntime js
 
 <style>
     .about-section {
@@ -74,7 +75,7 @@
 
                 </Body>
                 <ActionTemplate>
-                    @if (Titulo=="Nuevo Almacen")
+                    @if (Titulo == "Nuevo Almacen")
                     {
                         <CardAction><Icon Type="file-done" Theme="outline" OnClick="() => AddAlmacen()" /> Guardar</CardAction>
                     }
@@ -127,7 +128,8 @@
         est.Add(new Estatus() { IdEstatus = 1, Nombre = "Activo" });
         est.Add(new Estatus() { IdEstatus = 1, Nombre = "Inactivo" });
 
-        try {
+        try
+        {
             var valor = int.Parse(IdAlmacen);
             if (valor > 0)
             {
@@ -158,6 +160,7 @@
 
     public async Task AddAlmacen()
     {
+        await js.InvokeAsync<bool>("confirmarGuardar", "¡Exito al guardar!", "success");
         Console.WriteLine("datos de envio");
         Console.WriteLine(FormAlmacen.Clave);
         Console.WriteLine(FormAlmacen.Nombre);
@@ -175,7 +178,7 @@
 
     public async Task ObtenerAlmacen()
     {
-        var valor=int.Parse(IdAlmacen);
+        var valor = int.Parse(IdAlmacen);
         var dto = await almacenService.GetAlmacenById(valor);
         FormAlmacen.IdAlmacen = dto.IdAlmacen;
         FormAlmacen.Clave = dto.Clave;
@@ -202,15 +205,16 @@
     public async Task UpdateAlmacen()
     {
         //await almacenService.EditarAlmacen(FormAlmacen);
+        await js.InvokeAsync<bool>("confirmarGuardar", "¡Modificación exitosa!", "success");
         await almacenService.UpdateAlmacen(
-            FormAlmacen.IdAlmacen,
-            FormAlmacen.Clave,
-            FormAlmacen.Nombre,
-            FormAlmacen.Alto,
-            FormAlmacen.Ancho,
-            FormAlmacen.Largo,
-            FormAlmacen.Estatus,
-            FormAlmacen.Descripcion);
+        FormAlmacen.IdAlmacen,
+        FormAlmacen.Clave,
+        FormAlmacen.Nombre,
+        FormAlmacen.Alto,
+        FormAlmacen.Ancho,
+        FormAlmacen.Largo,
+        FormAlmacen.Estatus,
+        FormAlmacen.Descripcion);
         var arts = await almacenService.GetTodosAlmacenes();
         UriHelper.NavigateTo($"listado-almacenes");
     }
