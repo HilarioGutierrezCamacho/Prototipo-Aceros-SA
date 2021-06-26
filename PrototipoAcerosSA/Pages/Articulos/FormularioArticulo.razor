@@ -4,9 +4,8 @@
 @using System.Text.RegularExpressions
 @using PrototipoAcerosSA.Data
 @using PrototipoAcerosSA.Models
-@inject ModalService _modalService
-@inject ConfirmService _confirmService
 @inject NavigationManager UriHelper
+@inject IJSRuntime js
 
 <style>
     .about-section {
@@ -124,7 +123,7 @@
                         </CardAction>                    
                     }
                 <CardAction Style="color: red;">
-                    <Button class="w-50" Danger OnClick="@(()=>{ _visible = true; })">
+                    <Button class="w-50" Danger OnClick="() => RegresarListadoArticulos()">
                         <Icon Style="color: red;" Type="rollback" Theme="outline" /> Cancelar
                     </Button>
                 </CardAction>
@@ -133,16 +132,6 @@
         </EditForm>
     </div>
 </div>
-
-<Modal Title="@("Cancelar Operación")"
-       Visible="@_visible"
-       OnOk="@RegresarListadoArticulos"
-       OnCancel="@CerrarModal"
-       OkText="TextoSalir"
-       CancelText="TextoCerrar">
-    <p>Deseas cancelar la operación?</p>
-    <p>Al salir se perdera la información registrada en el formulario.</p>
-</Modal>
 
 @code { 
 
@@ -160,10 +149,6 @@
     public List<Ubicacion> ubicaciones = new List<Ubicacion>();
     public List<Unidad> unidades = new List<Unidad>();
 
-    public string title = "Cancelar Ingreso de Articulo";
-    public bool _visible = false;
-    public string TextoSalir = "Salir";
-    public string TextoCerrar = "Cerrar";
     public bool Editar = false;
 
     [Parameter]
@@ -202,33 +187,26 @@
         {
             await articuloService.AddArticulo(FormArticulo);
             var arts = await articuloService.GetTodosArticulos();
-            await _modalService.SuccessAsync(new ConfirmOptions()
-            {
-                Content = "Exito al registrar el articulo."
-            });
+            await js.InvokeAsync<bool>("mensajeExito", "Exito al guardar el articulo");
             UriHelper.NavigateTo($"listado-articulos");
         } else
         {
             await articuloService.EditarArticulo(FormArticulo);
             var arts = await articuloService.GetTodosArticulos();
-            await _modalService.SuccessAsync(new ConfirmOptions()
-            {
-                Content = "Exito al editar el articulo."
-            });
+            await js.InvokeAsync<bool>("mensajeExito", "Exito al editar el articulo");
             UriHelper.NavigateTo($"listado-articulos");
         }
 
     }
 
-    private async Task RegresarListadoArticulos(MouseEventArgs e)
+    private async Task RegresarListadoArticulos()
     {
-        _visible = false;
-        UriHelper.NavigateTo($"listado-articulos");
-    }
-
-    private void CerrarModal(MouseEventArgs e)
-    {
-        _visible = false;
+        var confirmResult = await js.InvokeAsync<bool>("confirmarSalirPantalla",
+            "¿Deseas salir?", "Se perderan los datos registrados hasta el momento.", "question");
+        if (confirmResult)
+        {
+            UriHelper.NavigateTo($"listado-articulos");
+        }
     }
 
 }

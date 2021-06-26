@@ -3,11 +3,8 @@
 @using AntDesign.TableModels
 @using PrototipoAcerosSA.Data
 @using PrototipoAcerosSA.Models
-@inject MessageService _message
-@inject ConfirmService _confirmService
-@inject ModalService _modalService
 @inject NavigationManager UriHelper
-
+@inject IJSRuntime js
 
 <style>
     .about-section {
@@ -83,7 +80,7 @@
         <div class="icons-list">
             <Icon Type="edit" Width="2em" Height="2em" Style="cursor: pointer;" Theme="outline" OnClick="() => NavegarEditarArticulo(articulo.IdArticulo)" />
             <Icon Type="eye" Width="2em" Height="2em" Style="cursor: pointer;" Theme="outline" OnClick="() => NavegarDetallesArticulo(articulo.IdArticulo)" />
-            <Icon Type="delete" Width="2em" Height="2em" Style="cursor: pointer;" Theme="outline" OnClick="() => EliminarArticulo(articulo.IdArticulo)" />
+            <Icon Type="delete" Width="2em" Height="2em" Style="cursor: pointer;" Theme="outline" OnClick="() => EliminarArticulo(articulo.IdArticulo, articulo.Descripcion)" />
         </div>           
     </ActionColumn>
 </Table>
@@ -112,11 +109,6 @@
     public bool _visible = false;
     public string TextoSalir = "Salir";
     public string TextoCerrar = "Cerrar";
-
-    RenderFragment icon = @<Icon Type="exclamation-circle" Theme="outline"></Icon>;
-
-    RenderFragment BotonSi = @<label>Si</label>;
-    RenderFragment BotonNo = @<label>No</label>;
 
     protected override async Task OnInitializedAsync()
     {
@@ -155,37 +147,16 @@
         }
     }
 
-    public async Task EliminarArticulo(int IdArticulo)
+    public async Task EliminarArticulo(int IdArticulo, string nombre)
     {
         var content = "Deseas eliminar este articulo?";
         var title = "Eliminar";
-        var confirmResult =
-            await _confirmService.Show(
-                content,
-                title,
-                ConfirmButtons.YesNo,
-                ConfirmIcon.Warning,
-                new ConfirmButtonOptions()
-                {
-                    Button1Props = new AntDesign.ButtonProps()
-                    {
-                        Type = AntDesign.ButtonType.Primary,
-                        ChildContent = BotonSi
-                    },
-                    Button2Props = new AntDesign.ButtonProps()
-                    {
-                        ChildContent = BotonNo
-                    }
-                }
-            );
+        var confirmResult = await js.InvokeAsync<bool>("confirmarEliminar",
+            "¿Deseas eliminar el articulo: " + nombre + " ?", "", "question");
 
-        if (confirmResult == AntDesign.ConfirmResult.Yes)
+        if (confirmResult)
         {
             await articuloService.EliminarArticulo(IdArticulo);
-            await _modalService.SuccessAsync(new ConfirmOptions()
-            {
-                Content = "Eliminación Exitosa."
-            });
             articulos = await articuloService.GetTodosArticulos();
             _total = articulos.Count();
             todos = articulos;

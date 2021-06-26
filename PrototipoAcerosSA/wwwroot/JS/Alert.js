@@ -34,3 +34,33 @@ function confirmarGuardar(title,icon) {
         })
     })
 }
+
+function confirmarSalirPantalla(title, text, icon) {
+    return new Promise(resolve => {
+        Swal.fire({
+            title,
+            text,
+            icon,
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonText: 'Cancelar',
+            cancelButtonColor: '#d33',
+            confirmButtonText: '¡Salir!'
+        }).then((result) => {
+            resolve(result.isConfirmed);
+        })
+    })
+}
+
+function mensajeExito(title) {
+    return new Promise(resolve => {
+        Swal.fire({
+            title,
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 2000
+        }).then((result) => {
+            resolve(result.isConfirmed);
+        })
+    })
+}
