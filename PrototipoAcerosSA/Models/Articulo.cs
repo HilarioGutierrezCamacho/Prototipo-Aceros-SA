@@ -15,10 +15,16 @@ namespace PrototipoAcerosSA.Models
         public string Descripcion { get; set; }
         [Required(ErrorMessage = "La marca del articulo es requerida.")]
         public string Marca { get; set; }
+        [Required(ErrorMessage = "El almacén es requerido.")]
+        [Range(1, int.MaxValue, ErrorMessage = "Debes seleccionar un almacén.")]
         public int IdAlmacen { get; set; }
-        public string Almacen { get; set; }
+        public Almacenn Almacen { get; set; }
+        [Required(ErrorMessage = "La ubicación es requerida.")]
+        [Range(1, int.MaxValue, ErrorMessage = "Debes seleccionar una ubicación.")]
         public int IdUbicacion { get; set; }
-        public string Ubicacion { get; set; }
+        public Ubicacion Ubicacion { get; set; }
+        [Required(ErrorMessage = "La unidad es requerida.")]
+        [Range(1, int.MaxValue, ErrorMessage = "Debes seleccionar una unidad.")]
         public int IdUnidad { get; set; }
         public Unidad Unidad { get; set; } = new Unidad();
         [Required(ErrorMessage = "El precio unitario es requerido.")]

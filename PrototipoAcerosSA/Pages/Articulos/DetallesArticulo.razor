@@ -1,0 +1,367 @@
+﻿@page "/detalles-articulo/{IdArticulo}"
+
+@using System.Text.RegularExpressions
+@using PrototipoAcerosSA.Data
+@using PrototipoAcerosSA.Models
+@inject ModalService _modalService
+@inject ConfirmService _confirmService
+@inject NavigationManager UriHelper
+
+<style>
+    .about-section {
+        padding: 20px;
+        text-align: center;
+        background-color: #474e5d;
+        color: white;
+        width: 100%;
+    }
+</style>
+
+<div class="about-section">
+    <h3 style="color: white;">Articulo</h3>
+</div>
+
+<br />
+<div class="row align-items-end align-content-end">
+    <div class="col-md-10"></div>
+    <div class="col-md-2">
+        @if (!Editar)
+        {
+            <Button class="m-1 p-1" Type="@ButtonType.Primary" OnClick="() => ActivarFormulario()">
+                <Icon Type="edit" Width="1em" Height="1em" Style="cursor: pointer;" Theme="outline"></Icon> Editar
+            </Button>
+        }
+        <Button class="m-1 p-1" Danger OnClick="() => EliminarArticulo()">
+            <Icon Type="delete" Width="1em" Height="1em" Style="cursor: pointer;" Theme="outline" OnClick="() => { Editar = true; }"></Icon> Eliminar
+        </Button>
+    </div>
+</div>
+
+@if (Editar) {
+    <div style="background-color: #ffffff; padding: 20px;">
+        <div style="background: #ffffff; padding: 20px; border-radius: 5px; width: 100%;">
+            <EditForm Model="@FormArticulo" OnValidSubmit="@AddArticulo">
+                <Microsoft.AspNetCore.Components.Forms.DataAnnotationsValidator />
+                <Card Bordered="true" Style="align-self: center;">
+                    <Body>
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label for="lastName" class="col-sm-4">Clave del Articulo: </label>
+                                <InputText id="lastName" class="form-control col-sm-12" @bind-Value="@FormArticulo.Clave" placeholder="Ingresa el folio"></InputText>
+                                <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormArticulo.Clave)" />
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="lastName" class="col-sm-4">Descripción: </label>
+                                <InputText id="lastName" class="form-control col-sm-12" @bind-Value="@FormArticulo.Descripcion" placeholder="Ingresa la descripción"></InputText>
+                                <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormArticulo.Descripcion)" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label for="lastName" class="col-sm-4">Marca: </label>
+                                <InputText id="lastName" class="form-control col-sm-12" @bind-Value="@FormArticulo.Marca" placeholder="Ingresa la marca"></InputText>
+                                <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormArticulo.Marca)" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label for="lastName" class="col-sm-4">Almacen: </label>
+                                <Select DataSource="@almacenes"
+                                        @bind-Value="@FormArticulo.IdAlmacen"
+                                        DefaultValue="@(0)"
+                                        ValueName="@nameof(Almacenn.IdAlmacen)"
+                                        LabelName="@nameof(Almacenn.Nombre)">
+                                </Select>
+                                <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormArticulo.IdAlmacen)" />
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="lastName" class="col-sm-4">Ubicación: </label>
+                                <Select DataSource="@ubicaciones"
+                                        @bind-Value="@FormArticulo.IdUbicacion"
+                                        DefaultValue="@(0)"
+                                        ValueName="@nameof(Ubicacion.IdUbicacion)"
+                                        LabelName="@nameof(Ubicacion.Nombre)">
+                                </Select>
+                                <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormArticulo.IdUbicacion)" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label for="lastName" class="col-sm-4">Unidad: </label>
+                                <Select DataSource="@unidades"
+                                        @bind-Value="@FormArticulo.IdUnidad"
+                                        DefaultValue="@(0)"
+                                        ValueName="@nameof(Unidad.IdUnidad)"
+                                        LabelName="@nameof(Unidad.Nombre)">
+                                </Select>
+                                <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormArticulo.IdUnidad)" />
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="lastName" class="col-sm-4">Precio Unitario: </label>
+                                <AntDesign.InputNumber Formatter="FormatoPesos" Parser="ParseoPesos" @bind-Value="@FormArticulo.PrecioUnitario" style="margin: 2px; width: 100%;" />
+                                <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormArticulo.PrecioUnitario)" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-4">
+                                <label for="lastName" class="col-sm-4">Maximo: </label>
+                                <Microsoft.AspNetCore.Components.Forms.InputNumber class="form-control" @bind-Value="@FormArticulo.Maximo" style="margin: 2px;"></Microsoft.AspNetCore.Components.Forms.InputNumber>
+                                <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormArticulo.Maximo)" />
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="lastName" class="col-sm-4">Minimo: </label>
+                                <Microsoft.AspNetCore.Components.Forms.InputNumber class="form-control col-sm-12" @bind-Value="@FormArticulo.Minimo" style="margin: 2px;" />
+                                <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormArticulo.Minimo)" />
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="lastName" class="col-sm-6">Punto Reorden: </label>
+                                <Microsoft.AspNetCore.Components.Forms.InputNumber class="form-control col-sm-12" @bind-Value="@FormArticulo.PuntoReorden" style="margin: 2px;" />
+                                <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormArticulo.PuntoReorden)" />
+                            </div>
+                        </div>
+                    </Body>
+                    <ActionTemplate>
+                        <CardAction>
+                            <Button class="w-50" Type="@ButtonType.Primary" HtmlType="submit">
+                                Editar
+                            </Button>
+                        </CardAction>
+                        <CardAction Style="color: red;">
+                            <Button class="w-50" Danger OnClick="@(()=>{ _visible = true; })">
+                                <Icon Style="color: red;" Type="rollback" Theme="outline" /> Cancelar
+                            </Button>
+                        </CardAction>
+                    </ActionTemplate>
+                </Card>
+            </EditForm>
+        </div>
+    </div>
+} else {
+    <div style="background-color: #ffffff; padding: 20px;">
+        <div style="background: #ffffff; padding: 20px; border-radius: 5px; width: 100%;">
+            <EditForm Model="@FormArticulo" OnValidSubmit="@AddArticulo">
+                <Microsoft.AspNetCore.Components.Forms.DataAnnotationsValidator />
+                <Card Bordered="true" Style="align-self: center;">
+                    <Body>
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label for="lastName" class="col-sm-4">Clave del Articulo: </label>
+                                <InputText Disabled="true"  id="lastName" class="form-control col-sm-12" @bind-Value="@FormArticulo.Clave" placeholder="Ingresa el folio"></InputText>
+                                <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormArticulo.Clave)" />
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="lastName" class="col-sm-4">Descripción: </label>
+                                <InputText id="lastName" class="form-control col-sm-12" @bind-Value="@FormArticulo.Descripcion" placeholder="Ingresa la descripción"></InputText>
+                                <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormArticulo.Descripcion)" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label for="lastName" class="col-sm-4">Marca: </label>
+                                <InputText Disabled="true"  id="lastName" class="form-control col-sm-12" @bind-Value="@FormArticulo.Marca" placeholder="Ingresa la marca"></InputText>
+                                <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormArticulo.Marca)" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label for="lastName" class="col-sm-4">Almacen: </label>
+                                <Select Disabled="true"  DataSource="@almacenes"
+                                        @bind-Value="@FormArticulo.IdAlmacen"
+                                        DefaultValue="@(0)"
+                                        ValueName="@nameof(Almacenn.IdAlmacen)"
+                                        LabelName="@nameof(Almacenn.Nombre)">
+                                </Select>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="lastName" class="col-sm-4">Ubicación: </label>
+                                <Select Disabled="true"  DataSource="@ubicaciones"
+                                        @bind-Value="@FormArticulo.IdUbicacion"
+                                        DefaultValue="@(0)"
+                                        ValueName="@nameof(Ubicacion.IdUbicacion)"
+                                        LabelName="@nameof(Ubicacion.Nombre)">
+                                </Select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label for="lastName" class="col-sm-4">Unidad: </label>
+                                <Select Disabled="true"  DataSource="@unidades"
+                                        @bind-Value="@FormArticulo.IdUnidad"
+                                        DefaultValue="@(0)"
+                                        ValueName="@nameof(Unidad.IdUnidad)"
+                                        LabelName="@nameof(Unidad.Nombre)">
+                                </Select>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="lastName" class="col-sm-4">Precio Unitario: </label>
+                                <AntDesign.InputNumber Disabled="true"  Formatter="FormatoPesos" Parser="ParseoPesos" @bind-Value="@FormArticulo.PrecioUnitario" style="margin: 2px; width: 100%;" />
+                                <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormArticulo.PrecioUnitario)" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-4">
+                                <label for="lastName" class="col-sm-4">Maximo: </label>
+                                <Microsoft.AspNetCore.Components.Forms.InputNumber Disabled="true"  class="form-control" @bind-Value="@FormArticulo.Maximo" style="margin: 2px;"></Microsoft.AspNetCore.Components.Forms.InputNumber>
+                                <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormArticulo.Maximo)" />
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="lastName" class="col-sm-4">Minimo: </label>
+                                <Microsoft.AspNetCore.Components.Forms.InputNumber class="form-control col-sm-12" @bind-Value="@FormArticulo.Minimo" style="margin: 2px;" />
+                                <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormArticulo.Minimo)" />
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="lastName" class="col-sm-6">Punto Reorden: </label>
+                                <Microsoft.AspNetCore.Components.Forms.InputNumber Disabled="true"  class="form-control col-sm-12" @bind-Value="@FormArticulo.PuntoReorden" style="margin: 2px;" />
+                                <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormArticulo.PuntoReorden)" />
+                            </div>
+                        </div>
+                    </Body>
+                    <ActionTemplate>
+                        <CardAction>
+
+                        </CardAction>
+                        <CardAction Style="color: red;">
+                            <Button class="w-50" Danger OnClick="@(()=>{ _visible = true; })">
+                                <Icon Style="color: red;" Type="rollback" Theme="outline" /> Cancelar
+                            </Button>
+                        </CardAction>
+                    </ActionTemplate>
+                </Card>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<Modal Title="@("Cancelar Operación")"
+       Visible="@_visible"
+       OnOk="@RegresarListadoArticulos"
+       OnCancel="@CerrarModal"
+       OkText="TextoSalir"
+       CancelText="TextoCerrar">
+    <p>Deseas cancelar la operación?</p>
+    <p>Al salir se perdera la información registrada en el formulario.</p>
+</Modal>
+
+@code { 
+
+    [Inject]
+    private IArticuloService articuloService { get; set; }
+    [Inject]
+    private IAlmacenService almacenService { get; set; }
+    [Inject]
+    private IUnidadService unidadService { get; set; }
+    [Inject]
+    private IUbicacionService ubicacionService { get; set; }
+
+    public Articulo FormArticulo = new Articulo();
+    public List<Almacenn> almacenes = new List<Almacenn>();
+    public List<Ubicacion> ubicaciones = new List<Ubicacion>();
+    public List<Unidad> unidades = new List<Unidad>();
+
+    public string title = "Cancelar Ingreso de Articulo";
+    public bool _visible = false;
+    public string TextoSalir = "Salir";
+    public string TextoCerrar = "Cerrar";
+    public bool Editar = false;
+
+    RenderFragment icon = @<Icon Type="exclamation-circle" Theme="outline"></Icon>;
+    RenderFragment BotonSi = @<label>Si</label>;
+    RenderFragment BotonNo = @<label>No</label>;
+
+    [Parameter]
+    public string IdArticulo { get; set; } = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        almacenes = await almacenService.GetTodosAlmacenes();
+        unidades = await unidadService.GetTodosUnidades();
+        ubicaciones = await ubicacionService.GetTodosUbicacion();
+
+        if (IdArticulo != "" && IdArticulo != null)
+        {
+            int Id = Int32.Parse(IdArticulo);
+            FormArticulo = await articuloService.GetArticuloById(Id);
+        }
+
+    }
+
+
+    private string FormatoPesos(double value)
+    {
+        return "$ " + value.ToString("n0");
+    }
+
+    private string ParseoPesos(string value)
+    {
+        return Regex.Replace(value, @"\$\s?|(,*)", "");
+    }
+
+    public async Task AddArticulo()
+    {
+        if (Editar)
+        {
+            await articuloService.EditarArticulo(FormArticulo);
+            var arts = await articuloService.GetTodosArticulos();
+            await _modalService.SuccessAsync(new ConfirmOptions()
+            {
+                Content = "Exito al editar el articulo."
+            });
+            UriHelper.NavigateTo($"listado-articulos");
+        }
+    }
+
+    public async Task EliminarArticulo()
+    {
+        int Id = Int32.Parse(IdArticulo);
+        var content = "Deseas eliminar este articulo?";
+        var title = "Eliminar";
+        var confirmResult =
+            await _confirmService.Show(
+                content,
+                title,
+                ConfirmButtons.YesNo,
+                ConfirmIcon.Warning,
+                new ConfirmButtonOptions()
+                {
+                    Button1Props = new AntDesign.ButtonProps()
+                    {
+                        Type = AntDesign.ButtonType.Primary,
+                        ChildContent = BotonSi
+                    },
+                    Button2Props = new AntDesign.ButtonProps()
+                    {
+                        ChildContent = BotonNo
+                    }
+                }
+            );
+
+        if (confirmResult == AntDesign.ConfirmResult.Yes)
+        {
+            await articuloService.EliminarArticulo(Id);
+            await _modalService.SuccessAsync(new ConfirmOptions()
+            {
+                Content = "Eliminación Exitosa."
+            });
+            UriHelper.NavigateTo($"listado-articulos");
+        }
+
+    }
+
+    private async Task RegresarListadoArticulos(MouseEventArgs e)
+    {
+        _visible = false;
+        UriHelper.NavigateTo($"listado-articulos");
+    }
+
+    private void CerrarModal(MouseEventArgs e)
+    {
+        _visible = false;
+    }
+
+    private async Task ActivarFormulario()
+    {
+        Editar = true;
+    }
+
+}

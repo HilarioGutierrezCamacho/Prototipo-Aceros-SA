@@ -69,8 +69,12 @@
     <AntDesign.Column @bind-Field="@articulo.Clave" Sortable />
     <AntDesign.Column @bind-Field="@articulo.Descripcion" Sortable />
     <AntDesign.Column @bind-Field="@articulo.Marca" Sortable />
-    <AntDesign.Column @bind-Field="@articulo.Almacen" Sortable />
-    <AntDesign.Column @bind-Field="@articulo.Ubicacion" Sortable />
+    <AntDesign.Column Title="Almacen" @bind-Field="@articulo.Almacen">
+        <label>@articulo.Almacen.Descripcion</label>
+    </AntDesign.Column>
+    <AntDesign.Column Title="Ubicación" @bind-Field="@articulo.Ubicacion">
+        <label>@articulo.Ubicacion.Descripcion</label>
+    </AntDesign.Column>
     <AntDesign.Column Title="Unidad" @bind-Field="@articulo.Unidad">
         <label>@articulo.Unidad.Descripcion</label>
     </AntDesign.Column>
@@ -78,7 +82,7 @@
     <ActionColumn Title="Acciones">
         <div class="icons-list">
             <Icon Type="edit" Width="2em" Height="2em" Style="cursor: pointer;" Theme="outline" OnClick="() => NavegarEditarArticulo(articulo.IdArticulo)" />
-            <Icon Type="eye" Width="2em" Height="2em" Style="cursor: pointer;" Theme="outline" />
+            <Icon Type="eye" Width="2em" Height="2em" Style="cursor: pointer;" Theme="outline" OnClick="() => NavegarDetallesArticulo(articulo.IdArticulo)" />
             <Icon Type="delete" Width="2em" Height="2em" Style="cursor: pointer;" Theme="outline" OnClick="() => EliminarArticulo(articulo.IdArticulo)" />
         </div>           
     </ActionColumn>
@@ -197,6 +201,11 @@
     public void NavegarNuevoArticulo()
     {
         UriHelper.NavigateTo($"nuevo-articulo");
+    }
+
+    public void NavegarDetallesArticulo(int IdArticulo)
+    {
+        UriHelper.NavigateTo($"detalles-articulo/{IdArticulo}");
     }
 
 }

@@ -55,9 +55,10 @@
                             <Select DataSource="@almacenes"
                                     @bind-Value="@FormArticulo.IdAlmacen"
                                     DefaultValue="@(0)"
-                                    ValueName="@nameof(Almacen.IdAlmacen)"
-                                    LabelName="@nameof(Almacen.Nombre)">
+                                    ValueName="@nameof(Almacenn.IdAlmacen)"
+                                    LabelName="@nameof(Almacenn.Nombre)">
                             </Select>
+                            <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormArticulo.IdAlmacen)" />
                         </div>
                         <div class="form-group col-md-6">
                             <label for="lastName" class="col-sm-4">Ubicación: </label>
@@ -67,6 +68,7 @@
                                     ValueName="@nameof(Ubicacion.IdUbicacion)"
                                     LabelName="@nameof(Ubicacion.Nombre)">
                             </Select>
+                            <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormArticulo.IdUbicacion)" />
                         </div>
                     </div>
                     <div class="row">
@@ -78,6 +80,7 @@
                                     ValueName="@nameof(Unidad.IdUnidad)"
                                     LabelName="@nameof(Unidad.Nombre)">
                             </Select>
+                            <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormArticulo.IdUnidad)" />
                         </div>
                         <div class="form-group col-md-6">
                             <label for="lastName" class="col-sm-4">Precio Unitario: </label>
@@ -145,27 +148,15 @@
 
     [Inject]
     private IArticuloService articuloService { get; set; }
-
-    public class Almacen
-    {
-        public int IdAlmacen { get; set; }
-        public string Nombre { get; set; }
-    }
-
-    public class Ubicacion
-    {
-        public int IdUbicacion { get; set; }
-        public string Nombre { get; set; }
-    }
-
-    public class Unidad
-    {
-        public int IdUnidad { get; set; }
-        public string Nombre { get; set; }
-    }
+    [Inject]
+    private IAlmacenService almacenService { get; set; }
+    [Inject]
+    private IUnidadService unidadService { get; set; }
+    [Inject]
+    private IUbicacionService ubicacionService { get; set; }
 
     public Articulo FormArticulo = new Articulo();
-    public List<Almacen> almacenes = new List<Almacen>();
+    public List<Almacenn> almacenes = new List<Almacenn>();
     public List<Ubicacion> ubicaciones = new List<Ubicacion>();
     public List<Unidad> unidades = new List<Unidad>();
 
@@ -181,20 +172,9 @@
     protected override async Task OnInitializedAsync()
     {
 
-        almacenes.Add(new Almacen() { IdAlmacen = 0, Nombre = "Seleccione.." });
-        almacenes.Add(new Almacen() { IdAlmacen = 1, Nombre = "MP" });
-        almacenes.Add(new Almacen() { IdAlmacen = 2, Nombre = "VA" });
-        almacenes.Add(new Almacen() { IdAlmacen = 3, Nombre = "RF" });
-
-        ubicaciones.Add(new Ubicacion() { IdUbicacion = 0, Nombre = "Seleccione.." });
-        ubicaciones.Add(new Ubicacion() { IdUbicacion = 1, Nombre = "001 - Estante 1" });
-        ubicaciones.Add(new Ubicacion() { IdUbicacion = 2, Nombre = "001 - Estante 2" });
-        ubicaciones.Add(new Ubicacion() { IdUbicacion = 3, Nombre = "001 - Estante 3" });
-
-        unidades.Add(new Unidad() { IdUnidad = 0, Nombre = "Seleccione.." });
-        unidades.Add(new Unidad() { IdUnidad = 1, Nombre = "Pieza" });
-        unidades.Add(new Unidad() { IdUnidad = 2, Nombre = "Caja" });
-        unidades.Add(new Unidad() { IdUnidad = 3, Nombre = "Botella" });
+        almacenes = await almacenService.GetTodosAlmacenes();
+        unidades = await unidadService.GetTodosUnidades();
+        ubicaciones = await ubicacionService.GetTodosUbicacion();
 
         if (IdArticulo != "" && IdArticulo != null)
         {

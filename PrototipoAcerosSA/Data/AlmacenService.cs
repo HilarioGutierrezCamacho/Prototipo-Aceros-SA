@@ -13,7 +13,7 @@ namespace PrototipoAcerosSA.Data
 
         public AlmacenService()
         {
-            almacenes.Add(new Almacenn() { IdAlmacen = 1, Clave = "MP-ALM-001", Nombre = "MV", Alto = 50, Ancho = 30, Largo = 70, Estatus = "Activo", Descripcion = "Almacen para el guardado de MV" });
+            almacenes.Add(new Almacenn() { IdAlmacen = 1, Clave = "MP-ALM-001", Nombre = "MP", Alto = 50, Ancho = 30, Largo = 70, Estatus = "Activo", Descripcion = "Almacen para el guardado de MV" });
             almacenes.Add(new Almacenn() { IdAlmacen = 2, Clave = "VA-ALM-002", Nombre = "VA", Alto = 50, Ancho = 30, Largo = 70, Estatus = "Activo", Descripcion = "Almacen para el guardado de VA" });
             almacenes.Add(new Almacenn() { IdAlmacen = 3, Clave = "RF-ALM-003", Nombre = "RF", Alto = 50, Ancho = 30, Largo = 70, Estatus = "Activo", Descripcion = "Almacen para el guardado de RF" });
         }
