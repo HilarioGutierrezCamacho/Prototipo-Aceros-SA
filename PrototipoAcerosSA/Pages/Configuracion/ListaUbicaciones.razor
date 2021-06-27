@@ -4,6 +4,7 @@
 @using PrototipoAcerosSA.Data
 @using PrototipoAcerosSA.Models
 @inject NavigationManager UriHelper
+@inject IJSRuntime js
 
 
 <style>
@@ -64,18 +65,17 @@
     <AntDesign.Column @bind-Field="@ubicacion.Nombre" Sortable />
     <AntDesign.Column Title="No. Secciones" @bind-Field="@ubicacion.NumeroSecciones" Sortable />
     <AntDesign.Column Title="No. Pasillo" @bind-Field="@ubicacion.NumeroPasillo" Sortable />
-    <AntDesign.Column @bind-Field="@ubicacion.Alto" Sortable />
+    <!--<AntDesign.Column @bind-Field="@ubicacion.Alto" Sortable />
     <AntDesign.Column @bind-Field="@ubicacion.Ancho" Sortable />
-    <AntDesign.Column @bind-Field="@ubicacion.Largo" Sortable />
+    <AntDesign.Column @bind-Field="@ubicacion.Largo" Sortable />-->
     <AntDesign.Column @bind-Field="@ubicacion.Estatus" Sortable />
     <AntDesign.Column @bind-Field="@ubicacion.Descripcion" Sortable />
     <ActionColumn Title="Acciones">
-        <Button Icon="delete" Danger OnClick="() => QuitarFilaDetalle(ubicacion)">
-            Eliminar
-        </Button>
-        <Button Icon="edit" Type="primary" OnClick="() => NavegarEditarUbicacion(ubicacion.IdUbicacion)">
-            Editar
-        </Button>
+        <div class="icons-list">
+            <Icon Type="edit" Width="2em" Height="2em" Style="cursor: pointer;" Theme="outline" OnClick="() => NavegarEditarUbicacion(ubicacion.IdUbicacion)" />
+            <Icon Type="eye" Width="2em" Height="2em" Style="cursor: pointer;" Theme="outline" OnClick="() => NavegarDetallesUbicacion(ubicacion.IdUbicacion)" />
+            <Icon Type="delete" Width="2em" Height="2em" Style="cursor: pointer;" Theme="outline" OnClick="() => QuitarFilaDetalle(ubicacion)" />
+        </div>
     </ActionColumn>
 </Table>
 
@@ -141,6 +141,11 @@
         UriHelper.NavigateTo($"editar-ubicacion/{IdUbicacion}");
     }
 
+    public void NavegarDetallesUbicacion(int IdUbicacion)
+    {
+        UriHelper.NavigateTo($"detalle-ubicacion/{IdUbicacion}");
+    }
+
     public void NavegarNuevaUbicacion()
     {
         UriHelper.NavigateTo($"nueva-ubicacion");
@@ -148,12 +153,20 @@
 
     public async Task QuitarFilaDetalle(Ubicacion ubicacion)
     {
-        foreach (var detalle in ubicaciones)
+        var confirmacion = await js.InvokeAsync<bool>("confirmarEliminar",
+            "¿Deseas Eliminar la ubicación " + ubicacion.Nombre + "?", "", "question");
+        if (confirmacion)
         {
-            if (detalle.IdUbicacion == ubicacion.IdUbicacion)
+            foreach (var detalle in ubicaciones)
             {
-                ubicaciones.Remove(detalle);
-                break;
+                if (detalle.IdUbicacion == ubicacion.IdUbicacion)
+                {
+                    ubicaciones.Remove(detalle);
+                    ubicaciones = await ubicacionService.GetTodosUbicacion();
+                    _total = ubicaciones.Count();
+                    todos = ubicaciones;
+                    break;
+                }
             }
         }
     }

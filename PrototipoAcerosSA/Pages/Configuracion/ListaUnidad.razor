@@ -4,6 +4,7 @@
 @using PrototipoAcerosSA.Data
 @using PrototipoAcerosSA.Models
 @inject NavigationManager UriHelper
+@inject IJSRuntime js
 
 
 <style>
@@ -65,12 +66,11 @@
     <AntDesign.Column @bind-Field="@unidad.Estatus" Sortable />
     <AntDesign.Column @bind-Field="@unidad.Descripcion" Sortable />
     <ActionColumn Title="Acciones">
-        <Button Icon="delete" Danger OnClick="() => QuitarFilaDetalle(unidad)">
-            Eliminar
-        </Button>
-        <Button Icon="edit" Type="primary" OnClick="() => NavegarEditarUnidad(unidad.IdUnidad)">
-            Editar
-        </Button>
+        <div class="icons-list">
+            <Icon Type="edit" Width="2em" Height="2em" Style="cursor: pointer;" Theme="outline" OnClick="() => NavegarEditarUnidad(unidad.IdUnidad)" />
+            <Icon Type="eye" Width="2em" Height="2em" Style="cursor: pointer;" Theme="outline" OnClick="() => NavegarDetallesUnidad(unidad.IdUnidad)" />
+            <Icon Type="delete" Width="2em" Height="2em" Style="cursor: pointer;" Theme="outline" OnClick="() => QuitarFilaDetalle(unidad)" />
+        </div>
     </ActionColumn>
 </Table>
 
@@ -136,6 +136,11 @@
         UriHelper.NavigateTo($"editar-unidad/{IdUnidad}");
     }
 
+    public void NavegarDetallesUnidad(int IdUnidad)
+    {
+        UriHelper.NavigateTo($"detalle-unidad/{IdUnidad}");
+    }
+
     public void NavegarNuevaUnidad()
     {
         UriHelper.NavigateTo($"nueva-unidad");
@@ -143,12 +148,20 @@
 
     public async Task QuitarFilaDetalle(Unidad unidad)
     {
-        foreach (var detalle in unidades)
+        var confirmacion = await js.InvokeAsync<bool>("confirmarEliminar",
+            "¿Deseas Eliminar la unidad " + unidad.Nombre + "?", "", "question");
+        if (confirmacion)
         {
-            if (detalle.IdUnidad == unidad.IdUnidad)
+            foreach (var detalle in unidades)
             {
-                unidades.Remove(detalle);
-                break;
+                if (detalle.IdUnidad == unidad.IdUnidad)
+                {
+                    unidades.Remove(detalle);
+                    unidades = await unidadService.GetTodosUnidades();
+                    _total = unidades.Count();
+                    todos = unidades;
+                    break;
+                }
             }
         }
     }

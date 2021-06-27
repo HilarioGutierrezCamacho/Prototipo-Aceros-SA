@@ -4,6 +4,7 @@
 @using System.Text.RegularExpressions
 @using PrototipoAcerosSA.Data
 @inject NavigationManager UriHelper
+@inject IJSRuntime js
 
 <style>
     .about-section {
@@ -43,7 +44,7 @@
                             <Input @bind-Value="@FormUbicacion.NumeroSecciones" style="margin: 2px;" />
                         </FormItem>
                         </Col>
-                        <Col Span="112">
+                        <Col Span="12">
                         <FormItem Label="Número de pasillo:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
                             <Input @bind-Value="@FormUbicacion.NumeroPasillo" style="margin: 2px;" />
                         </FormItem>
@@ -161,16 +162,17 @@
 
     public async Task AddUbicacion()
     {
+        await js.InvokeAsync<bool>("confirmarGuardar", "¡Exito al guardar!", "success");
         await ubicacionService.AddUbicacion(
-            FormUbicacion.Clave,
-            FormUbicacion.Nombre,
-            FormUbicacion.NumeroSecciones,
-            FormUbicacion.NumeroPasillo,
-            FormUbicacion.Alto,
-            FormUbicacion.Ancho,
-            FormUbicacion.Largo,
-            FormUbicacion.Estatus,
-            FormUbicacion.Descripcion);
+        FormUbicacion.Clave,
+        FormUbicacion.Nombre,
+        FormUbicacion.NumeroSecciones,
+        FormUbicacion.NumeroPasillo,
+        FormUbicacion.Alto,
+        FormUbicacion.Ancho,
+        FormUbicacion.Largo,
+        FormUbicacion.Estatus,
+        FormUbicacion.Descripcion);
         var arts = await ubicacionService.GetTodosUbicacion();
         UriHelper.NavigateTo($"listado-ubicaciones");
     }
@@ -203,18 +205,18 @@
 
     public async Task UpdateUbicacion()
     {
-        //await almacenService.EditarAlmacen(FormAlmacen);
+        await js.InvokeAsync<bool>("confirmarGuardar", "¡Modificación exitosa!", "success");
         await ubicacionService.UpdateAlmacen(
-            FormUbicacion.IdUbicacion,
-            FormUbicacion.Clave,
-            FormUbicacion.Nombre,
-            FormUbicacion.NumeroSecciones,
-            FormUbicacion.NumeroPasillo,
-            FormUbicacion.Alto,
-            FormUbicacion.Ancho,
-            FormUbicacion.Largo,
-            FormUbicacion.Estatus,
-            FormUbicacion.Descripcion);
+        FormUbicacion.IdUbicacion,
+        FormUbicacion.Clave,
+        FormUbicacion.Nombre,
+        FormUbicacion.NumeroSecciones,
+        FormUbicacion.NumeroPasillo,
+        FormUbicacion.Alto,
+        FormUbicacion.Ancho,
+        FormUbicacion.Largo,
+        FormUbicacion.Estatus,
+        FormUbicacion.Descripcion);
         var arts = await ubicacionService.GetTodosUbicacion();
         UriHelper.NavigateTo($"listado-ubicaciones");
     }

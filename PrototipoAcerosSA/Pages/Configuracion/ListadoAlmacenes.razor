@@ -69,12 +69,11 @@
     <AntDesign.Column @bind-Field="@almacen.Estatus" Sortable />
     <AntDesign.Column @bind-Field="@almacen.Descripcion" Sortable />
     <ActionColumn Title="Acciones">
-        <Button Icon="delete" Danger OnClick="() => QuitarFilaDetalle(almacen)">
-            Eliminar
-        </Button>
-        <Button Icon="edit" Type="primary" OnClick="() => NavegarEditarAlmacen(almacen.IdAlmacen)">
-            Editar
-        </Button>
+        <div class="icons-list">
+            <Icon Type="edit" Width="2em" Height="2em" Style="cursor: pointer;" Theme="outline" OnClick="() => NavegarEditarAlmacen(almacen.IdAlmacen)" />
+            <Icon Type="eye" Width="2em" Height="2em" Style="cursor: pointer;" Theme="outline" OnClick="() => NavegarDetallesAlmacen(almacen.IdAlmacen)" />
+            <Icon Type="delete" Width="2em" Height="2em" Style="cursor: pointer;" Theme="outline" OnClick="() => QuitarFilaDetalle(almacen)" />
+        </div>
     </ActionColumn>
 </Table>
 
@@ -145,6 +144,11 @@
         UriHelper.NavigateTo($"nuevo-almacen");
     }
 
+    public void NavegarDetallesAlmacen(int IdAlmacen)
+    {
+        UriHelper.NavigateTo($"detalle-almacen/{IdAlmacen}");
+    }
+
     public async Task QuitarFilaDetalle(Almacenn almacen)
     {
         var confirmacion = await js.InvokeAsync<bool>("confirmarEliminar",
@@ -156,6 +160,9 @@
                 if (detalle.IdAlmacen == almacen.IdAlmacen)
                 {
                     almacenes.Remove(detalle);
+                    almacenes = await almacenService.GetTodosAlmacenes();
+                    _total = almacenes.Count();
+                    todos = almacenes;
                     break;
                 }
             }

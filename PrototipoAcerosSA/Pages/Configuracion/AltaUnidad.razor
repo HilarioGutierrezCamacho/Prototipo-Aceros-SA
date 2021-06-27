@@ -4,6 +4,7 @@
 @using System.Text.RegularExpressions
 @using PrototipoAcerosSA.Data
 @inject NavigationManager UriHelper
+@inject IJSRuntime js
 
 <style>
     .about-section {
@@ -23,6 +24,7 @@
 <div style="background-color: #ffffff; padding: 20px;">
     <div style="background: #ffffff; padding: 20px; border-radius: 5px; width: 100%;">
         <Form Model="@FormUnidad">
+            <Microsoft.AspNetCore.Components.Forms.DataAnnotationsValidator />
             <Card Bordered="true" Style="align-self: center;">
                 <Body>
                     <Row Gutter="24">
@@ -139,11 +141,12 @@
 
     public async Task AddUnidad()
     {
+        await js.InvokeAsync<bool>("confirmarGuardar", "¡Exito al guardar!", "success");
         await unidadService.AddUnidad(
-            FormUnidad.Clave,
-            FormUnidad.Nombre,
-            FormUnidad.Descripcion,
-            FormUnidad.Estatus);
+        FormUnidad.Clave,
+        FormUnidad.Nombre,
+        FormUnidad.Descripcion,
+        FormUnidad.Estatus);
         var arts = await unidadService.GetTodosUnidades();
         UriHelper.NavigateTo($"listado-unidades");
     }
@@ -171,12 +174,13 @@
 
     public async Task UpdateUnidad()
     {
+        await js.InvokeAsync<bool>("confirmarGuardar", "¡Modificación exitosa!", "success");
         await unidadService.UpdateUnidad(
-            FormUnidad.IdUnidad,
-            FormUnidad.Clave,
-            FormUnidad.Nombre,
-            FormUnidad.Descripcion,
-            FormUnidad.Estatus);
+        FormUnidad.IdUnidad,
+        FormUnidad.Clave,
+        FormUnidad.Nombre,
+        FormUnidad.Descripcion,
+        FormUnidad.Estatus);
         var arts = await unidadService.GetTodosUnidades();
         UriHelper.NavigateTo($"listado-unidades");
     }
