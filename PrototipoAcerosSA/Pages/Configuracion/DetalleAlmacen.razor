@@ -1,5 +1,4 @@
-﻿@page "/nuevo-almacen"
-@page "/editar-almacen/{IdAlmacen}"
+﻿@page "/detalle-almacen/{IdAlmacen}"
 
 @using System.Text.RegularExpressions
 @using PrototipoAcerosSA.Data
@@ -29,29 +28,29 @@
                     <Row Gutter="24">
                         <Col Span="8">
                         <FormItem Label="Clave:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
-                            <Input @bind-Value="@FormAlmacen.Clave" style="margin: 2px;" />
+                            <Input @bind-Value="@FormAlmacen.Clave" style="margin: 2px;" disabled/>
                         </FormItem>
                         </Col>
                         <Col Span="16">
                         <FormItem Label="Nombre:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
-                            <Input @bind-Value="@FormAlmacen.Nombre" style="margin: 2px;" />
+                            <Input @bind-Value="@FormAlmacen.Nombre" style="margin: 2px;" disabled />
                         </FormItem>
                         </Col>
                     </Row>
                     <Row Gutter="24">
                         <Col Span="8">
                         <FormItem Label="Alto:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
-                            <Input @bind-Value="@FormAlmacen.Alto" style="margin: 2px;" />
+                            <Input @bind-Value="@FormAlmacen.Alto" style="margin: 2px;" disabled />
                         </FormItem>
                         </Col>
                         <Col Span="8">
                         <FormItem Label="Largo:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
-                            <Input @bind-Value="@FormAlmacen.Largo" style="margin: 2px;" />
+                            <Input @bind-Value="@FormAlmacen.Largo" style="margin: 2px;" disabled />
                         </FormItem>
                         </Col>
                         <Col Span="8">
                         <FormItem Label="Ancho:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
-                            <Input @bind-Value="@FormAlmacen.Ancho" style="margin: 2px;" />
+                            <Input @bind-Value="@FormAlmacen.Ancho" style="margin: 2px;" disabled />
                         </FormItem>
                         </Col>
                     </Row>
@@ -62,28 +61,21 @@
                                     DefaultValue="@opcion"
                                     @bind-Value="@FormAlmacen.Estatus"
                                     ValueName="@nameof(Estatus.Nombre)"
-                                    LabelName="@nameof(Estatus.Nombre)">
+                                    LabelName="@nameof(Estatus.Nombre)"
+                                    disabled>
                             </Select>
                         </FormItem>
                         </Col>
                         <Col Span="16">
                         <FormItem Label="Descripción:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
-                            <Input @bind-Value="@FormAlmacen.Descripcion" style="margin: 2px;" />
+                            <Input @bind-Value="@FormAlmacen.Descripcion" style="margin: 2px;" disabled />
                         </FormItem>
                         </Col>
                     </Row>
 
                 </Body>
                 <ActionTemplate>
-                    @if (Titulo == "Nuevo Almacen")
-                    {
-                        <CardAction><Icon Type="file-done" Theme="outline" OnClick="() => AddAlmacen()" /> Guardar</CardAction>
-                    }
-                    else
-                    {
-                        <CardAction><Icon Type="edit" Theme="outline" OnClick="() => UpdateAlmacen()" /> Editar</CardAction>
-                    }
-                    <CardAction Style="color: red;"><Icon Style="color: red;" Type="rollback" Theme="outline" OnClick="() => Cancelar()" /> Cancelar</CardAction>
+                    <CardAction Style="color: red;"><Icon Style="color: red;" Type="rollback" Theme="outline" OnClick="() => Cancelar()" /> Regresar</CardAction>
                 </ActionTemplate>
             </Card>
         </Form>
@@ -106,7 +98,7 @@
     }
 
     public string opcion = "Seleccione...";
-    public string Titulo = "Nuevo Almacen";
+    public string Titulo = "Detalle Almacen";
     public Almacenn FormAlmacen = new Almacenn();
     public List<Almacenn> almacenes = new List<Almacenn>();
 
@@ -128,22 +120,7 @@
         est.Add(new Estatus() { IdEstatus = 1, Nombre = "Activo" });
         est.Add(new Estatus() { IdEstatus = 1, Nombre = "Inactivo" });
 
-        try
-        {
-            var valor = int.Parse(IdAlmacen);
-            if (valor > 0)
-            {
-                await ObtenerAlmacen();
-                Titulo = "Editar Almacen";
-            }
-        }
-        catch (Exception)
-        {
-
-        }
-
-
-
+        await ObtenerAlmacen();
     }
 
 
