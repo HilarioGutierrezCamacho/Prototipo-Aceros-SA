@@ -25,9 +25,11 @@
 
 <div style="background-color: #ffffff; padding: 20px;">
     <div style="background: #ffffff; padding: 20px; border-radius: 5px; width: 100%;">
-        <EditForm Model="@FormArticulo"  OnValidSubmit="@AddArticulo">
+        <EditForm Model="@FormArticulo" OnValidSubmit="@AddArticulo">
             <Microsoft.AspNetCore.Components.Forms.DataAnnotationsValidator />
+            <FluentValidationValidator />
             <Card Bordered="true" Style="align-self: center;">
+
                 <Body>
                     <div class="row">
                         <div class="form-group col-md-6">
@@ -112,7 +114,7 @@
                             <Button class="w-50" Type="@ButtonType.Primary" HtmlType="submit">
                                 Guardar
                             </Button>
-                        </CardAction> 
+                        </CardAction>
                     }
                     else
                     {
@@ -120,13 +122,13 @@
                             <Button class="w-50" Type="@ButtonType.Primary" HtmlType="submit">
                                 Editar
                             </Button>
-                        </CardAction>                    
+                        </CardAction>
                     }
-                <CardAction Style="color: red;">
-                    <Button class="w-50" Danger OnClick="() => RegresarListadoArticulos()">
-                        <Icon Style="color: red;" Type="rollback" Theme="outline" /> Cancelar
-                    </Button>
-                </CardAction>
+                    <CardAction Style="color: red;">
+                        <Button class="w-50" Danger OnClick="() => RegresarListadoArticulos()">
+                            <Icon Style="color: red;" Type="rollback" Theme="outline" /> Cancelar
+                        </Button>
+                    </CardAction>
                 </ActionTemplate>
             </Card>
         </EditForm>

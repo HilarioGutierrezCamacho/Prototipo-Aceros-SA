@@ -11,12 +11,19 @@
 </style>
 
 <Sider Style="overflow: auto;height: 100vh;position: fixed;left: 0;" Breakpoint="@BreakpointType.Lg" Collapsible Collapsed=@collapsed OnCollapse=@onCollapse>
-    <div class="logo">
-        <img src="assets/CE_AcerosSA_Logo.jpg" width="165px" height="120px" class="m-3">
-    </div>
+    @if (collapsed)
+    {
+        <div class="logo">
+            <img src="assets/CE_AcerosSA_Logo.jpg" width="50px" height="50px" class="m-3">
+        </div>
+    } else { 
+        <div class="logo">
+            <img src="assets/CE_AcerosSA_Logo.jpg" width="165px" height="120px" class="m-3">
+        </div>
+    }
     <br />
     <br />
-    <Menu Theme="MenuTheme.Dark" DefaultSelectedKeys=@(new[]{"1"}) Mode="MenuMode.Inline">
+    <Menu Theme="MenuTheme.Dark" DefaultSelectedKeys=@(new[]{"1"}) Mode="MenuMode.Vertical">
         <MenuItem Key="1">
             <Icon Type="home" Theme="outline" />
             <NavLink href="/home">Inicio</NavLink>
@@ -30,34 +37,34 @@
         }
         <SubMenu Key="sub2" TitleTemplate=Configuración>
             <MenuItem Key="12">
-                <NavLink href="/listado-almacenes">Almacen</NavLink>
+                <NavLink href="/listado-almacenes">Almacén</NavLink>
             </MenuItem>
             <MenuItem Key="13">
                 <NavLink href="/listado-unidades">Unidad</NavLink>
             </MenuItem>
             <MenuItem Key="14">
                 <NavLink href="/listado-ubicaciones">Ubicación</NavLink>
-                
+
             </MenuItem>
         </SubMenu>
         @{
             RenderFragment tituloArticulos =
             @<span>
                 <Icon Type="barcode" Theme="outline" />
-                <span>Articulos</span>
+                <span>Maestros Principales</span>
             </span>;
         }
         <SubMenu Key="articulos" TitleTemplate=tituloArticulos>
             <MenuItem Key="9">
                 <Icon Type="audit" Theme="outline" />
                 <NavLink href="/nuevo-articulo">
-                    Nuevo Articulo
+                    Articulos
                 </NavLink>
             </MenuItem>
             <MenuItem Key="10">
                 <Icon Type="audit" Theme="outline" />
                 <NavLink href="/listado-articulos">
-                    Listado
+                    Consulta de Artículos
                 </NavLink>
             </MenuItem>
         </SubMenu>
@@ -72,25 +79,25 @@
             <MenuItem Key="3">
                 <Icon Type="audit" Theme="outline" />
                 <NavLink href="/capturar-facturas">
-                    Entradas
+                    Entradas de Almacén
                 </NavLink>
             </MenuItem>
             <MenuItem Key="15">
                 <Icon Type="audit" Theme="outline" />
                 <NavLink href="/listado-entradas">
-                    Lista Facturas
+                    Consulta de Entradas de Almacén
                 </NavLink>
             </MenuItem>
             <MenuItem Key="17">
                 <Icon Type="snippets" Theme="outline" />
                 <NavLink href="/requisiciones">
-                    Requisiciones
+                    Salidas de Almacén
                 </NavLink>
             </MenuItem>
             <MenuItem Key="16">
                 <Icon Type="snippets" Theme="outline" />
                 <NavLink href="/listado-requisiciones">
-                    Cancelación
+                    Consulta de Requisiciones
                 </NavLink>
             </MenuItem>
         </SubMenu>
