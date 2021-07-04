@@ -10,5 +10,6 @@ namespace PrototipoAcerosSA.Data
     {
         public Task<List<Factura>> GetTodasFacturas();
         public Task<Factura> GetFacturaById(int IdFactura);
+        public Task<string> GenerateFolioFactura();
     }
 }

@@ -119,14 +119,7 @@
                         <AntDesign.Column Title="Nombre" TData="string">
                             <Input Disabled="true" Type="text" @bind-Value="@detalle.Articulo.Descripcion" />
                         </AntDesign.Column>
-                        <AntDesign.Column Title="Unidad" TData="int">
-                            <Select Disabled="true" DataSource="@unidades"
-                                    @bind-Value="@detalle.IdUnidad"
-                                    DefaultValue="@(0)"
-                                    ValueName="@nameof(Unidad.IdUnidad)"
-                                    LabelName="@nameof(Unidad.Descripcion)">
-                            </Select>
-                        </AntDesign.Column>
+                        
                         <AntDesign.Column Title="Cantidad" TData="int">
                             <Input Disabled="true" Type="number" @bind-Value="@detalle.Cantidad" />
                         </AntDesign.Column>

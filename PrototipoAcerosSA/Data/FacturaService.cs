@@ -12,14 +12,16 @@ namespace PrototipoAcerosSA.Data
         public readonly IProveedorService _proveedorService;
         public readonly IFormaPagoService _formaPagoService;
         public readonly IArticuloService _articuloService;
+        public readonly IUnidadService _unidadService;
 
         public List<Factura> facturas { get; set; } = new List<Factura>();
 
-        public FacturaService(IProveedorService proveedorService, IFormaPagoService formaPagoService, IArticuloService articuloService)
+        public FacturaService(IProveedorService proveedorService, IFormaPagoService formaPagoService, IArticuloService articuloService, IUnidadService unidadService)
         {
             _proveedorService = proveedorService;
             _formaPagoService = formaPagoService;
             _articuloService = articuloService;
+            _unidadService = unidadService;
             facturas = new List<Factura>();
             InicializarFacturas();
         }
@@ -44,7 +46,7 @@ namespace PrototipoAcerosSA.Data
                         new DetalleFactura()
                         {
                             Articulo = await _articuloService.GetArticuloById(1),
-                            IdUnidad = 3,
+                            Unidad = _unidadService.GetAlmacenById(3).Result.Descripcion,
                             Subtotal = 0,
                             IVA = 0,
                             TotalConIVA = 0
@@ -52,7 +54,7 @@ namespace PrototipoAcerosSA.Data
                         new DetalleFactura()
                         {
                             Articulo = await _articuloService.GetArticuloById(1),
-                            IdUnidad = 1,
+                            Unidad = _unidadService.GetAlmacenById(1).Result.Descripcion,
                             Subtotal = 0,
                             IVA = 0,
                             TotalConIVA = 0
@@ -60,7 +62,7 @@ namespace PrototipoAcerosSA.Data
                         ,new DetalleFactura()
                         {
                             Articulo = await _articuloService.GetArticuloById(2),
-                            IdUnidad = 1,
+                            Unidad = _unidadService.GetAlmacenById(1).Result.Descripcion,
                             Subtotal = 0,
                             IVA = 0,
                             TotalConIVA = 0
@@ -86,7 +88,7 @@ namespace PrototipoAcerosSA.Data
                         new DetalleFactura()
                         {
                             Articulo = await _articuloService.GetArticuloById(2),
-                            IdUnidad = 3,
+                            Unidad = _unidadService.GetAlmacenById(3).Result.Descripcion,
                             Subtotal = 0,
                             IVA = 0,
                             TotalConIVA = 0
@@ -94,7 +96,7 @@ namespace PrototipoAcerosSA.Data
                         new DetalleFactura()
                         {
                             Articulo = await _articuloService.GetArticuloById(2),
-                            IdUnidad = 1,
+                            Unidad = _unidadService.GetAlmacenById(1).Result.Descripcion,
                             Subtotal = 0,
                             IVA = 0,
                             TotalConIVA = 0
@@ -102,7 +104,7 @@ namespace PrototipoAcerosSA.Data
                         ,new DetalleFactura()
                         {
                             Articulo = await _articuloService.GetArticuloById(3),
-                            IdUnidad = 1,
+                            Unidad = _unidadService.GetAlmacenById(1).Result.Descripcion,
                             Subtotal = 0,
                             IVA = 0,
                             TotalConIVA = 0
@@ -128,7 +130,7 @@ namespace PrototipoAcerosSA.Data
                         new DetalleFactura()
                         {
                             Articulo = await _articuloService.GetArticuloById(3),
-                            IdUnidad = 3,
+                            Unidad = _unidadService.GetAlmacenById(3).Result.Descripcion,
                             Subtotal = 0,
                             IVA = 0,
                             TotalConIVA = 0
@@ -136,7 +138,7 @@ namespace PrototipoAcerosSA.Data
                         new DetalleFactura()
                         {
                             Articulo = await _articuloService.GetArticuloById(3),
-                            IdUnidad = 3,
+                            Unidad = _unidadService.GetAlmacenById(3).Result.Descripcion,
                             Subtotal = 0,
                             IVA = 0,
                             TotalConIVA = 0
@@ -144,7 +146,7 @@ namespace PrototipoAcerosSA.Data
                         ,new DetalleFactura()
                         {
                             Articulo = await _articuloService.GetArticuloById(2),
-                            IdUnidad = 1,
+                            Unidad = _unidadService.GetAlmacenById(1).Result.Descripcion,
                             Subtotal = 0,
                             IVA = 0,
                             TotalConIVA = 0
@@ -170,6 +172,72 @@ namespace PrototipoAcerosSA.Data
         public async Task<List<Factura>> GetTodasFacturas()
         {
             return facturas;
+        }
+
+        public async Task<string> GenerateFolioFactura()
+        {
+            int mes = DateTime.Now.Month;
+            string folio = "FACT";
+            string mesCadena = GetMes(mes);
+            string numeroFactura = GenerarNumeroFactura();
+            return folio + "-" + mesCadena + "-" + numeroFactura;
+        }
+
+        private string GetMes(int numeroMes)
+        {
+            string mes = "";
+            switch (numeroMes)
+            {
+                case 1:
+                    mes = "ENE";
+                    break;
+                case 2:
+                    mes = "FEB";
+                    break;
+                case 3:
+                    mes = "MAR";
+                    break;
+                case 4:
+                    mes = "ABR";
+                    break;
+                case 5:
+                    mes = "MAY";
+                    break;
+                case 6:
+                    mes = "JUN";
+                    break;
+                case 7:
+                    mes = "JUL";
+                    break;
+                case 8:
+                    mes = "AGO";
+                    break;
+                case 9:
+                    mes = "SEP";
+                    break;
+                case 10:
+                    mes = "OCT";
+                    break;
+                case 11:
+                    mes = "NOV";
+                    break;
+                case 12:
+                    mes = "DEC";
+                    break;
+            }
+            return mes;
+        }
+
+        private string GenerarNumeroFactura()
+        {
+            int ceros = 5;
+            int totalRegistros = facturas.Count();
+            string cadena = "";
+            for (int i = totalRegistros; i < ceros; i++)
+            {
+                cadena += "0";
+            }
+            return cadena + totalRegistros;
         }
     }
 }

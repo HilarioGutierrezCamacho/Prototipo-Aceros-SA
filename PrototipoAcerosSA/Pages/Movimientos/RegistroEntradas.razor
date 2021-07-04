@@ -84,11 +84,15 @@
                     </div>
                     <div class="form-group row w-75">
                         <label for="subtotal" class="col-sm-4">Descuento: </label>
-                        <AntDesign.InputNumber Class="form-control col-sm-8" @bind-Value="@FacturaForm.Descuento" Formatter="FormatoPesos" Parser="ParseoPesos" DefaultValue="1000d" />
+                        <div class="col-sm-8 p-0">
+                            <Input Type="number" @bind-Value="@FacturaForm.Descuento" OnPressEnter="() => CalcularTotalFactura()" />
+                        </div>
                     </div>
                     <div class="form-group row w-75">
                         <label for="subtotal" class="col-sm-4">IVA: </label>
-                        <AntDesign.InputNumber Class="form-control col-sm-8" @bind-Value="@FacturaForm.IVA" Formatter="FormatoPesos" Parser="ParseoPesos" DefaultValue="1000d" />
+                        <div class="col-sm-8 p-0">
+                            <Input Type="number" Class="form-control col-sm-8" @bind-Value="@FacturaForm.IVA" OnPressEnter="() => CalcularTotalFactura()" />
+                        </div>  
                     </div>
                     <div class="form-group row w-75">
                         <label for="subtotal" class="col-sm-4">Total: </label>
@@ -143,31 +147,24 @@
                     <hr />
 
                     <Table DataSource="@FacturaForm.DetallesFactura" Context="detalle" ScrollX="1000" TItem="DetalleFactura" PageSize="5">
-                        <AntDesign.Column Title="Clave" TData="string">
-                            <Input Type="text" @bind-Value="@detalle.Articulo.Clave" />
+                        <AntDesign.Column Title="Clave" @bind-Field="@detalle.Articulo">
+                            <label>@detalle.Articulo.Clave</label>
                         </AntDesign.Column>
-                        <AntDesign.Column Title="Nombre" TData="string">
-                            <Input Type="text" @bind-Value="@detalle.Articulo.Descripcion" />
+                        <AntDesign.Column Title="Nombre" @bind-Field="@detalle.Articulo">
+                            <label>@detalle.Articulo.Descripcion</label>
                         </AntDesign.Column>
-                        <AntDesign.Column Title="Unidad" TData="int">
-                            <Select DataSource="@unidades"
-                                    @bind-Value="@detalle.IdUnidad"
-                                    DefaultValue="@(0)"
-                                    ValueName="@nameof(Unidad.IdUnidad)"
-                                    LabelName="@nameof(Unidad.Descripcion)">
-                            </Select>
-                        </AntDesign.Column>
+                        <AntDesign.Column Title="Unidad" @bind-Field="@detalle.Unidad" Sortable />
                         <AntDesign.Column Title="Cantidad" TData="int">
-                            <Input Type="number" @bind-Value="@detalle.Cantidad" />
+                            <Input Type="number" @bind-Value="@detalle.Cantidad" OnPressEnter="() => CalcularTotalDetalle(detalle)" />
                         </AntDesign.Column>
                         <AntDesign.Column Title="Precio" TData="float">
-                            <Input Type="number" step="0.01" @bind-Value="@detalle.Articulo.PrecioUnitario" />
+                            <Input Type="number" step="0.01" @bind-Value="@detalle.PrecioUnitario" />
                         </AntDesign.Column>
                         <AntDesign.Column Title="Subtotal" TData="float">
                             <Input Type="number" step="0.01" @bind-Value="@detalle.Subtotal" />
                         </AntDesign.Column>
                         <AntDesign.Column Title="IVA" TData="float">
-                            <Input Type="number" step="0.01" @bind-Value="@detalle.IVA" />
+                            <Input Type="number" step="0.01" @bind-Value="@detalle.IVA" OnPressEnter="() => CalcularTotalDetalle(detalle)" />
                         </AntDesign.Column>
                         <AntDesign.Column Title="Total con IVA" TData="float">
                             <Input Type="number" step="0.01" @bind-Value="@detalle.TotalConIVA" />
@@ -203,6 +200,9 @@
     [Inject]
     public IFormaPagoService FormaPagoService { get; set; }
 
+    [Inject]
+    public IFacturaService FacturaService { get; set; }
+
 
     public Factura FacturaForm { get; set; } = new Factura();
     public List<DetalleFactura> detallesDefault = new List<DetalleFactura>();
@@ -219,7 +219,7 @@
     protected override async Task OnInitializedAsync()
     {
 
-        FacturaForm.FolioFactura = "F001";
+        FacturaForm.FolioFactura = await FacturaService.GenerateFolioFactura();
         FacturaForm.FechaCaptura = DateTime.Now.ToString("MM/dd/yyyy H:mm");
         FacturaForm.Comentarios = "";
         FacturaForm.Subtotal = 0.00;
@@ -252,7 +252,9 @@
                 DetalleFactura nuevaFila = new DetalleFactura()
                 {
                     Articulo = nuevoArticulo,
-                    IdUnidad = 0,
+                    Unidad = nuevoArticulo.Unidad.Descripcion,
+                    PrecioUnitario = nuevoArticulo.PrecioUnitario,
+                    Cantidad = 0,
                     Subtotal = 0,
                     IVA = 0,
                     TotalConIVA = 0
@@ -276,12 +278,14 @@
     {
         foreach (var detalle in FacturaForm.DetallesFactura)
         {
-            if (detalle.Articulo.IdArticulo == articulo.Articulo.IdArticulo && detalle.IdUnidad == articulo.IdUnidad)
+            if (detalle.Articulo.IdArticulo == articulo.Articulo.IdArticulo && detalle.Unidad == articulo.Unidad)
             {
                 FacturaForm.DetallesFactura.Remove(detalle);
                 break;
             }
         }
+
+        await CalcularTotalFactura();
     }
 
     async void AsignarFormaPago(FormaPago formaPago)
@@ -317,6 +321,63 @@
     private string ParseoPesos(string value)
     {
         return Regex.Replace(value, @"\$\s?|(,*)", "");
+    }
+
+    private async Task CalcularTotalFactura()
+    {
+
+        if (FacturaForm.DetallesFactura.Count() == 0)
+        {
+            FacturaForm.Subtotal = 0;
+            FacturaForm.Descuento = 0;
+            FacturaForm.TotalFactura = 0;
+            return;
+        }
+
+        FacturaForm.Subtotal = 0.00;
+        var subtotal = 0.00;
+
+        foreach (var detalle in FacturaForm.DetallesFactura)
+        {
+            FacturaForm.Subtotal += detalle.TotalConIVA;
+            subtotal += detalle.TotalConIVA;
+        }
+
+        FacturaForm.TotalFactura = subtotal;
+
+        var descuento = 0.00;
+        if (FacturaForm.Descuento != null && FacturaForm.Descuento > 0)
+        {
+            descuento = FacturaForm.Descuento;
+        }
+
+        FacturaForm.TotalFactura = FacturaForm.TotalFactura - descuento;
+
+        if (FacturaForm.IVA != null && FacturaForm.IVA > 0)
+        {
+            FacturaForm.TotalFactura = FacturaForm.TotalFactura * FacturaForm.IVA;
+        }
+
+    }
+
+    private async void CalcularTotalDetalle(DetalleFactura detalle)
+    {
+        if (detalle.Cantidad != null && detalle.Cantidad <= 0)
+        {
+            return;
+        }
+
+        detalle.Subtotal = detalle.Cantidad * detalle.PrecioUnitario;
+
+        detalle.TotalConIVA = detalle.Subtotal;
+
+        if (detalle.IVA != null && detalle.IVA > 0)
+        {
+            detalle.TotalConIVA = detalle.Subtotal + (detalle.Subtotal * detalle.IVA);
+        }
+
+        await CalcularTotalFactura();
+
     }
 
 }
