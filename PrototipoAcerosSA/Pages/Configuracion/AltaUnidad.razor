@@ -3,74 +3,67 @@
 
 @using System.Text.RegularExpressions
 @using PrototipoAcerosSA.Data
+@using System.ComponentModel.DataAnnotations;
 @inject NavigationManager UriHelper
 @inject IJSRuntime js
 
-<style>
-    .about-section {
-        padding: 20px;
-        text-align: center;
-        background-color: #474e5d;
-        color: white;
-        width: 100%;
-    }
-</style>
-
-<div class="about-section">
-    <h3 style="color: white;">@Titulo</h3>
-</div>
-
-<br />
 <div style="background-color: #ffffff; padding: 20px;">
     <div style="background: #ffffff; padding: 20px; border-radius: 5px; width: 100%;">
-        <Form Model="@FormUnidad">
+        <EditForm Model="@FormUnidad" OnValidSubmit="@AgregarUnidad">
             <Microsoft.AspNetCore.Components.Forms.DataAnnotationsValidator />
             <Card Bordered="true" Style="align-self: center;">
                 <Body>
-                    <Row Gutter="24">
-                        <Col Span="8">
-                        <FormItem Label="Clave:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
-                            <Input @bind-Value="@FormUnidad.Clave" style="margin: 2px;" />
-                        </FormItem>
-                        </Col>
-                        <Col Span="16">
-                        <FormItem Label="Nombre:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
-                            <Input @bind-Value="@FormUnidad.Nombre" style="margin: 2px;" />
-                        </FormItem>
-                        </Col>
-                    </Row>
-                    <Row Gutter="24">
-                        <Col Span="8">
-                        <FormItem Label="Estatus:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label for="lastName" class="col-sm-4">Clave: </label>
+                            <InputText id="lastName" class="form-control col-sm-12" @bind-Value="@FormUnidad.Clave" placeholder="Ingresa la clave"></InputText>
+                            <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormUnidad.Clave)" />
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="lastName" class="col-sm-4">Nombre: </label>
+                            <InputText id="lastName" class="form-control col-sm-12" @bind-Value="@FormUnidad.Nombre" placeholder="Ingresa el nombre"></InputText>
+                            <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormUnidad.Nombre)" />
+                        </div>
+                    </div>
+                    <div class="row">
+
+                        <div class="form-group col-md-6">
+                            <label for="lastName" class="col-sm-4">Estatus: </label>
                             <Select DataSource="@est"
-                                    DefaultValue="@opcion"
+                                    Placeholder="Selecciona..."
                                     @bind-Value="@FormUnidad.Estatus"
                                     ValueName="@nameof(Estatus.Nombre)"
                                     LabelName="@nameof(Estatus.Nombre)">
                             </Select>
-                        </FormItem>
-                        </Col>
-                        <Col Span="16">
-                        <FormItem Label="Descripción:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
-                            <Input @bind-Value="@FormUnidad.Descripcion" style="margin: 2px;" />
-                        </FormItem>
-                        </Col>
-                    </Row>
+                        </div>
 
+                    </div>
                 </Body>
                 <ActionTemplate>
                     @if (Titulo == "Nueva Unidad")
                     {
-                        <CardAction><Icon Type="file-done" Theme="outline" OnClick="() => AddUnidad()" /> Guardar</CardAction>
+                        <CardAction>
+                            <Button class="w-50" Type="@ButtonType.Primary" HtmlType="submit">
+                                Guardar
+                            </Button>
+                        </CardAction>
                     }
                     else
                     {
-                        <CardAction><Icon Type="edit" Theme="outline" OnClick="() => UpdateUnidad()" /> Editar</CardAction>
+                        <CardAction>
+                            <Button class="w-50" Type="@ButtonType.Primary" HtmlType="submit">
+                                Editar
+                            </Button>
+                        </CardAction>
                     }
-                    <CardAction Style="color: red;"><Icon Style="color: red;" Type="rollback" Theme="outline" OnClick="() => Cancelar()" /> Cancelar</CardAction>
+                    <CardAction Style="color: red;">
+                        <Button class="w-50" Danger OnClick="() => Cancelar()">
+                            <Icon Style="color: red;" Type="rollback" Theme="outline" /> Cancelar
+                        </Button>
+                    </CardAction>
                 </ActionTemplate>
             </Card>
-        </Form>
+        </EditForm>
     </div>
 </div>
 
@@ -80,9 +73,11 @@
     public class Unidad
     {
         public int IdUnidad { get; set; }
+        [Required(ErrorMessage = "Campo requerido.")]
         public string Clave { get; set; }
+        [Required(ErrorMessage = "Campo requerido.")]
         public string Nombre { get; set; }
-        public string Descripcion { get; set; }
+        [Required(ErrorMessage = "Campo requerido.")]
         public string Estatus { get; set; }
     }
 
@@ -105,7 +100,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        est.Add(new Estatus() { IdEstatus = 0, Nombre = "Seleccione.." });
         est.Add(new Estatus() { IdEstatus = 1, Nombre = "Activo" });
         est.Add(new Estatus() { IdEstatus = 1, Nombre = "Inactivo" });
 
@@ -145,7 +139,6 @@
         await unidadService.AddUnidad(
         FormUnidad.Clave,
         FormUnidad.Nombre,
-        FormUnidad.Descripcion,
         FormUnidad.Estatus);
         var arts = await unidadService.GetTodosUnidades();
         UriHelper.NavigateTo($"listado-unidades");
@@ -158,7 +151,6 @@
         FormUnidad.IdUnidad = dto.IdUnidad;
         FormUnidad.Clave = dto.Clave;
         FormUnidad.Nombre = dto.Nombre;
-        FormUnidad.Descripcion = dto.Descripcion;
         FormUnidad.Estatus = dto.Estatus;
         if (dto.Estatus == "Activo")
         {
@@ -168,7 +160,7 @@
         {
             opcion = "Inactivo";
         }
-        unidades.Add(new Unidad() { IdUnidad = dto.IdUnidad, Clave = dto.Clave, Nombre = dto.Nombre, Descripcion = dto.Descripcion, Estatus = dto.Estatus });
+        unidades.Add(new Unidad() { IdUnidad = dto.IdUnidad, Clave = dto.Clave, Nombre = dto.Nombre, Estatus = dto.Estatus });
 
     }
 
@@ -179,7 +171,6 @@
         FormUnidad.IdUnidad,
         FormUnidad.Clave,
         FormUnidad.Nombre,
-        FormUnidad.Descripcion,
         FormUnidad.Estatus);
         var arts = await unidadService.GetTodosUnidades();
         UriHelper.NavigateTo($"listado-unidades");
@@ -189,5 +180,15 @@
         var arts = await unidadService.GetTodosUnidades();
         UriHelper.NavigateTo($"listado-unidades");
     }
-
+    public async Task AgregarUnidad()
+    {
+        if (Titulo == "Nueva Unidad")
+        {
+            await AddUnidad();
+        }
+        else
+        {
+            await UpdateUnidad();
+        }
+    }
 }

@@ -2,8 +2,10 @@
 
 @using System.Text.RegularExpressions
 @using PrototipoAcerosSA.Data
+@using PrototipoAcerosSA.Models
 @inject NavigationManager UriHelper
 @inject IJSRuntime js
+
 
 <style>
     .about-section {
@@ -20,6 +22,8 @@
 </div>
 
 <br />
+<!--
+
 <div style="background-color: #ffffff; padding: 20px;">
     <div style="background: #ffffff; padding: 20px; border-radius: 5px; width: 100%;">
         <Form Model="@FormUbicacion">
@@ -93,22 +97,98 @@
         </Form>
     </div>
 </div>
+-->
+
+<div style="background-color: #ffffff; padding: 20px;">
+    <div style="background: #ffffff; padding: 20px; border-radius: 5px; width: 100%;">
+        <EditForm Model="@FormUbicacion" OnValidSubmit="@AddUbicacion">
+            <Microsoft.AspNetCore.Components.Forms.DataAnnotationsValidator />
+            <Card Bordered="true" Style="align-self: center;">
+                <Body>
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label for="lastName" class="col-sm-4">Clave: </label>
+                            <InputText id="lastName" class="form-control col-sm-12" @bind-Value="@FormUbicacion.Clave" placeholder="Ingresa la clave" disabled></InputText>
+                            <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormUbicacion.Clave)" />
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="lastName" class="col-sm-4">Nombre: </label>
+                            <InputText id="lastName" class="form-control col-sm-12" @bind-Value="@FormUbicacion.Nombre" placeholder="Ingresa el nombre" disabled></InputText>
+                            <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormUbicacion.Nombre)" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label for="lastName" class="col-sm-4">Tipo de Almacen: </label>
+                            <Select DataSource="@almacenes"
+                                    @bind-Value="@FormUbicacion.IdAlmacen"
+                                    DefaultValue="@FormUbicacion.IdAlmacen"
+                                    ValueName="@nameof(Almacenn.IdAlmacen)"
+                                    LabelName="@nameof(Almacenn.Nombre)"
+                                    OnSelectedItemChanged="OnChange"
+                                    disabled>
+                            </Select>
+                            <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormUbicacion.IdAlmacen)" />
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="lastName" class="col-sm-4">Pasillo: </label>
+                            <AntDesign.InputNumber @bind-Value="@FormUbicacion.Pasillo" style="margin: 2px; width: 100%;" disabled/>
+                            <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormUbicacion.Pasillo)" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label for="lastName" class="col-sm-4">Estante: </label>
+                            <AntDesign.InputNumber  @bind-Value="@FormUbicacion.Estante" style="margin: 2px; width: 100%;" disabled/>
+                            <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormUbicacion.Estante)" />
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="lastName" class="col-sm-4">Nivel: </label>
+                            <AntDesign.InputNumber @bind-Value="@FormUbicacion.nivel" style="margin: 2px; width: 100%;" disabled/>
+                            <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormUbicacion.nivel)" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-4">
+                            <Select DataSource="@est"
+                                    DefaultValue="@opcion"
+                                    @bind-Value="@FormUbicacion.Estatus"
+                                    ValueName="@nameof(Estatus.Nombre)"
+                                    LabelName="@nameof(Estatus.Nombre)"
+                                    disabled>
+                            </Select>
+                        </div>
+                        
+                    </div>
+                </Body>
+                <ActionTemplate>
+                    <CardAction Style="color: red;">
+                        <Button class="w-50" Danger OnClick="() => Cancelar()">
+                            <Icon Style="color: red;" Type="rollback" Theme="outline" /> Regresar
+                        </Button>
+                    </CardAction>
+                </ActionTemplate>
+            </Card>
+        </EditForm>
+    </div>
+</div>
 
 @code { [Inject]
     private IUbicacionService ubicacionService { get; set; }
+    [Inject]
+    private IAlmacenService almacenService { get; set; }
+
 
     public class Ubicacion
     {
         public int IdUbicacion { get; set; }
         public string Clave { get; set; }
         public string Nombre { get; set; }
-        public int NumeroSecciones { get; set; }
-        public int NumeroPasillo { get; set; }
-        public int Ancho { get; set; }
-        public int Largo { get; set; }
-        public int Alto { get; set; }
+        public int IdAlmacen { get; set; }
+        public int Estante { get; set; }
+        public int Pasillo { get; set; }
+        public int nivel { get; set; }
         public string Estatus { get; set; }
-        public string Descripcion { get; set; }
     }
 
     public string opcion = "Seleccione...";
@@ -127,9 +207,13 @@
 
     public Estatus estatus = new Estatus();
     public List<Estatus> est = new List<Estatus>();
+    public List<Almacenn> almacenes = new List<Almacenn>();
+    public bool band=false;
 
     protected override async Task OnInitializedAsync()
     {
+        almacenes = await almacenService.GetTodosAlmacenes();
+
         est.Add(new Estatus() { IdEstatus = 0, Nombre = "Seleccione..." });
         est.Add(new Estatus() { IdEstatus = 1, Nombre = "Activo" });
         est.Add(new Estatus() { IdEstatus = 1, Nombre = "Inactivo" });
@@ -142,13 +226,11 @@
         await ubicacionService.AddUbicacion(
         FormUbicacion.Clave,
         FormUbicacion.Nombre,
-        FormUbicacion.NumeroSecciones,
-        FormUbicacion.NumeroPasillo,
-        FormUbicacion.Alto,
-        FormUbicacion.Ancho,
-        FormUbicacion.Largo,
-        FormUbicacion.Estatus,
-        FormUbicacion.Descripcion);
+        FormUbicacion.IdAlmacen,
+        FormUbicacion.Pasillo,
+        FormUbicacion.Estante,
+        FormUbicacion.nivel,
+        FormUbicacion.Estatus);
         var arts = await ubicacionService.GetTodosUbicacion();
         UriHelper.NavigateTo($"listado-ubicaciones");
     }
@@ -160,13 +242,11 @@
         FormUbicacion.IdUbicacion = dto.IdUbicacion;
         FormUbicacion.Clave = dto.Clave;
         FormUbicacion.Nombre = dto.Nombre;
-        FormUbicacion.NumeroSecciones = dto.NumeroSecciones;
-        FormUbicacion.NumeroPasillo = dto.NumeroPasillo;
-        FormUbicacion.Alto = dto.Alto;
-        FormUbicacion.Ancho = dto.Ancho;
-        FormUbicacion.Largo = dto.Largo;
+        FormUbicacion.IdAlmacen = dto.IdAlmacen;
+        FormUbicacion.Pasillo = dto.Pasillo;
+        FormUbicacion.Estante = dto.Estante;
+        FormUbicacion.nivel = dto.nivel;
         FormUbicacion.Estatus = dto.Estatus;
-        FormUbicacion.Descripcion = dto.Descripcion;
         if (dto.Estatus == "Activo")
         {
             opcion = "Activo";
@@ -175,7 +255,7 @@
         {
             opcion = "Inactivo";
         }
-        ubicaciones.Add(new Ubicacion() { IdUbicacion = dto.IdUbicacion, Clave = dto.Clave, Nombre = dto.Nombre, NumeroSecciones = dto.NumeroSecciones, NumeroPasillo = dto.NumeroPasillo, Alto = dto.Alto, Ancho = dto.Ancho, Largo = dto.Largo, Estatus = dto.Estatus, Descripcion = dto.Descripcion });
+        ubicaciones.Add(new Ubicacion() { IdUbicacion = dto.IdUbicacion, Clave = dto.Clave, Nombre = dto.Nombre, Pasillo = dto.Pasillo, Estante = dto.Estante, nivel = dto.nivel, Estatus = dto.Estatus});
 
     }
 
@@ -186,13 +266,11 @@
         FormUbicacion.IdUbicacion,
         FormUbicacion.Clave,
         FormUbicacion.Nombre,
-        FormUbicacion.NumeroSecciones,
-        FormUbicacion.NumeroPasillo,
-        FormUbicacion.Alto,
-        FormUbicacion.Ancho,
-        FormUbicacion.Largo,
-        FormUbicacion.Estatus,
-        FormUbicacion.Descripcion);
+        FormUbicacion.IdAlmacen,
+        FormUbicacion.Pasillo,
+        FormUbicacion.Estante,
+        FormUbicacion.nivel,
+        FormUbicacion.Estatus);
         var arts = await ubicacionService.GetTodosUbicacion();
         UriHelper.NavigateTo($"listado-ubicaciones");
     }
@@ -200,6 +278,22 @@
     {
         var arts = await ubicacionService.GetTodosUbicacion();
         UriHelper.NavigateTo($"listado-ubicaciones");
+    }
+
+    private void OnChange(Almacenn value)
+    {
+        Console.WriteLine($"selected: ${value?.IdAlmacen}");
+        Console.WriteLine("IdAlmacen");
+        Console.WriteLine(value?.IdAlmacen);
+        if (value?.IdAlmacen == 1)
+        {
+            band = false;
+        }
+        else
+        {
+            band = true;
+        }
+
     }
 
 }

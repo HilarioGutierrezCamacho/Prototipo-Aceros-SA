@@ -50,11 +50,6 @@
                             </Select>
                         </FormItem>
                         </Col>
-                        <Col Span="16">
-                        <FormItem Label="Descripción:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
-                            <Input @bind-Value="@FormUnidad.Descripcion" style="margin: 2px;" disabled />
-                        </FormItem>
-                        </Col>
                     </Row>
 
                 </Body>
@@ -122,7 +117,6 @@
         await unidadService.AddUnidad(
         FormUnidad.Clave,
         FormUnidad.Nombre,
-        FormUnidad.Descripcion,
         FormUnidad.Estatus);
         var arts = await unidadService.GetTodosUnidades();
         UriHelper.NavigateTo($"listado-unidades");
@@ -135,7 +129,6 @@
         FormUnidad.IdUnidad = dto.IdUnidad;
         FormUnidad.Clave = dto.Clave;
         FormUnidad.Nombre = dto.Nombre;
-        FormUnidad.Descripcion = dto.Descripcion;
         FormUnidad.Estatus = dto.Estatus;
         if (dto.Estatus == "Activo")
         {
@@ -145,7 +138,7 @@
         {
             opcion = "Inactivo";
         }
-        unidades.Add(new Unidad() { IdUnidad = dto.IdUnidad, Clave = dto.Clave, Nombre = dto.Nombre, Descripcion = dto.Descripcion, Estatus = dto.Estatus });
+        unidades.Add(new Unidad() { IdUnidad = dto.IdUnidad, Clave = dto.Clave, Nombre = dto.Nombre, Estatus = dto.Estatus });
 
     }
 
@@ -156,7 +149,6 @@
         FormUnidad.IdUnidad,
         FormUnidad.Clave,
         FormUnidad.Nombre,
-        FormUnidad.Descripcion,
         FormUnidad.Estatus);
         var arts = await unidadService.GetTodosUnidades();
         UriHelper.NavigateTo($"listado-unidades");

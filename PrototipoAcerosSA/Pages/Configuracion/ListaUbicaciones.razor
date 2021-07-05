@@ -63,13 +63,10 @@
     <!--<AntDesign.Column Title="Id" @bind-Field="@ubicacion.IdUbicacion" Sortable />-->
     <AntDesign.Column @bind-Field="@ubicacion.Clave" Sortable />
     <AntDesign.Column @bind-Field="@ubicacion.Nombre" Sortable />
-    <AntDesign.Column Title="No. Secciones" @bind-Field="@ubicacion.NumeroSecciones" Sortable />
-    <AntDesign.Column Title="No. Pasillo" @bind-Field="@ubicacion.NumeroPasillo" Sortable />
-    <!--<AntDesign.Column @bind-Field="@ubicacion.Alto" Sortable />
-    <AntDesign.Column @bind-Field="@ubicacion.Ancho" Sortable />
-    <AntDesign.Column @bind-Field="@ubicacion.Largo" Sortable />-->
+    <AntDesign.Column Title="No. Pasillo" @bind-Field="@ubicacion.Pasillo" Sortable />
+    <AntDesign.Column Title="No. Estante" @bind-Field="@ubicacion.Estante" Sortable />
+    <AntDesign.Column Title="No. Nivel" @bind-Field="@ubicacion.nivel" Sortable />
     <AntDesign.Column @bind-Field="@ubicacion.Estatus" Sortable />
-    <AntDesign.Column @bind-Field="@ubicacion.Descripcion" Sortable />
     <ActionColumn Title="Acciones">
         <div class="icons-list">
             <Icon Type="edit" Width="2em" Height="2em" Style="cursor: pointer;" Theme="outline" OnClick="() => NavegarEditarUbicacion(ubicacion.IdUbicacion)" />

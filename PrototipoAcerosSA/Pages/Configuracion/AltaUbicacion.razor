@@ -3,120 +3,123 @@
 
 @using System.Text.RegularExpressions
 @using PrototipoAcerosSA.Data
+@using PrototipoAcerosSA.Models
+@using System.ComponentModel.DataAnnotations;
 @inject NavigationManager UriHelper
 @inject IJSRuntime js
-
-<style>
-    .about-section {
-        padding: 20px;
-        text-align: center;
-        background-color: #474e5d;
-        color: white;
-        width: 100%;
-    }
-</style>
-
-<div class="about-section">
-    <h3 style="color: white;">@Titulo</h3>
-</div>
-
-<br />
 <div style="background-color: #ffffff; padding: 20px;">
     <div style="background: #ffffff; padding: 20px; border-radius: 5px; width: 100%;">
-        <Form Model="@FormUbicacion">
+        <EditForm Model="@FormUbicacion" OnValidSubmit="@AgregarUbicacion">
+            <Microsoft.AspNetCore.Components.Forms.DataAnnotationsValidator />
             <Card Bordered="true" Style="align-self: center;">
                 <Body>
-                    <Row Gutter="24">
-                        <Col Span="8">
-                        <FormItem Label="Clave:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
-                            <Input @bind-Value="@FormUbicacion.Clave" style="margin: 2px;" />
-                        </FormItem>
-                        </Col>
-                        <Col Span="16">
-                        <FormItem Label="Nombre:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
-                            <Input @bind-Value="@FormUbicacion.Nombre" style="margin: 2px;" />
-                        </FormItem>
-                        </Col>
-                    </Row>
-                    <Row Gutter="24">
-                        <Col Span="12">
-                        <FormItem Label="Número de secciones:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
-                            <Input @bind-Value="@FormUbicacion.NumeroSecciones" style="margin: 2px;" />
-                        </FormItem>
-                        </Col>
-                        <Col Span="12">
-                        <FormItem Label="Número de pasillo:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
-                            <Input @bind-Value="@FormUbicacion.NumeroPasillo" style="margin: 2px;" />
-                        </FormItem>
-                        </Col>
-                    </Row>
-                    <Row Gutter="24">
-                        <Col Span="8">
-                        <FormItem Label="Alto:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
-                            <Input @bind-Value="@FormUbicacion.Alto" style="margin: 2px;" />
-                        </FormItem>
-                        </Col>
-                        <Col Span="8">
-                        <FormItem Label="Largo:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
-                            <Input @bind-Value="@FormUbicacion.Largo" style="margin: 2px;" />
-                        </FormItem>
-                        </Col>
-                        <Col Span="8">
-                        <FormItem Label="Ancho:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
-                            <Input @bind-Value="@FormUbicacion.Ancho" style="margin: 2px;" />
-                        </FormItem>
-                        </Col>
-                    </Row>
-                    <Row Gutter="24">
-                        <Col Span="8">
-                        <FormItem Label="Estatus:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label for="lastName" class="col-sm-4">Clave: </label>
+                            <InputText id="lastName" class="form-control col-sm-12" @bind-Value="@FormUbicacion.Clave" placeholder="Ingresa la clave"></InputText>
+                            <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormUbicacion.Clave)" />
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="lastName" class="col-sm-4">Nombre: </label>
+                            <InputText id="lastName" class="form-control col-sm-12" @bind-Value="@FormUbicacion.Nombre" placeholder="Ingresa el nombre"></InputText>
+                            <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormUbicacion.Nombre)" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label for="lastName" class="col-sm-4">Tipo de Almacen: </label>
+                            <Select DataSource="@almacenes"
+                                    @bind-Value="@FormUbicacion.IdAlmacen"
+                                    ValueName="@nameof(Almacenn.IdAlmacen)"
+                                    LabelName="@nameof(Almacenn.Nombre)"
+                                    Placeholder="Selecciona..."
+                                    DefaultValue="@FormUbicacion.IdAlmacen"
+                                    OnSelectedItemChanged="OnChange">
+                            </Select>
+                            <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormUbicacion.IdAlmacen)" />
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="lastName" class="col-sm-4">Pasillo: </label>
+                            <AntDesign.InputNumber @bind-Value="@FormUbicacion.Pasillo" Min="0" style="margin: 2px; width: 100%;" />
+                            <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormUbicacion.Pasillo)" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label for="lastName" class="col-sm-4">Estante: </label>
+                            <AntDesign.InputNumber @bind-Value="@FormUbicacion.Estante" Min="0" style="margin: 2px; width: 100%;" />
+                            <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormUbicacion.Estante)" />
+                        </div>
+                        @if(band){
+                        <div class="form-group col-md-6">
+                            <label for="lastName" class="col-sm-4">Nivel: </label>
+                            <AntDesign.InputNumber @bind-Value="@FormUbicacion.nivel"  Min="0" style="margin: 2px; width: 100%;" />
+                            <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormUbicacion.nivel)" />
+                        </div>
+                        }
+                    </div>
+                    <div class="row">
+                        
+                        <div class="form-group col-md-6">
+                            <label for="lastName" class="col-sm-4">Estatus: </label>
                             <Select DataSource="@est"
-                                    DefaultValue="@opcion"
+                                     Placeholder="Selecciona..."
                                     @bind-Value="@FormUbicacion.Estatus"
                                     ValueName="@nameof(Estatus.Nombre)"
                                     LabelName="@nameof(Estatus.Nombre)">
                             </Select>
-                        </FormItem>
-                        </Col>
-                        <Col Span="16">
-                        <FormItem Label="Descripción:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
-                            <Input @bind-Value="@FormUbicacion.Descripcion" style="margin: 2px;" />
-                        </FormItem>
-                        </Col>
-                    </Row>
+                        </div>
 
+                    </div>
                 </Body>
                 <ActionTemplate>
-                    @if (Titulo == "Nueva Ubicación")
+                    @if (Titulo=="Nueva Ubicación")
                     {
-                        <CardAction><Icon Type="file-done" Theme="outline" OnClick="() => AddUbicacion()" /> Guardar</CardAction>
+                        <CardAction>
+                            <Button class="w-50" Type="@ButtonType.Primary" HtmlType="submit">
+                                Guardar
+                            </Button>
+                        </CardAction>
                     }
                     else
                     {
-                        <CardAction><Icon Type="edit" Theme="outline" OnClick="() => UpdateUbicacion()" /> Editar</CardAction>
+                        <CardAction>
+                            <Button class="w-50" Type="@ButtonType.Primary" HtmlType="submit">
+                                Editar
+                            </Button>
+                        </CardAction>
                     }
-                    <CardAction Style="color: red;"><Icon Style="color: red;" Type="rollback" Theme="outline" OnClick="() => Cancelar()" /> Cancelar</CardAction>
+                    <CardAction Style="color: red;">
+                        <Button class="w-50" Danger OnClick="() => Cancelar()">
+                            <Icon Style="color: red;" Type="rollback" Theme="outline" /> Cancelar
+                        </Button>
+                    </CardAction>
                 </ActionTemplate>
             </Card>
-        </Form>
+        </EditForm>
     </div>
 </div>
-
 @code { [Inject]
     private IUbicacionService ubicacionService { get; set; }
+    [Inject]
+    private IAlmacenService almacenService { get; set; }
 
     public class Ubicacion
     {
         public int IdUbicacion { get; set; }
+        [Required(ErrorMessage = "Campo requerido.")]
         public string Clave { get; set; }
+        [Required(ErrorMessage = "Campo requerido.")]
         public string Nombre { get; set; }
-        public int NumeroSecciones { get; set; }
-        public int NumeroPasillo { get; set; }
-        public int Ancho { get; set; }
-        public int Largo { get; set; }
-        public int Alto { get; set; }
+        [Required(ErrorMessage = "Campo requerido.")]
+        public int IdAlmacen { get; set; }
+        [Required(ErrorMessage = "Campo requerido.")]
+        public int Estante { get; set; }
+        [Required(ErrorMessage = "Campo requerido.")]
+        public int Pasillo { get; set; }
+        public int nivel { get; set; }
+        [Required(ErrorMessage = "Campo requerido.")]
         public string Estatus { get; set; }
-        public string Descripcion { get; set; }
     }
 
     public string opcion = "Seleccione...";
@@ -135,10 +138,12 @@
 
     public Estatus estatus = new Estatus();
     public List<Estatus> est = new List<Estatus>();
+    public List<Almacenn> almacenes = new List<Almacenn>();
+    public bool band = false;
 
     protected override async Task OnInitializedAsync()
     {
-        est.Add(new Estatus() { IdEstatus = 0, Nombre = "Seleccione..." });
+        almacenes = await almacenService.GetTodosAlmacenes();
         est.Add(new Estatus() { IdEstatus = 1, Nombre = "Activo" });
         est.Add(new Estatus() { IdEstatus = 1, Nombre = "Inactivo" });
 
@@ -160,19 +165,29 @@
 
     }
 
+    public async Task AgregarUbicacion()
+    {
+        if(Titulo== "Nueva Ubicación")
+        {
+            await AddUbicacion();
+        }
+        else
+        {
+            await UpdateUbicacion();
+        }
+    }
+
     public async Task AddUbicacion()
     {
         await js.InvokeAsync<bool>("confirmarGuardar", "¡Exito al guardar!", "success");
         await ubicacionService.AddUbicacion(
         FormUbicacion.Clave,
         FormUbicacion.Nombre,
-        FormUbicacion.NumeroSecciones,
-        FormUbicacion.NumeroPasillo,
-        FormUbicacion.Alto,
-        FormUbicacion.Ancho,
-        FormUbicacion.Largo,
-        FormUbicacion.Estatus,
-        FormUbicacion.Descripcion);
+        FormUbicacion.IdAlmacen,
+        FormUbicacion.Pasillo,
+        FormUbicacion.Estante,
+        FormUbicacion.nivel,
+        FormUbicacion.Estatus);
         var arts = await ubicacionService.GetTodosUbicacion();
         UriHelper.NavigateTo($"listado-ubicaciones");
     }
@@ -184,13 +199,11 @@
         FormUbicacion.IdUbicacion = dto.IdUbicacion;
         FormUbicacion.Clave = dto.Clave;
         FormUbicacion.Nombre = dto.Nombre;
-        FormUbicacion.NumeroSecciones = dto.NumeroSecciones;
-        FormUbicacion.NumeroPasillo = dto.NumeroPasillo;
-        FormUbicacion.Alto = dto.Alto;
-        FormUbicacion.Ancho = dto.Ancho;
-        FormUbicacion.Largo = dto.Largo;
+        FormUbicacion.IdAlmacen = dto.IdAlmacen;
+        FormUbicacion.Pasillo = dto.Pasillo;
+        FormUbicacion.Estante = dto.Estante;
+        FormUbicacion.nivel = dto.nivel;
         FormUbicacion.Estatus = dto.Estatus;
-        FormUbicacion.Descripcion = dto.Descripcion;
         if (dto.Estatus == "Activo")
         {
             opcion = "Activo";
@@ -199,7 +212,7 @@
         {
             opcion = "Inactivo";
         }
-        ubicaciones.Add(new Ubicacion() { IdUbicacion = dto.IdUbicacion, Clave = dto.Clave, Nombre = dto.Nombre, NumeroSecciones = dto.NumeroSecciones, NumeroPasillo = dto.NumeroPasillo, Alto = dto.Alto, Ancho = dto.Ancho, Largo = dto.Largo, Estatus = dto.Estatus, Descripcion = dto.Descripcion });
+        ubicaciones.Add(new Ubicacion() { IdUbicacion = dto.IdUbicacion, Clave = dto.Clave, Nombre = dto.Nombre, Pasillo = dto.Pasillo, Estante = dto.Estante, nivel = dto.nivel, Estatus = dto.Estatus });
 
     }
 
@@ -210,13 +223,11 @@
         FormUbicacion.IdUbicacion,
         FormUbicacion.Clave,
         FormUbicacion.Nombre,
-        FormUbicacion.NumeroSecciones,
-        FormUbicacion.NumeroPasillo,
-        FormUbicacion.Alto,
-        FormUbicacion.Ancho,
-        FormUbicacion.Largo,
-        FormUbicacion.Estatus,
-        FormUbicacion.Descripcion);
+        FormUbicacion.IdAlmacen,
+        FormUbicacion.Pasillo,
+        FormUbicacion.Estante,
+        FormUbicacion.nivel,
+        FormUbicacion.Estatus);
         var arts = await ubicacionService.GetTodosUbicacion();
         UriHelper.NavigateTo($"listado-ubicaciones");
     }
@@ -224,6 +235,22 @@
     {
         var arts = await ubicacionService.GetTodosUbicacion();
         UriHelper.NavigateTo($"listado-ubicaciones");
+    }
+
+    private void OnChange(Almacenn value)
+    {
+        Console.WriteLine($"selected: ${value?.IdAlmacen}");
+        Console.WriteLine("IdAlmacen");
+        Console.WriteLine(value?.IdAlmacen);
+        if (value?.IdAlmacen == 1)
+        {
+            band = false;
+        }
+        else
+        {
+            band = true;
+        }
+
     }
 
 }

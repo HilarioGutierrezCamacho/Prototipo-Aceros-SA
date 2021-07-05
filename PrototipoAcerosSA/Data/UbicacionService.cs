@@ -13,9 +13,9 @@ namespace PrototipoAcerosSA.Data
 
         public UbicacionService()
         {
-            ubicaciones.Add(new Ubicacion() { IdUbicacion = 1, Clave = "UBI-MV-001", Nombre = "Estante 1", NumeroSecciones = 4, NumeroPasillo = 1, Alto = 50, Ancho = 30, Largo = 70, Estatus = "Activo", Descripcion = "Estante 1" });
-            ubicaciones.Add(new Ubicacion() { IdUbicacion = 2, Clave = "UBI-RF-002", Nombre = "Estante 2", NumeroSecciones = 4, NumeroPasillo = 2, Alto = 50, Ancho = 30, Largo = 70, Estatus = "Activo", Descripcion = "Estante 2" });
-            ubicaciones.Add(new Ubicacion() { IdUbicacion = 3, Clave = "UBI-VA-003", Nombre = "Estante 3", NumeroSecciones = 4, NumeroPasillo = 3, Alto = 50, Ancho = 30, Largo = 70, Estatus = "Activo", Descripcion = "Estante 3" });
+            ubicaciones.Add(new Ubicacion() { IdUbicacion = 1, Clave = "EST MV-001", Nombre = "Estante 1", IdAlmacen = 1, Pasillo = 1, Estante = 1, nivel = 3,  Estatus = "Activo"});
+            ubicaciones.Add(new Ubicacion() { IdUbicacion = 2, Clave = "EST RF-002", Nombre = "Estante 2", IdAlmacen = 3, Pasillo = 3, Estante = 2, nivel = 0, Estatus = "Activo" });
+            ubicaciones.Add(new Ubicacion() { IdUbicacion = 3, Clave = "EST VA-003", Nombre = "Estante 3", IdAlmacen = 2, Pasillo = 2, Estante = 1, nivel = 3, Estatus = "Activo" });
         }
 
         public async Task<List<Ubicacion>> GetTodosUbicacion()
@@ -49,7 +49,7 @@ namespace PrototipoAcerosSA.Data
             return ubicacion;
         }
 
-        public async Task<Ubicacion> AddUbicacion(string clave, string nombre, int numSecciones, int numPasillo, int alto, int ancho, int largo, string descripcion, string estatus)
+        public async Task<Ubicacion> AddUbicacion(string clave, string nombre, int IdAlmacen, int numPasillo, int Estante, int Nivel, string estatus)
         {
             var idIncrementable = ubicaciones.LastOrDefault().IdUbicacion + 1;
             var nuevaUbicacion = new Ubicacion()
@@ -57,31 +57,27 @@ namespace PrototipoAcerosSA.Data
                 IdUbicacion = idIncrementable,
                 Clave = clave,
                 Nombre = nombre,
-                NumeroSecciones = numSecciones,
-                NumeroPasillo = numPasillo,
-                Alto = alto,
-                Ancho = ancho,
-                Largo = largo,
-                Descripcion = descripcion,
+                IdAlmacen=IdAlmacen,
+                Pasillo = numPasillo,
+                Estante = Estante,
+                nivel = Nivel,
                 Estatus = estatus
             };
             ubicaciones.Add(nuevaUbicacion);
             return nuevaUbicacion;
         }
 
-        public async Task<Ubicacion> UpdateAlmacen(int IdUbicacion, string clave, string nombre, int numSecciones, int numPasillo, int alto, int ancho, int largo, string descripcion, string estatus)
+        public async Task<Ubicacion> UpdateAlmacen(int IdUbicacion, string clave, string nombre, int IdAlmacen, int numPasillo, int Estante, int Nivel, string estatus)
         {
             var modificarUbicacion = new Ubicacion()
             {
                 IdUbicacion = IdUbicacion,
                 Clave = clave,
                 Nombre = nombre,
-                NumeroSecciones = numSecciones,
-                NumeroPasillo = numPasillo,
-                Alto = alto,
-                Ancho = ancho,
-                Largo = largo,
-                Descripcion = descripcion,
+                IdAlmacen = IdAlmacen,
+                Pasillo = numPasillo,
+                Estante = Estante,
+                nivel = Nivel,
                 Estatus = estatus
             };
             ubicaciones[ubicaciones.FindIndex(index => index.IdUbicacion == modificarUbicacion.IdUbicacion)] = modificarUbicacion;

@@ -6,10 +6,10 @@ namespace PrototipoAcerosSA.Data
 {
     public interface IUbicacionService
     {
-        Task<Ubicacion> AddUbicacion(string clave, string nombre, int numSecciones, int numPasillo, int alto, int ancho, int largo, string descripcion, string estatus);
+        Task<Ubicacion> AddUbicacion(string clave, string nombre, int IdAlmacen, int numPasillo, int Estante, int Nivel, string estatus);
         Task<List<Ubicacion>> GetTodosUbicacion();
         Task<Ubicacion> GetUbicacionByClave(string Clave);
         Task<Ubicacion> GetUbicacionById(int IdUbicacion);
-        Task<Ubicacion> UpdateAlmacen(int IdUbicacion, string clave, string nombre, int numSecciones, int numPasillo, int alto, int ancho, int largo, string descripcion, string estatus);
+        Task<Ubicacion> UpdateAlmacen(int IdUbicacion, string clave, string nombre, int IdAlmacen, int numPasillo, int Estante, int Nivel, string estatus);
     }
 }

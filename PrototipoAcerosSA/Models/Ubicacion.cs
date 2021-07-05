@@ -10,13 +10,11 @@ namespace PrototipoAcerosSA.Models
         public int IdUbicacion { get; set; }
         public string Clave { get; set; }
         public string Nombre { get; set; }
-        public int NumeroSecciones { get; set; }
-        public int NumeroPasillo { get; set; }
-        public int Ancho { get; set; }
-        public int Largo { get; set; }
-        public int Alto { get; set; }
+        public int IdAlmacen { get; set; }
+        public int Estante { get; set; }
+        public int Pasillo { get; set; }
+        public int nivel { get; set; }
         public string Estatus { get; set; }
-        public string Descripcion { get; set; }
 
     }
 }
