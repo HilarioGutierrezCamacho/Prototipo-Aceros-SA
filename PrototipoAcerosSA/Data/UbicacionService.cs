@@ -83,5 +83,25 @@ namespace PrototipoAcerosSA.Data
             ubicaciones[ubicaciones.FindIndex(index => index.IdUbicacion == modificarUbicacion.IdUbicacion)] = modificarUbicacion;
             return modificarUbicacion;
         }
+
+        public async Task<List<Ubicacion>> GetUbicacionByIdAlmacen(int IdAlmacen)
+        {
+            List<Ubicacion> ubicacionesFiltro = new List<Ubicacion>();
+            foreach (var ubi in ubicaciones)
+            {
+                if (ubi.IdAlmacen == IdAlmacen)
+                {
+                    Ubicacion aux = new Ubicacion();
+                    aux.IdUbicacion = ubi.IdUbicacion;
+                    aux.IdAlmacen = ubi.IdAlmacen;
+                    aux.Nombre = ubi.Nombre + " / " + ubi.Pasillo + " / " + ubi.nivel;
+                    aux.Pasillo = ubi.Pasillo;
+                    aux.nivel = ubi.nivel;
+                    aux.Estatus = ubi.Estatus;
+                    ubicacionesFiltro.Add(aux);
+                }
+            }
+            return ubicacionesFiltro;
+        }
     }
 }

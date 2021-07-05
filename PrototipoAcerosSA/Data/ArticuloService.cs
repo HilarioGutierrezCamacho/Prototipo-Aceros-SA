@@ -79,6 +79,7 @@ namespace PrototipoAcerosSA.Data
                 if (art.IdArticulo == IdArticulo)
                 {
                     articulo = art;
+                    articulo.IdUbicacion = art.Ubicacion.IdUbicacion;
                 }
             }
             return articulo;
@@ -121,6 +122,18 @@ namespace PrototipoAcerosSA.Data
         {
             articulos[articulos.FindIndex(index => index.IdArticulo == IdArticulo)].Estatus = false;
             return await GetArticuloById(IdArticulo);
+        }
+
+        public async Task<string> GenerarClaveArticulo(Articulo articulo)
+        {
+            string clave = "";
+            if (articulo.Descripcion != "" && articulo.IdUnidad != 0)
+            {
+                Unidad unidad = await _unidadService.GetAlmacenById(articulo.IdUnidad);
+                string num = GenerarNumeroArticulo();
+                clave = articulo.Descripcion.ToUpper().Substring(0, 3) + "-" + unidad.Nombre.ToUpper().Substring(0, 3) + "-" + num;
+            }
+            return clave;
         }
 
         /**** UTILS *****/

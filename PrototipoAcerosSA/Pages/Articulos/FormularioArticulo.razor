@@ -34,12 +34,12 @@
                     <div class="row">
                         <div class="form-group col-md-6">
                             <label for="lastName" class="col-sm-4">Clave del Articulo: </label>
-                            <InputText id="lastName" class="form-control col-sm-12" @bind-Value="@FormArticulo.Clave" placeholder="Ingresa el folio"></InputText>
+                            <InputText readonly id="lastName" class="form-control col-sm-12" @bind-Value="@FormArticulo.Clave" placeholder="Ingresa el folio"></InputText>
                             <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormArticulo.Clave)" />
                         </div>
                         <div class="form-group col-md-6">
                             <label for="lastName" class="col-sm-4">Descripción: </label>
-                            <InputText id="lastName" class="form-control col-sm-12" @bind-Value="@FormArticulo.Descripcion" placeholder="Ingresa la descripción"></InputText>
+                            <InputText @bind-Value="@FormArticulo.Descripcion" id="lastName" class="form-control col-sm-12" placeholder="Ingresa la descripción" />
                             <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormArticulo.Descripcion)" />
                         </div>
                     </div>
@@ -55,9 +55,10 @@
                             <label for="lastName" class="col-sm-4">Almacen: </label>
                             <Select DataSource="@almacenes"
                                     @bind-Value="@FormArticulo.IdAlmacen"
-                                    DefaultValue="@(0)"
+                                    DefaultActiveFirstOption="true"
                                     ValueName="@nameof(Almacenn.IdAlmacen)"
-                                    LabelName="@nameof(Almacenn.Nombre)">
+                                    LabelName="@nameof(Almacenn.Nombre)"
+                                    OnSelectedItemChanged="ActualizarUbicaciones">
                             </Select>
                             <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormArticulo.IdAlmacen)" />
                         </div>
@@ -77,9 +78,10 @@
                             <label for="lastName" class="col-sm-4">Unidad: </label>
                             <Select DataSource="@unidades"
                                     @bind-Value="@FormArticulo.IdUnidad"
-                                    DefaultValue="@(0)"
+                                    DefaultActiveFirstOption="true"
                                     ValueName="@nameof(Unidad.IdUnidad)"
-                                    LabelName="@nameof(Unidad.Nombre)">
+                                    LabelName="@nameof(Unidad.Nombre)"
+                                    OnSelectedItemChanged="ActualizarClaveEmpleado">
                             </Select>
                             <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormArticulo.IdUnidad)" />
                         </div>
@@ -159,9 +161,12 @@
     protected override async Task OnInitializedAsync()
     {
 
-        almacenes = await almacenService.GetTodosAlmacenes();
-        unidades = await unidadService.GetTodosUnidades();
-        ubicaciones = await ubicacionService.GetTodosUbicacion();
+        almacenes.Add(new Almacenn() { IdAlmacen = 0, Nombre = "Selecciona un Almacén" });
+        almacenes.AddRange(await almacenService.GetTodosAlmacenes());
+        unidades.Add(new Unidad() { IdUnidad = 0, Nombre = "Selecciona una ubicación" });
+        unidades.AddRange(await unidadService.GetTodosUnidades());
+        ubicaciones = new List<Ubicacion>();
+        ubicaciones.Add(new Ubicacion() { IdAlmacen = 0, Nombre = "Selecciona una ubicación" });
 
         if (IdArticulo != "" && IdArticulo != null)
         {
@@ -199,6 +204,19 @@
             UriHelper.NavigateTo($"listado-articulos");
         }
 
+    }
+
+    public async void ActualizarUbicaciones(Almacenn almacenn)
+    {
+        ubicaciones = new List<Ubicacion>();
+        ubicaciones.Add(new Ubicacion() { IdAlmacen = 0, Nombre = "Selecciona una ubicación" });
+        ubicaciones.AddRange(await ubicacionService.GetUbicacionByIdAlmacen(almacenn.IdAlmacen));
+        FormArticulo.Clave = await articuloService.GenerarClaveArticulo(FormArticulo);
+    }
+
+    public async void ActualizarClaveEmpleado(Unidad unidad)
+    {
+        FormArticulo.Clave = await articuloService.GenerarClaveArticulo(FormArticulo);
     }
 
     private async Task RegresarListadoArticulos()

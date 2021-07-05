@@ -14,6 +14,7 @@ namespace PrototipoAcerosSA.Data
         public Task<Articulo> AddArticulo(Articulo articulo);
         public Task<Articulo> EditarArticulo(Articulo articulo);
         public Task<Articulo> EliminarArticulo(int IdArticulo);
+        public Task<string> GenerarClaveArticulo(Articulo articulo);
 
     }
 }

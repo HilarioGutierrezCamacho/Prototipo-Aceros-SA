@@ -11,5 +11,6 @@ namespace PrototipoAcerosSA.Data
         Task<Ubicacion> GetUbicacionByClave(string Clave);
         Task<Ubicacion> GetUbicacionById(int IdUbicacion);
         Task<Ubicacion> UpdateAlmacen(int IdUbicacion, string clave, string nombre, int IdAlmacen, int numPasillo, int Estante, int Nivel, string estatus);
+        Task<List<Ubicacion>> GetUbicacionByIdAlmacen(int IdAlmacen);
     }
 }

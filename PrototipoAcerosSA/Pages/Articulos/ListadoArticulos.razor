@@ -64,16 +64,16 @@
        @bind-PageSize="_pageSize"
        Context="articulo">
     <AntDesign.Column @bind-Field="@articulo.Clave" Sortable />
-    <AntDesign.Column @bind-Field="@articulo.Descripcion" Sortable />
+    <AntDesign.Column Title="Nombre" @bind-Field="@articulo.Descripcion" Sortable />
     <AntDesign.Column @bind-Field="@articulo.Marca" Sortable />
     <AntDesign.Column Title="Almacen" @bind-Field="@articulo.Almacen">
         <label>@articulo.Almacen.Descripcion</label>
     </AntDesign.Column>
     <AntDesign.Column Title="Ubicación" @bind-Field="@articulo.Ubicacion">
-        <label>@articulo.Ubicacion.Nombre</label>
+        <label>@articulo.Ubicacion.Nombre / Pasillo: @articulo.Ubicacion.Pasillo / Nivel : @articulo.Ubicacion.nivel</label>
     </AntDesign.Column>
     <AntDesign.Column Title="Unidad" @bind-Field="@articulo.Unidad">
-        <label>@articulo.Unidad.Descripcion</label>
+        <label>@articulo.Unidad.Nombre</label>
     </AntDesign.Column>
     <AntDesign.Column @bind-Field="@articulo.PrecioUnitario" Sortable />
     <ActionColumn Title="Acciones">
