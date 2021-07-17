@@ -1,4 +1,4 @@
-﻿@page "/listado-entradas"
+﻿@page "/listado-devoluciones"
 @using System.ComponentModel
 @using AntDesign.TableModels
 @using PrototipoAcerosSA.Models
@@ -17,7 +17,7 @@
 </style>
 
 <div class="about-section">
-    <h3 style="color: white;">Consulta de Entradas Almacen</h3>
+    <h3 style="color: white;">Devoluciones de Facturas</h3>
 </div>
 
 <br />
@@ -45,18 +45,20 @@
 <hr />
 
 <Table @ref="table"
-       TItem="Factura"
-       DataSource="@facturas"
+       TItem="DevolverFactura"
+       DataSource="@devoluciones"
        Total="_total"
        @bind-PageIndex="_pageIndex"
        @bind-PageSize="_pageSize"
        Context="factura"
        Class="text-center">
-    <AntDesign.Column @bind-Field="@factura.FolioFactura" Sortable />
+    <AntDesign.Column Title="Folio Factura" @bind-Field="@factura.Factura">
+        <label>@factura.Factura.FolioFactura</label>
+    </AntDesign.Column>
     <AntDesign.Column @bind-Field="@factura.FechaCaptura" Sortable />
-    <AntDesign.Column Title="Proveedor" @bind-Field="@factura.Proveedor" >
-        <label>@factura.Proveedor.Nombre</label>
-     </AntDesign.Column>
+    <AntDesign.Column Title="Proveedor" @bind-Field="@factura.Factura">
+        <label>@factura.Factura.Proveedor.Nombre</label>
+    </AntDesign.Column>
     <AntDesign.Column Title="Subtotal" @bind-Field="@factura.Subtotal">
         $<label>@factura.Subtotal</label>
     </AntDesign.Column>
@@ -64,19 +66,13 @@
         $<label>@factura.Descuento</label>
     </AntDesign.Column>
     <AntDesign.Column @bind-Field="@factura.IVA" />
-    <AntDesign.Column Title="Total Factura" @bind-Field="@factura.TotalFactura">
+    <AntDesign.Column Title="Total Devolución" @bind-Field="@factura.TotalFactura">
         $<label>@factura.TotalFactura</label>
     </AntDesign.Column>
     <ActionColumn Title="Acciones" Class="text-center">
-        <Button Icon="snippets" Type="primary" OnClick="() => NavegarDetallesFactura(factura.FolioFactura)">
+        <Button Icon="snippets" Type="primary" OnClick="() => NavegarDetallesFactura(factura.Factura.FolioFactura)">
             Ver detalles
         </Button>
-        @if (!this.TieneDevolucion(factura.FolioFactura).Result)
-        {
-            <Button Icon="delivered-procedure" Danger OnClick="() => NavegarDevolverFacturas(factura.IdFactura)">
-                Devolver
-            </Button>
-        }
     </ActionColumn>
 </Table>
 
@@ -94,11 +90,11 @@
     [Inject]
     public IFacturaService _facturaService { get; set; }
     [Inject]
-    public IDevolucionService DevolucionService { get; set; }
+    public IDevolucionService devolucionService { get; set; }
 
-    List<Factura> facturas = new List<Factura>();
-    List<Factura> facturasFiltro = new List<Factura>();
-    List<Factura> facturasTodas = new List<Factura>();
+    List<DevolverFactura> devoluciones = new List<DevolverFactura>();
+    List<DevolverFactura> devolucionesFiltro = new List<DevolverFactura>();
+    List<DevolverFactura> devolucionesTodas = new List<DevolverFactura>();
 
     ITable table;
     int _pageIndex = 1;
@@ -110,36 +106,31 @@
 
     protected override async Task OnInitializedAsync()
     {
-        facturas = await _facturaService.GetTodasFacturas();
-        _total = facturas.Count();
-        facturasTodas = facturas;
+        devoluciones = await devolucionService.GetAllDevoluciones();
+        _total = devoluciones.Count();
+        devolucionesTodas = devoluciones;
     }
 
     public void FiltrarFacturas()
     {
-        facturasFiltro = new List<Factura>();
+        devolucionesFiltro = new List<DevolverFactura>();
         if (filtro != null && filtro.Length > 0)
         {
-            foreach (var factura in facturas)
+            foreach (var devolucion in devoluciones)
             {
-                if (factura.FolioFactura.Contains(filtro.Trim()))
+                if (devolucion.Factura.FolioFactura.Contains(filtro.Trim()))
                 {
-                    facturasFiltro.Add(factura);
+                    devolucionesFiltro.Add(devolucion);
                 }
             }
-            facturas = facturasFiltro;
+            devoluciones = devolucionesFiltro;
         }
         else
         {
-            facturas = facturasTodas;
+            devoluciones = devolucionesTodas;
         }
     }
 
-    public async Task<bool> TieneDevolucion(string FolioFactura)
-    {
-        DevolverFactura devolucion = await DevolucionService.TieneDevolucion(FolioFactura);
-        return devolucion == null ? false : true;
-    }
 
     public void NavegarDevolverFacturas(int IdFactura)
     {
@@ -148,7 +139,7 @@
 
     public void NavegarDetallesFactura(string ClaveFactura)
     {
-        UriHelper.NavigateTo($"/detalles-factura/{ClaveFactura}");
+        UriHelper.NavigateTo($"/detalles-devolucion/{ClaveFactura}");
     }
 
 }

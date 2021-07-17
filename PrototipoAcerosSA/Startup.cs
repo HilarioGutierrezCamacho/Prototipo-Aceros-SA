@@ -40,7 +40,7 @@ namespace PrototipoAcerosSA
             services.AddScoped<IEmpleadosService, EmpleadosService>();
             services.AddScoped<IUnidadService, UnidadService>();
             services.AddScoped<IUbicacionService, UbicacionService>();
-
+            services.AddScoped<IDevolucionService, DevolucionService>();
 
 
         }

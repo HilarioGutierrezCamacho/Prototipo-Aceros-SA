@@ -32,7 +32,7 @@ namespace PrototipoAcerosSA.Data
         {
             articulos.Add(new Articulo() { 
                 IdArticulo = 1, 
-                Clave = "MP-ART-001", 
+                Clave = "ACE-PIE-000", 
                 Descripcion = "Acero", 
                 Marca = "TRUPER", 
                 IdAlmacen = 1, 
@@ -45,7 +45,7 @@ namespace PrototipoAcerosSA.Data
                 Estatus = true });
             articulos.Add(new Articulo() { 
                 IdArticulo = 2, 
-                Clave = "VA-ART-002", 
+                Clave = "LIB-PIE-001", 
                 Descripcion = "Libreta", 
                 Marca = "Patito", 
                 IdAlmacen = 2, 
@@ -58,7 +58,7 @@ namespace PrototipoAcerosSA.Data
                 Estatus = true });
             articulos.Add(new Articulo() { 
                 IdArticulo = 3, 
-                Clave = "RF-ART-004", 
+                Clave = "TRU-CAJ-002", 
                 Descripcion = "Tornillos", 
                 Marca = "TRUPER", 
                 IdAlmacen = 3, 

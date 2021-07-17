@@ -1,4 +1,4 @@
-﻿@page "/devolver-facturas/{IdFactura}"
+﻿@page "/detalles-devolucion/{ClaveFactura}"
 
 @using AntDesign.TableModels
 @using System.Text.RegularExpressions
@@ -24,7 +24,7 @@
 
 <br />
 <div style="background-color: #ececec; padding: 20px;">
-    <EditForm Model="@DevolucionForm" OnValidSubmit="@GuardarDevolucion">
+    <EditForm Model="@DevolucionForm">
         <Microsoft.AspNetCore.Components.Forms.DataAnnotationsValidator />
         <FluentValidationValidator />
         <Row Gutter="24">
@@ -62,11 +62,6 @@
                 </Body>
                 <ActionTemplate>
                     <CardAction>
-                        <Button Type="primary" Icon="file-done" Size=@size HtmlType="submit">
-                            Guadar
-                        </Button>
-                    </CardAction>
-                    <CardAction>
                         <Button Type="primary" Danger Icon="rollback" Size=@size OnClick="@RegresarListadoFacturas">
                             Cancelar
                         </Button>
@@ -81,12 +76,6 @@
                     <div class="form-group row w-75">
                         <label for="subtotal" class="col-sm-4">Subtotal Devolución: </label>
                         <AntDesign.InputNumber Disabled="true" Class="form-control col-sm-8" @bind-Value="@DevolucionForm.Subtotal" Formatter="FormatoPesos" Parser="ParseoPesos" DefaultValue="1000d" />
-                    </div>
-                    <div class="form-group row w-75">
-                        <label for="subtotal" class="col-sm-4">Descuento Devolución: </label>
-                        <div class="col-sm-8 p-0">
-                            <Input Type="number" @bind-Value="@DevolucionForm.Descuento" OnBlur="() => CalcularDevolucion()" />
-                        </div>
                     </div>
                     <div class="form-group row w-75">
                         <label for="subtotal" class="col-sm-4">IVA Devoulción: </label>
@@ -104,12 +93,12 @@
                                 DefaultValue="@(0)"
                                 @bind-Value="@DevolucionForm.IdFormaPago"
                                 ValueName="@nameof(FormaPago.IdFormaPago)"
-                                LabelName="@nameof(FormaPago.Descripcion)">
+                                LabelName="@nameof(FormaPago.Descripcion)" Disabled="true">
                         </Select>
                     </div>
                     <div class="form-group row">
                         <label for="comentarios" class="col-sm-4">Comentarios: </label>
-                        <TextArea Placeholder="Introduce tus comentarios..." Class="form-control col-sm-8" AutoSize="true" @bind-Value="@DevolucionForm.Comentarios" />
+                        <TextArea Disabled="true" Placeholder="Introduce tus comentarios..." Class="form-control col-sm-8" AutoSize="true" @bind-Value="@DevolucionForm.Comentarios" />
                     </div>
                 </Body>
             </Card>
@@ -123,28 +112,6 @@
             <Card Bordered="false" Title=@("Detalles de la devolución")>
                 <Body>
 
-                    <Row Gutter="24">
-                        <Col Span="2">
-                        <label style="margin: 1px;">Clave:</label>
-                        </Col>
-                        <Col Span="3">
-                        <Input Type="text" @bind-Value="@clave_buscar" />
-                        </Col>
-                        <Col Span="5">
-                        <Button Type="primary" Style="margin-bottom:16px" OnClick="() => AgregarFilaDetalle()">
-                            Agregar
-                        </Button>
-                        </Col>
-                        <Col Span="14">
-                        @if (ShowModal)
-                        {
-                            <Alert Type="@AlertType.Error"
-                                   Description="@MensajeResult"
-                                   Closable OnClose="CerrarModal" Style="width: 100%" />
-                        }
-                        </Col>
-                    </Row>
-
                     <hr />
 
                     <Table DataSource="@DevolucionForm.DetallesDevolucion" Context="detalle" ScrollX="1000" TItem="DetalleDevolucion" PageSize="5">
@@ -155,7 +122,7 @@
                             <Input Disabled="true" Type="text" @bind-Value="@detalle.Articulo.Descripcion" />
                         </AntDesign.Column>
                         <AntDesign.Column Title="Cantidad a Deolver" TData="int">
-                            <Input Type="number" @bind-Value="@detalle.CantidadDevolver" OnBlur="() => CalcularTotalDetalle(detalle)" />
+                            <Input Disabled="true" Type="number" @bind-Value="@detalle.CantidadDevolver"  />
                         </AntDesign.Column>
                         <AntDesign.Column Title="Cantidad en Factura" TData="int">
                             <Input Disabled="true" Type="number" @bind-Value="@detalle.CantidadAnterior" />
@@ -172,11 +139,6 @@
                         <AntDesign.Column Title="Total con IVA" TData="float">
                             <Input Disabled="true" Type="number" step="0.01" @bind-Value="@detalle.TotalConIVA" />
                         </AntDesign.Column>
-                        <ActionColumn Title="Acciones">
-                            <Button Icon="delete" Danger OnClick="() => QuitarFilaDetalle(detalle)">
-                                Eliminar
-                            </Button>
-                        </ActionColumn>
                     </Table>
                 </Body>
             </Card>
@@ -204,7 +166,7 @@
     public IDevolucionService DevolucionService { get; set; }
 
     [Parameter]
-    public string IdFactura { get; set; } = "";
+    public string ClaveFactura { get; set; } = "";
 
     public DevolverFactura DevolucionForm = new DevolverFactura();
     public List<Unidad> unidades = new List<Unidad>();
@@ -221,14 +183,7 @@
     protected override async Task OnInitializedAsync()
     {
 
-        int Id = int.Parse(IdFactura);
-        DevolucionForm.FechaCaptura = DateTime.Now.ToString("MM/dd/yyyy H:mm");
-        DevolucionForm.Factura = await FacturaService.GetFacturaById(Id);
-        DevolucionForm.Comentarios = "";
-        DevolucionForm.Subtotal = 0.00;
-        DevolucionForm.Descuento = 0.00;
-        DevolucionForm.IVA = 0.0;
-        DevolucionForm.TotalFactura = 0.00;
+        DevolucionForm = await DevolucionService.TieneDevolucion(ClaveFactura);
 
         proveedores = await ProveedorService.GetTodosProveedores();
         formasPago = await FormaPagoService.GetTodasFormaPago();
@@ -259,182 +214,6 @@
     private string ParseoPesos(string value)
     {
         return Regex.Replace(value, @"\$\s?|(,*)", "");
-    }
-
-    public async Task AgregarFilaDetalle()
-    {
-
-        if (clave_buscar == "")
-        {
-            ShowModal = true;
-            MensajeResult = "Introduce la clave del articulo.";
-        }
-        else
-        {
-
-            if (this.EstaDentroDetalles(clave_buscar))
-            {
-                ShowModal = true;
-                MensajeResult = "El articulo ya fue agregado a la lista de detalles.";
-            }
-
-            DetalleFactura detalleFactura = this.buscarDetalleFacturaPorIdArticulo(clave_buscar);
-            if (detalleFactura != null)
-            {
-                DetalleDevolucion nuevaFila = new DetalleDevolucion()
-                {
-                    Articulo = detalleFactura.Articulo,
-                    Unidad = detalleFactura.Unidad,
-                    PrecioUnitario = detalleFactura.PrecioUnitario,
-                    CantidadDevolver = 0,
-                    CantidadAnterior = detalleFactura.Cantidad,
-                    Subtotal = 0,
-                    IVA = detalleFactura.IVA,
-                    TotalConIVA = 0
-                };
-                DevolucionForm.DetallesDevolucion.Add(nuevaFila);
-                ShowModal = false;
-                MensajeResult = "";
-
-            }
-            else
-            {
-                ShowModal = true;
-                MensajeResult = "El articulo no existe dentro de la factura";
-            }
-        }
-
-        clave_buscar = "";
-    }
-
-    public DetalleFactura buscarDetalleFacturaPorIdArticulo(string ClaveArticulo)
-    {
-        DetalleFactura detalle = null;
-        DevolucionForm.Factura.DetallesFactura.ForEach(
-            det =>
-            {
-                if (det.Articulo.Clave == ClaveArticulo)
-                {
-                    detalle = det;
-                }
-            }
-        );
-        return detalle;
-    }
-
-    public bool EstaDentroDetalles(string ClaveArticulo)
-    {
-        bool resultado = false;
-        DevolucionForm.DetallesDevolucion.ForEach(
-            det =>
-            {
-                if (det.Articulo.Clave == ClaveArticulo)
-                {
-                    resultado = true;
-                }
-            }
-        );
-        return resultado;
-    }
-
-    public async Task QuitarFilaDetalle(DetalleDevolucion articulo)
-    {
-        foreach (var detalle in DevolucionForm.DetallesDevolucion)
-        {
-            if (detalle.Articulo.IdArticulo == articulo.Articulo.IdArticulo && detalle.Unidad == articulo.Unidad)
-            {
-                DevolucionForm.DetallesDevolucion.Remove(detalle);
-                break;
-            }
-        }
-
-        await CalcularDevolucion();
-    }
-
-    private async void CalcularTotalDetalle(DetalleDevolucion detalle)
-    {
-        if (detalle.CantidadDevolver != null && detalle.CantidadDevolver <= 0)
-        {
-            await js.InvokeAsync<bool>("mensajeGenericoValidaciones", "Cuidado!", "La cantidad debe ser mayor a 0", "warning");
-            return;
-        }
-
-        if (detalle.CantidadDevolver > detalle.CantidadAnterior)
-        {
-            await js.InvokeAsync<bool>("mensajeGenericoValidaciones", "Cuidado!", "La cantidad no debe sobrepasar al de la factura.", "warning");
-            return;
-        }
-
-        detalle.Subtotal = detalle.CantidadDevolver * detalle.PrecioUnitario;
-
-        detalle.TotalConIVA = detalle.Subtotal;
-
-        if (detalle.IVA != null && detalle.IVA > 0)
-        {
-            detalle.TotalConIVA = detalle.Subtotal + (detalle.Subtotal * detalle.IVA);
-        }
-
-        await CalcularDevolucion();
-
-    }
-
-    private async Task CalcularDevolucion()
-    {
-
-        if (DevolucionForm.DetallesDevolucion.Count() == 0)
-        {
-            DevolucionForm.Subtotal = 0;
-            DevolucionForm.Descuento = 0;
-            DevolucionForm.TotalFactura = 0;
-            return;
-        }
-
-        DevolucionForm.Subtotal = 0.00;
-        var subtotal = 0.00;
-
-        foreach (var detalle in DevolucionForm.DetallesDevolucion)
-        {
-            DevolucionForm.Subtotal += detalle.TotalConIVA;
-            subtotal += detalle.TotalConIVA;
-        }
-
-        DevolucionForm.TotalFactura = subtotal;
-
-        DevolucionForm.IVA = 0.00;
-        var iva = 0.00;
-
-        foreach (var detalle in DevolucionForm.DetallesDevolucion)
-        {
-            DevolucionForm.IVA += detalle.IVA;
-        }
-
-        var descuento = 0.00;
-        if (DevolucionForm.Descuento != null && DevolucionForm.Descuento > 0)
-        {
-            descuento = DevolucionForm.Descuento;
-        }
-
-        DevolucionForm.TotalFactura = DevolucionForm.TotalFactura - descuento;
-
-        if (DevolucionForm.IVA != null && DevolucionForm.IVA > 0)
-        {
-            DevolucionForm.TotalFactura = DevolucionForm.TotalFactura + (DevolucionForm.TotalFactura * DevolucionForm.IVA);
-        }
-
-    }
-
-    private async Task GuardarDevolucion()
-    {
-        if (DevolucionForm.DetallesDevolucion.Count() <= 0)
-        {
-            await js.InvokeAsync<bool>("mensajeGenericoValidaciones", "Cuidado!", "Necesitas agregar al menos un articulo a tu devolucion.", "warning");
-            return;
-        }
-
-        await DevolucionService.GuardarDevolucion(DevolucionForm);
-        await js.InvokeAsync<bool>("mensajeExito", "Exito al guardar la devolución");
-        UriHelper.NavigateTo($"listado-entradas");
-
     }
 
     private async Task RegresarListadoFacturas()

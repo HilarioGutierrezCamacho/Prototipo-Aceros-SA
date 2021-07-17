@@ -75,32 +75,38 @@
                 <span>Movimientos</span>
             </span>;
         }
-        <SubMenu Key="movimientos" TitleTemplate=tituloMovimientos>
-            <MenuItem Key="3">
-                <Icon Type="audit" Theme="outline" />
-                <NavLink href="/capturar-facturas">
-                    Entradas de Almacén
-                </NavLink>
-            </MenuItem>
-            <MenuItem Key="15">
-                <Icon Type="audit" Theme="outline" />
-                <NavLink href="/listado-entradas">
-                    Consulta de Entradas de Almacén
-                </NavLink>
-            </MenuItem>
-            <MenuItem Key="17">
-                <Icon Type="snippets" Theme="outline" />
-                <NavLink href="/requisiciones">
-                    Salidas de Almacén
-                </NavLink>
-            </MenuItem>
-            <MenuItem Key="16">
-                <Icon Type="snippets" Theme="outline" />
-                <NavLink href="/listado-requisiciones">
-                    Consulta de Requisiciones
-                </NavLink>
-            </MenuItem>
-        </SubMenu>
+    <SubMenu Key="movimientos" TitleTemplate=tituloMovimientos>
+        <MenuItem Key="3">
+            <Icon Type="audit" Theme="outline" />
+            <NavLink href="/capturar-facturas">
+                Entradas de Almacén
+            </NavLink>
+        </MenuItem>
+        <MenuItem Key="15">
+            <Icon Type="audit" Theme="outline" />
+            <NavLink href="/listado-entradas">
+                Consulta de Entradas de Almacén
+            </NavLink>
+        </MenuItem>
+        <MenuItem Key="25">
+            <Icon Type="audit" Theme="outline" />
+            <NavLink href="/listado-devoluciones">
+                Consulta Devoluciones
+            </NavLink>
+        </MenuItem>
+        <MenuItem Key="17">
+            <Icon Type="snippets" Theme="outline" />
+            <NavLink href="/requisiciones">
+                Salidas de Almacén
+            </NavLink>
+        </MenuItem>
+        <MenuItem Key="16">
+            <Icon Type="snippets" Theme="outline" />
+            <NavLink href="/listado-requisiciones">
+                Consulta de Requisiciones
+            </NavLink>
+        </MenuItem>
+    </SubMenu>
         @{
             RenderFragment tituloReportes =
             @<span>

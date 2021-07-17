@@ -5,6 +5,8 @@
 @using PrototipoAcerosSA.Models
 @using PrototipoAcerosSA.Data
 @inject NotificationService _notice
+@inject IJSRuntime js
+@inject NavigationManager UriHelper
 
 <style>
     .about-section {
@@ -22,31 +24,32 @@
 
 <br />
 <div style="background-color: #ececec; padding: 20px;">
-    <EditForm Model="@FacturaForm">
+    <EditForm Model="@FacturaForm" OnValidSubmit="@GuardarFactura">
+        <Microsoft.AspNetCore.Components.Forms.DataAnnotationsValidator />
+        <FluentValidationValidator />
         <Row Gutter="24">
             <Col Span="12">
             <Card Bordered="false" Title=@("Datos Generales")>
                 <Body>
                     <div class="form-group row">
                         <label for="lastName" class="col-sm-3">Folio Factura: </label>
-                        <InputText id="lastName" class="form-control col-sm-8" @bind-Value="@FacturaForm.FolioFactura" placeholder="Ingresa el folio"></InputText>
+                        <InputText Disabled id="lastName" class="form-control col-sm-8" @bind-Value="@FacturaForm.FolioFactura" placeholder="Ingresa el folio"></InputText>
                     </div>
                     <div class="form-group row">
                         <label for="lastName" class="col-sm-3">Fecha Captura: </label>
-                        <InputText id="lastName" class="form-control col-sm-8" @bind-Value="@FacturaForm.FechaCaptura"></InputText>
+                        <InputText Disabled id="lastName" class="form-control col-sm-8" @bind-Value="@FacturaForm.FechaCaptura"></InputText>
                     </div>
                     <div class="form-group row">
                         <label for="formaPago" class="col-sm-3">Proveedor: </label>
                         <Select class="col-sm-6" DataSource="@proveedores"
-                                @bind-Value="proveedor_selected"
+                                @bind-Value="FacturaForm.IdProveedor"
                                 ValueName="@nameof(Proveedor.IdProveedor)"
                                 LabelName="@nameof(Proveedor.Nombre)"
-                                Placeholder="Selecciona un proveedor"
-                                >
+                                Placeholder="Selecciona un proveedor">
                         </Select>
                         <Button Icon="filter" class="col-sm-2" OnClick="() => AsignarProveedor()">
-                            
                         </Button>
+                        <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FacturaForm.IdProveedor)" />
                     </div>
                     @if (ShowProveedor)
                     {
@@ -69,8 +72,16 @@
                     }
                 </Body>
                 <ActionTemplate>
-                    <CardAction><Icon Type="file-done" Theme="outline" /> Guardar</CardAction>
-                    <CardAction><Icon Type="rollback" Theme="outline" /> Cancelar</CardAction>
+                    <CardAction>
+                        <Button Type="primary" Icon="file-done" Size=@size HtmlType="submit">
+                            Guadar
+                        </Button>
+                    </CardAction>
+                    <CardAction>
+                        <Button Type="primary" Danger Icon="rollback" Size=@size OnClick="@RegresarListadoFacturas">
+                            Cancelar
+                        </Button>
+                    </CardAction>
                 </ActionTemplate>
             </Card>
             </Col>
@@ -80,7 +91,7 @@
                 <Body>
                     <div class="form-group row w-75">
                         <label for="subtotal" class="col-sm-4">Subtotal: </label>
-                        <AntDesign.InputNumber Class="form-control col-sm-8" @bind-Value="@FacturaForm.Subtotal" Formatter="FormatoPesos" Parser="ParseoPesos" DefaultValue="1000d" />
+                        <AntDesign.InputNumber Disabled="true" Class="form-control col-sm-8" @bind-Value="@FacturaForm.Subtotal" Formatter="FormatoPesos" Parser="ParseoPesos" DefaultValue="1000d" />
                     </div>
                     <div class="form-group row w-75">
                         <label for="subtotal" class="col-sm-4">Descuento: </label>
@@ -91,21 +102,22 @@
                     <div class="form-group row w-75">
                         <label for="subtotal" class="col-sm-4">IVA: </label>
                         <div class="col-sm-8 p-0">
-                            <Input Type="number" Class="form-control col-sm-8" @bind-Value="@FacturaForm.IVA" OnPressEnter="() => CalcularTotalFactura()" />
-                        </div>  
+                            <Input Disabled="true" Type="number" Class="form-control col-sm-8" @bind-Value="@FacturaForm.IVA" OnPressEnter="() => CalcularTotalFactura()" />
+                        </div>
                     </div>
                     <div class="form-group row w-75">
                         <label for="subtotal" class="col-sm-4">Total: </label>
-                        <AntDesign.InputNumber Class="form-control col-sm-8" @bind-Value="@FacturaForm.TotalFactura" Formatter="FormatoPesos" Parser="ParseoPesos" DefaultValue="1000d" />
+                        <AntDesign.InputNumber Disabled="true" Class="form-control col-sm-8" @bind-Value="@FacturaForm.TotalFactura" Formatter="FormatoPesos" Parser="ParseoPesos" DefaultValue="1000d" />
                     </div>
                     <div class="form-group row w-75">
                         <label for="formaPago" class="col-sm-4">Forma Pago: </label>
                         <Select class="col-sm-8" DataSource="@formasPago"
                                 DefaultValue="@(0)"
+                                @bind-Value="@FacturaForm.IdFormaPago"
                                 ValueName="@nameof(FormaPago.IdFormaPago)"
-                                LabelName="@nameof(FormaPago.Descripcion)"
-                                OnSelectedItemChanged="AsignarFormaPago">
+                                LabelName="@nameof(FormaPago.Descripcion)">
                         </Select>
+                        <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FacturaForm.IdFormaPago)" />
                     </div>
                     <div class="form-group row">
                         <label for="comentarios" class="col-sm-4">Comentarios: </label>
@@ -139,7 +151,7 @@
                         {
                             <Alert Type="@AlertType.Error"
                                    Description="@MensajeResult"
-                                   Closable OnClose="CerrarModal" Style="width: 100%"/>
+                                   Closable OnClose="CerrarModal" Style="width: 100%" />
                         }
                         </Col>
                     </Row>
@@ -153,21 +165,21 @@
                         <AntDesign.Column Title="Nombre" @bind-Field="@detalle.Articulo">
                             <label>@detalle.Articulo.Descripcion</label>
                         </AntDesign.Column>
-                        <AntDesign.Column Title="Unidad" @bind-Field="@detalle.Unidad" Sortable />
+                        <AntDesign.Column Title="Unidad" @bind-Field="@detalle.Unidad" />
                         <AntDesign.Column Title="Cantidad" TData="int">
-                            <Input Type="number" @bind-Value="@detalle.Cantidad" OnPressEnter="() => CalcularTotalDetalle(detalle)" />
+                            <Input Type="number" @bind-Value="@detalle.Cantidad" OnPressEnter="() => CalcularTotalDetalle(detalle)" OnBlur="() => CalcularTotalDetalle(detalle)" />
                         </AntDesign.Column>
                         <AntDesign.Column Title="Precio" TData="float">
                             <Input Type="number" step="0.01" @bind-Value="@detalle.PrecioUnitario" />
                         </AntDesign.Column>
                         <AntDesign.Column Title="Subtotal" TData="float">
-                            <Input Type="number" step="0.01" @bind-Value="@detalle.Subtotal" />
+                            <Input Type="number" Disabled="true" step="0.01" @bind-Value="@detalle.Subtotal" />
                         </AntDesign.Column>
                         <AntDesign.Column Title="IVA" TData="float">
-                            <Input Type="number" step="0.01" @bind-Value="@detalle.IVA" OnPressEnter="() => CalcularTotalDetalle(detalle)" />
+                            <Input Type="number" Disabled="true" step="0.01" @bind-Value="@detalle.IVA" OnPressEnter="() => CalcularTotalDetalle(detalle)" />
                         </AntDesign.Column>
                         <AntDesign.Column Title="Total con IVA" TData="float">
-                            <Input Type="number" step="0.01" @bind-Value="@detalle.TotalConIVA" />
+                            <Input Type="number" Disabled="true" step="0.01" @bind-Value="@detalle.TotalConIVA" />
                         </AntDesign.Column>
                         <ActionColumn Title="Acciones">
                             <Button Icon="delete" Danger OnClick="() => QuitarFilaDetalle(detalle)">
@@ -214,7 +226,7 @@
     public bool ShowModal = false;
     public string MensajeResult = "";
     public bool ShowProveedor = false;
-    public int proveedor_selected = 0;
+    string size = "large";
 
     protected override async Task OnInitializedAsync()
     {
@@ -226,6 +238,7 @@
         FacturaForm.Descuento = 0.00;
         FacturaForm.IVA = 0.0;
         FacturaForm.TotalFactura = 0.00;
+        FacturaForm.IdProveedor = 0;
 
         proveedores = await ProveedorService.GetTodosProveedores();
         formasPago = await FormaPagoService.GetTodasFormaPago();
@@ -239,6 +252,12 @@
 
     public async Task AgregarFilaDetalle()
     {
+        if (FacturaForm.IdProveedor == 0 || FacturaForm.Proveedor.IdProveedor == 0)
+        {
+            await js.InvokeAsync<bool>("mensajeGenericoValidaciones", "Cuidado!", "Necesitas seleccionar el proveedor de la factura para aplicar los I.V.A.", "warning");
+            return;
+        }
+
         if (clave_buscar == "")
         {
             ShowModal = true;
@@ -252,11 +271,11 @@
                 DetalleFactura nuevaFila = new DetalleFactura()
                 {
                     Articulo = nuevoArticulo,
-                    Unidad = nuevoArticulo.Unidad.Descripcion,
+                    Unidad = nuevoArticulo.Unidad.Nombre,
                     PrecioUnitario = nuevoArticulo.PrecioUnitario,
                     Cantidad = 0,
                     Subtotal = 0,
-                    IVA = 0,
+                    IVA = FacturaForm.Proveedor.IVA,
                     TotalConIVA = 0
                 };
                 FacturaForm.DetallesFactura.Add(nuevaFila);
@@ -288,19 +307,15 @@
         await CalcularTotalFactura();
     }
 
-    async void AsignarFormaPago(FormaPago formaPago)
-    {
-        FacturaForm.FormaPago = formaPago;
-    }
-
     public async void AsignarProveedor()
     {
-        if (proveedor_selected != 0)
+        if (FacturaForm.IdProveedor != 0)
         {
-            FacturaForm.Proveedor = await ProveedorService.GetProveedorById(proveedor_selected);
+            FacturaForm.Proveedor = await ProveedorService.GetProveedorById(FacturaForm.IdProveedor);
             ShowProveedor = true;
             this.ShouldRender();
-        } else
+        }
+        else
         {
             FacturaForm.Proveedor = new Proveedor();
             ShowProveedor = false;
@@ -345,6 +360,14 @@
 
         FacturaForm.TotalFactura = subtotal;
 
+        FacturaForm.IVA = 0.00;
+        var iva = 0.00;
+
+        foreach (var detalle in FacturaForm.DetallesFactura)
+        {
+            FacturaForm.IVA += detalle.IVA;
+        }
+
         var descuento = 0.00;
         if (FacturaForm.Descuento != null && FacturaForm.Descuento > 0)
         {
@@ -355,7 +378,7 @@
 
         if (FacturaForm.IVA != null && FacturaForm.IVA > 0)
         {
-            FacturaForm.TotalFactura = FacturaForm.TotalFactura * FacturaForm.IVA;
+            FacturaForm.TotalFactura = FacturaForm.TotalFactura + (FacturaForm.TotalFactura * FacturaForm.IVA);
         }
 
     }
@@ -364,6 +387,7 @@
     {
         if (detalle.Cantidad != null && detalle.Cantidad <= 0)
         {
+            await js.InvokeAsync<bool>("mensajeGenericoValidaciones", "Cuidado!", "La cantidad debe ser mayor a 0.", "warning");
             return;
         }
 
@@ -378,6 +402,30 @@
 
         await CalcularTotalFactura();
 
+    }
+
+    private async Task GuardarFactura()
+    {
+        if (FacturaForm.DetallesFactura.Count() <= 0)
+        {
+            await js.InvokeAsync<bool>("mensajeGenericoValidaciones", "Cuidado!", "Necesitas agregar al menos un articulo a tu factura.", "warning");
+            return;
+        }
+
+        await FacturaService.GuardarFactura(FacturaForm);
+        await js.InvokeAsync<bool>("mensajeExito", "Exito al guardar la factura");
+        UriHelper.NavigateTo($"listado-entradas");
+
+    }
+
+    private async Task RegresarListadoFacturas()
+    {
+        var confirmResult = await js.InvokeAsync<bool>("confirmarSalirPantalla",
+            "¿Deseas salir?", "Se perderan los datos registrados hasta el momento.", "question");
+        if (confirmResult)
+        {
+            UriHelper.NavigateTo($"listado-entradas");
+        }
     }
 
 }

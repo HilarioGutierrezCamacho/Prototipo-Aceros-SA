@@ -28,7 +28,7 @@ namespace PrototipoAcerosSA.Data
 
         private async Task InicializarFacturas()
         {
-            facturas.Add(
+            /*facturas.Add(
                 new Factura()
                 {
                     IdFactura = 1,
@@ -153,7 +153,7 @@ namespace PrototipoAcerosSA.Data
                         }
                     }
                 }
-            );
+            ); */
         }
 
         public async Task<Factura> GetFacturaById(int IdFactura)
@@ -181,6 +181,14 @@ namespace PrototipoAcerosSA.Data
             string mesCadena = GetMes(mes);
             string numeroFactura = GenerarNumeroFactura();
             return folio + "-" + mesCadena + "-" + numeroFactura;
+        }
+
+        public async Task<Factura> GuardarFactura(Factura factura)
+        {
+            factura.Subtotal = Math.Round(factura.Subtotal, 2);
+            factura.TotalFactura = Math.Round(factura.TotalFactura, 2);
+            facturas.Add(factura);
+            return factura;
         }
 
         private string GetMes(int numeroMes)
@@ -238,6 +246,19 @@ namespace PrototipoAcerosSA.Data
                 cadena += "0";
             }
             return cadena + totalRegistros;
+        }
+
+        public async Task<Factura> GetFacturaByClave(string Clave)
+        {
+            Factura factura = null;
+            foreach (var fact in facturas)
+            {
+                if (fact.FolioFactura == Clave)
+                {
+                    factura = fact;
+                }
+            }
+            return factura;
         }
     }
 }

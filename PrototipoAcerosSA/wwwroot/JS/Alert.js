@@ -64,3 +64,16 @@ function mensajeExito(title) {
         })
     })
 }
+
+function mensajeGenericoValidaciones(title, text, icon) {
+    return new Promise(resolve => {
+        Swal.fire({
+            title,
+            text,
+            icon: icon,
+            showConfirmButton: true
+        }).then((result) => {
+            resolve(result.isConfirmed);
+        })
+    })
+}

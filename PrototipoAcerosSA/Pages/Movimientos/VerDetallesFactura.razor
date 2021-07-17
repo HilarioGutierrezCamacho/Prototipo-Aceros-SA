@@ -1,0 +1,227 @@
+﻿@page "/detalles-factura/{ClaveFactura}"
+
+@using AntDesign.TableModels
+@using System.Text.RegularExpressions
+@using PrototipoAcerosSA.Models
+@using PrototipoAcerosSA.Data
+@inject NotificationService _notice
+@inject IJSRuntime js
+@inject NavigationManager UriHelper
+
+<style>
+    .about-section {
+        padding: 20px;
+        text-align: center;
+        background-color: #474e5d;
+        color: white;
+        width: 100%;
+    }
+</style>
+
+<div class="about-section">
+    <h3 style="color: white;">Captura de Facturas</h3>
+</div>
+
+<br />
+<div style="background-color: #ececec; padding: 20px;">
+    <EditForm Model="@FacturaForm">
+        <Microsoft.AspNetCore.Components.Forms.DataAnnotationsValidator />
+        <FluentValidationValidator />
+        <Row Gutter="24">
+            <Col Span="12">
+            <Card Bordered="false" Title=@("Datos Generales")>
+                <Body>
+                    <div class="form-group row">
+                        <label for="lastName" class="col-sm-3">Folio Factura: </label>
+                        <InputText Disabled id="lastName" class="form-control col-sm-8" @bind-Value="@FacturaForm.FolioFactura" placeholder="Ingresa el folio"></InputText>
+                    </div>
+                    <div class="form-group row">
+                        <label for="lastName" class="col-sm-3">Fecha Captura: </label>
+                        <InputText Disabled id="lastName" class="form-control col-sm-8" @bind-Value="@FacturaForm.FechaCaptura"></InputText>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="nombreProveedor" class="col-sm-3">Proveedor: </label>
+                        <InputText Disabled="true" id="nombreProveedor" class="form-control col-sm-8" @bind-Value="@FacturaForm.Proveedor.Nombre"></InputText>
+                    </div>
+                    <div class="form-group row">
+                        <label for="direccion" class="col-sm-3">Dirección: </label>
+                        <InputText Disabled="true" id="direccion" class="form-control col-sm-8" @bind-Value="@FacturaForm.Proveedor.Direccion"></InputText>
+                    </div>
+                    <div class="form-group row">
+                        <label for="ciudad" class="col-sm-3">Ciudad: </label>
+                        <InputText Disabled="true" id="ciudad" class="form-control col-sm-8" @bind-Value="@FacturaForm.Proveedor.Ciudad"></InputText>
+                    </div>
+                    <div class="form-group row">
+                        <label for="cp" class="col-sm-3">CP: </label>
+                        <InputText Disabled="true" id="cp" class="form-control col-sm-8" @bind-Value="@FacturaForm.Proveedor.CP"></InputText>
+                    </div>
+
+                </Body>
+                <ActionTemplate>
+                    <CardAction>
+                        <Button Type="primary" Danger Icon="rollback" Size=@size OnClick="@RegresarListadoFacturas">
+                            Cancelar
+                        </Button>
+                    </CardAction>
+                </ActionTemplate>
+            </Card>
+            </Col>
+
+            <Col Span="12">
+            <Card Bordered="false" Title=@("Montos Acumulados")>
+                <Body>
+                    <div class="form-group row w-75">
+                        <label for="subtotal" class="col-sm-4">Subtotal: </label>
+                        <AntDesign.InputNumber Disabled="true" Class="form-control col-sm-8" @bind-Value="@FacturaForm.Subtotal" Formatter="FormatoPesos" Parser="ParseoPesos" DefaultValue="1000d" />
+                    </div>
+                    <div class="form-group row w-75">
+                        <label for="subtotal" class="col-sm-4">Descuento: </label>
+                        <div class="col-sm-8 p-0">
+                            <Input Type="number" @bind-Value="@FacturaForm.Descuento" />
+                        </div>
+                    </div>
+                    <div class="form-group row w-75">
+                        <label for="subtotal" class="col-sm-4">IVA: </label>
+                        <div class="col-sm-8 p-0">
+                            <Input Disabled="true" Type="number" Class="form-control col-sm-8" @bind-Value="@FacturaForm.IVA" />
+                        </div>
+                    </div>
+                    <div class="form-group row w-75">
+                        <label for="subtotal" class="col-sm-4">Total: </label>
+                        <AntDesign.InputNumber Disabled="true" Class="form-control col-sm-8" @bind-Value="@FacturaForm.TotalFactura" Formatter="FormatoPesos" Parser="ParseoPesos" DefaultValue="1000d" />
+                    </div>
+                    <div class="form-group row w-75">
+                        <label for="formaPago" class="col-sm-4">Forma Pago: </label>
+                        <Select class="col-sm-8" DataSource="@formasPago"
+                                DefaultValue="@(0)"
+                                @bind-Value="@FacturaForm.IdFormaPago"
+                                ValueName="@nameof(FormaPago.IdFormaPago)"
+                                LabelName="@nameof(FormaPago.Descripcion)">
+                        </Select>
+                        <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FacturaForm.IdFormaPago)" />
+                    </div>
+                    <div class="form-group row">
+                        <label for="comentarios" class="col-sm-4">Comentarios: </label>
+                        <TextArea Disabled="true" Placeholder="Introduce tus comentarios..." Class="form-control col-sm-8" AutoSize="true" @bind-Value="@FacturaForm.Comentarios" />
+                    </div>
+                </Body>
+            </Card>
+            </Col>
+        </Row>
+
+        <br />
+
+        <Row Gutter="24">
+            <Col Span="24">
+            <Card Bordered="false" Title=@("Detalles de la factura")>
+                <Body>
+
+                    <hr />
+
+                    <Table DataSource="@FacturaForm.DetallesFactura" Context="detalle" ScrollX="1000" TItem="DetalleFactura" PageSize="5">
+                        <AntDesign.Column Title="Clave" @bind-Field="@detalle.Articulo">
+                            <label>@detalle.Articulo.Clave</label>
+                        </AntDesign.Column>
+                        <AntDesign.Column Title="Nombre" @bind-Field="@detalle.Articulo">
+                            <label>@detalle.Articulo.Descripcion</label>
+                        </AntDesign.Column>
+                        <AntDesign.Column Title="Unidad" @bind-Field="@detalle.Unidad" />
+                        <AntDesign.Column Title="Cantidad" TData="int">
+                            <Input Disabled="true" Type="number" @bind-Value="@detalle.Cantidad" />
+                        </AntDesign.Column>
+                        <AntDesign.Column Title="Precio" TData="float">
+                            <Input Disabled="true" Type="number" step="0.01" @bind-Value="@detalle.PrecioUnitario" />
+                        </AntDesign.Column>
+                        <AntDesign.Column Title="Subtotal" TData="float">
+                            <Input Type="number" Disabled="true" step="0.01" @bind-Value="@detalle.Subtotal" />
+                        </AntDesign.Column>
+                        <AntDesign.Column Title="IVA" TData="float">
+                            <Input Type="number" Disabled="true" step="0.01" @bind-Value="@detalle.IVA"/>
+                        </AntDesign.Column>
+                        <AntDesign.Column Title="Total con IVA" TData="float">
+                            <Input Type="number" Disabled="true" step="0.01" @bind-Value="@detalle.TotalConIVA" />
+                        </AntDesign.Column>
+                    </Table>
+                </Body>
+            </Card>
+            </Col>
+        </Row>
+
+    </EditForm>
+</div>
+
+@code {
+
+    public class Unidad
+    {
+        public int IdUnidad { get; set; }
+        public string Descripcion { get; set; }
+    }
+
+    [Inject]
+    public IArticuloService ArticuloService { get; set; }
+
+    [Inject]
+    public IProveedorService ProveedorService { get; set; }
+
+    [Inject]
+    public IFormaPagoService FormaPagoService { get; set; }
+
+    [Inject]
+    public IFacturaService FacturaService { get; set; }
+
+    [Parameter]
+    public string ClaveFactura { get; set; } = "";
+
+    public Factura FacturaForm { get; set; } = new Factura();
+    public List<DetalleFactura> detallesDefault = new List<DetalleFactura>();
+    public List<Unidad> unidades = new List<Unidad>();
+    public List<Proveedor> proveedores = new List<Proveedor>();
+    public List<FormaPago> formasPago = new List<FormaPago>();
+
+    public string clave_buscar = "";
+    public bool ShowModal = false;
+    public string MensajeResult = "";
+    public bool ShowProveedor = false;
+    string size = "large";
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        FacturaForm = await FacturaService.GetFacturaByClave(ClaveFactura);
+
+        proveedores = await ProveedorService.GetTodosProveedores();
+        formasPago = await FormaPagoService.GetTodasFormaPago();
+
+        unidades.Add(new Unidad { IdUnidad = 0, Descripcion = "Unidad" });
+        unidades.Add(new Unidad { IdUnidad = 1, Descripcion = "Pieza" });
+        unidades.Add(new Unidad { IdUnidad = 2, Descripcion = "Caja" });
+        unidades.Add(new Unidad { IdUnidad = 3, Descripcion = "Kilo" });
+
+    }
+
+
+    private void CerrarModal()
+    {
+        ShowModal = false;
+        MensajeResult = "";
+    }
+
+    private string FormatoPesos(double value)
+    {
+        return "$ " + value.ToString("n0");
+    }
+
+    private string ParseoPesos(string value)
+    {
+        return Regex.Replace(value, @"\$\s?|(,*)", "");
+    }
+
+
+    private async Task RegresarListadoFacturas()
+    {
+        UriHelper.NavigateTo($"listado-entradas");
+    }
+
+}
