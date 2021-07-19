@@ -41,6 +41,8 @@ namespace PrototipoAcerosSA
             services.AddScoped<IUnidadService, UnidadService>();
             services.AddScoped<IUbicacionService, UbicacionService>();
             services.AddScoped<IDevolucionService, DevolucionService>();
+            services.AddScoped<IRequisicionService, RequisicionService>();
+
 
 
         }

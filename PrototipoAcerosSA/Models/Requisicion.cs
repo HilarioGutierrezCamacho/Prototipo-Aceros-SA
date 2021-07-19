@@ -7,6 +7,7 @@ namespace PrototipoAcerosSA.Models
 {
     public class Requisicion
     {
+        public int IdRequisicion { get; set; }
         public string FolioRequisicion { get; set; }
         public Proveedor Proveedor { get; set; }
 
@@ -19,8 +20,8 @@ namespace PrototipoAcerosSA.Models
         public string ClaveResponsableCentroCostos { get; set; }
         public string NombreResponsableCentroCostos { get; set; }
         public string FirmaResponsableCentroCostos { get; set; }
-        public DateTime? FechaCaptura { get; set; }
-        public DateTime? FechaRecibido { get; set; }
+        public string? FechaCaptura { get; set; }
+        public string? FechaRecibido { get; set; }
         public FormaPago FormaPago { get; set; } = new FormaPago();
         public string Observaciones { get; set; }
         public Double Subtotal { get; set; }
