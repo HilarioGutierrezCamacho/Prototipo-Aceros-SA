@@ -94,7 +94,7 @@ namespace PrototipoAcerosSA.Data
                     Ubicacion aux = new Ubicacion();
                     aux.IdUbicacion = ubi.IdUbicacion;
                     aux.IdAlmacen = ubi.IdAlmacen;
-                    aux.Nombre = ubi.Nombre + " / " + ubi.Pasillo + " / " + ubi.nivel;
+                    aux.Nombre = "Pasillo: " + ubi.Pasillo + " / Estante : "+ ubi.Estante +" / Nivel: " + ubi.nivel;
                     aux.Pasillo = ubi.Pasillo;
                     aux.nivel = ubi.nivel;
                     aux.Estatus = ubi.Estatus;
