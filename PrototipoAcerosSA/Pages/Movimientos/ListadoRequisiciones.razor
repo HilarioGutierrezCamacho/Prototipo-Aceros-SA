@@ -1,68 +1,159 @@
 ﻿@page "/listado-requisiciones"
-@inject IJSRuntime JsRuntime
-
-
-<div class="col-sm-12" style="text-align:center;margin-top:10px;">
-    <h3>Lista de Requisiciones</h3>
-</div>
-<div>
-    <Row Style="margin-top:10px;">
-        <Col Span="10" Offset="12" style="text-align:center">
-        <label for="personaFiltro" class="col-sm-2 col-form-label">Folio:</label>
-        <Search OnChange="(e)=>Handle(e)" EnterButton="true" OnSearch="filtrar" @bind-Value="@txtValue" />
-        </Col>
-    </Row>
-</div>
-<br />
-
-<table class="table">
-    <thead>
-        <tr>
-            <th colspan="2">Acciones</th>
+            <!--<th colspan="2">Acciones</th>
             <th>Folio</th>
             <th>Fecha requisición</th>
             <th>Nombre responsable</th>
             <th>Tipo de pago</th>
             <th>Costo</th>
-            <th>Observaciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>
-                <a href="requisiciones"  title="Detalles">
-                    <span class="oi oi-pencil"></span>
-                </a>
-            </td>
-            <td>
-                <a href="requisiciones-cancelacion" title="Cancelar requisición" >
-                    <span class="oi oi-x"></span>
-                </a>
-            </td>
-            <td>REQ-001</td>
-            <td>20/06/2021 09:00:00</td>
-            <td>HILARIO GUTIERREZ CAMACHO</td>
-            <td>Tarjeta</td>
-            <td>5000</td>
-            <td>ninguna</td>
-        </tr>
-    </tbody>
-</table>
+            <th>Observaciones</th>-->
 
+@using System.ComponentModel
+@using AntDesign.TableModels
+@using PrototipoAcerosSA.Models
+@using PrototipoAcerosSA.Data
+@inject NavigationManager UriHelper
+
+
+<style>
+    .about-section {
+        padding: 20px;
+        text-align: center;
+        background-color: #474e5d;
+        color: white;
+        width: 100%;
+    }
+</style>
+
+<div class="about-section">
+    <h3 style="color: white;">Consulta de Requisiciones</h3>
+</div>
+
+<br />
+<br />
+
+<Row Gutter="8">
+    <Col Span="2">
+    <label style="margin: 1px;">Buscar por:</label>
+    </Col>
+    <Col Span="3">
+    <Select @bind-Value="@buscar_por"
+            Style="width: 120px; margin: 1px;"
+            TItemValue="string"
+            TItem="string">
+        <SelectOptions>
+            <SelectOption TItemValue="string" TItem="string" Value="@("Folio")" Label="Folio" />
+        </SelectOptions>
+    </Select>
+    </Col>
+    <Col Span="5">
+    <Search Style="margin: 1px;" Placeholder="Introduce tu búsqueda..." Size="@InputSize.Default" @bind-Value="@filtro" OnSearch="FiltrarFacturas" />
+    </Col>
+</Row>
+
+<hr />
+
+<Table @ref="table"
+       TItem="Requisicion"
+       DataSource="@requisiciones"
+       Total="_total"
+       @bind-PageIndex="_pageIndex"
+       @bind-PageSize="_pageSize"
+       Context="requisiciones"
+       Class="text-center">
+    <AntDesign.Column @bind-Field="@requisiciones.FolioRequisicion" Sortable />
+    <AntDesign.Column @bind-Field="@requisiciones.FechaCaptura" Sortable />
+    <AntDesign.Column Title="Nombre Responsable" @bind-Field="@requisiciones.NombreResponsable">
+    </AntDesign.Column>
+    <AntDesign.Column Title="Tipo de Pago" @bind-Field="@requisiciones.FormaPago">
+        <label>@requisiciones.FormaPago.Descripcion</label>
+    </AntDesign.Column>
+    <AntDesign.Column Title="Total" @bind-Field="@requisiciones.TotalRequisicion">
+        $<label>@requisiciones.TotalRequisicion</label>
+    </AntDesign.Column>
+    <AntDesign.Column @bind-Field="@requisiciones.Observaciones" />
+
+    <ActionColumn Title="Acciones" Class="text-center">
+        <Button Icon="snippets" Type="primary" >
+            Ver detalles
+        </Button>
+        @if (!this.TieneDevolucion(requisiciones.FolioRequisicion).Result)
+        {
+            <Button Icon="delivered-procedure" Danger >
+                Devolver
+            </Button>
+        }
+    </ActionColumn>
+</Table>
+
+<br />
+<p>Pagina Actual: @_pageIndex | Articulos por Página: @_pageSize | Total: @_total</p>
 
 @code {
-    private async Task filtrar()
-    {
-        await JsRuntime.InvokeAsync<object>(identifier: "swal", $"Buscando{txtValue}");
-    }
-    public async Task Eliminar()
-    {
-        await JsRuntime.InvokeAsync<object>(identifier: "deleteSwal");
-    }
-    private string txtValue { get; set; }
 
-    private void Handle(string value)
+    [Inject]
+    public IArticuloService _articuloService { get; set; }
+    [Inject]
+    public IProveedorService _proveedorService { get; set; }
+    [Inject]
+    public IFormaPagoService _formaPagoService { get; set; }
+    [Inject]
+    public IRequisicionService _requisicionService { get; set; }
+    [Inject]
+    public IDevolucionService DevolucionService { get; set; }
+
+    List<Requisicion> requisiciones = new List<Requisicion>();
+    List<Requisicion> requisicionFiltro = new List<Requisicion>();
+    List<Requisicion> requisicionesTodas = new List<Requisicion>();
+
+    ITable table;
+    int _pageIndex = 1;
+    int _pageSize = 5;
+    int _total = 0;
+
+    string buscar_por = "Folio";
+    string filtro = "";
+
+    protected override async Task OnInitializedAsync()
     {
-        Console.WriteLine(value);
+        requisiciones = await _requisicionService.GetTodasRequisiciones();
+        _total = requisiciones.Count();
+        requisicionesTodas = requisiciones;
     }
+
+    public void FiltrarFacturas()
+    {
+        requisicionFiltro = new List<Requisicion>();
+        if (filtro != null && filtro.Length > 0)
+        {
+            foreach (var factura in requisiciones)
+            {
+                if (factura.FolioRequisicion.Contains(filtro.Trim()))
+                {
+                    requisicionFiltro.Add(factura);
+                }
+            }
+            requisiciones = requisicionFiltro;
+        }
+        else
+        {
+            requisiciones = requisicionesTodas;
+        }
+    }
+
+    public async Task<bool> TieneDevolucion(string FolioFactura)
+    {
+        DevolverFactura devolucion = await DevolucionService.TieneDevolucion(FolioFactura);
+        return devolucion == null ? false : true;
+    }
+
+    public void NavegarDevolverFacturas(int IdFactura)
+    {
+        UriHelper.NavigateTo($"/devolver-facturas/{IdFactura}");
+    }
+
+    public void NavegarDetallesFactura(string ClaveFactura)
+    {
+        UriHelper.NavigateTo($"/detalles-factura/{ClaveFactura}");
+    }
+
 }

@@ -12,7 +12,10 @@ namespace PrototipoAcerosSA.Models
         public int Cantidad { get; set; }
         public Double PrecioUnitario { get; set; }
         public Double Subtotal { get; set; }
+        public Double Descuento { get; set; }
         public Double IVA { get; set; }
         public Double Costo { get; set; }
+        public Double TotalConIVA { get; set; }
+        
     }
 }
