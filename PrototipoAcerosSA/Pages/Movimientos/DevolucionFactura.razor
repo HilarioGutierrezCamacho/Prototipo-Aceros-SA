@@ -123,28 +123,6 @@
             <Card Bordered="false" Title=@("Detalles de la devolución")>
                 <Body>
 
-                    <Row Gutter="24">
-                        <Col Span="2">
-                        <label style="margin: 1px;">Clave:</label>
-                        </Col>
-                        <Col Span="3">
-                        <Input Type="text" @bind-Value="@clave_buscar" />
-                        </Col>
-                        <Col Span="5">
-                        <Button Type="primary" Style="margin-bottom:16px" OnClick="() => AgregarFilaDetalle()">
-                            Agregar
-                        </Button>
-                        </Col>
-                        <Col Span="14">
-                        @if (ShowModal)
-                        {
-                            <Alert Type="@AlertType.Error"
-                                   Description="@MensajeResult"
-                                   Closable OnClose="CerrarModal" Style="width: 100%" />
-                        }
-                        </Col>
-                    </Row>
-
                     <hr />
 
                     <Table DataSource="@DevolucionForm.DetallesDevolucion" Context="detalle" ScrollX="1000" TItem="DetalleDevolucion" PageSize="5">
@@ -229,6 +207,24 @@
         DevolucionForm.Descuento = 0.00;
         DevolucionForm.IVA = 0.0;
         DevolucionForm.TotalFactura = 0.00;
+
+        DevolucionForm.Factura.DetallesFactura.ForEach(
+            detalleFactura =>
+            {
+                DetalleDevolucion nuevaFila = new DetalleDevolucion()
+                {
+                    Articulo = detalleFactura.Articulo,
+                    Unidad = detalleFactura.Unidad,
+                    PrecioUnitario = detalleFactura.PrecioUnitario,
+                    CantidadDevolver = 0,
+                    CantidadAnterior = detalleFactura.Cantidad,
+                    Subtotal = 0,
+                    IVA = detalleFactura.IVA,
+                    TotalConIVA = 0
+                };
+                DevolucionForm.DetallesDevolucion.Add(nuevaFila);
+            }    
+        );
 
         proveedores = await ProveedorService.GetTodosProveedores();
         formasPago = await FormaPagoService.GetTodasFormaPago();

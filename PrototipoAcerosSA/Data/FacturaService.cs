@@ -260,5 +260,13 @@ namespace PrototipoAcerosSA.Data
             }
             return factura;
         }
+
+        public async Task<Factura> EditarFactura(Factura factura)
+        {
+            factura.Subtotal = Math.Round(factura.Subtotal, 2);
+            factura.TotalFactura = Math.Round(factura.TotalFactura, 2);
+            facturas[facturas.FindIndex(index => index.FolioFactura == factura.FolioFactura)] = factura;
+            return factura;
+        }
     }
 }

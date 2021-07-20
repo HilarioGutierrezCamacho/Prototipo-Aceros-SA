@@ -54,9 +54,9 @@
        Class="text-center">
     <AntDesign.Column @bind-Field="@factura.FolioFactura" Sortable />
     <AntDesign.Column @bind-Field="@factura.FechaCaptura" Sortable />
-    <AntDesign.Column Title="Proveedor" @bind-Field="@factura.Proveedor" >
+    <AntDesign.Column Title="Proveedor" @bind-Field="@factura.Proveedor">
         <label>@factura.Proveedor.Nombre</label>
-     </AntDesign.Column>
+    </AntDesign.Column>
     <AntDesign.Column Title="Subtotal" @bind-Field="@factura.Subtotal">
         $<label>@factura.Subtotal</label>
     </AntDesign.Column>
@@ -67,16 +67,15 @@
     <AntDesign.Column Title="Total Factura" @bind-Field="@factura.TotalFactura">
         $<label>@factura.TotalFactura</label>
     </AntDesign.Column>
-    <ActionColumn Title="Acciones" Class="text-center">
-        <Button Icon="snippets" Type="primary" OnClick="() => NavegarDetallesFactura(factura.FolioFactura)">
-            Ver detalles
-        </Button>
-        @if (!this.TieneDevolucion(factura.FolioFactura).Result)
-        {
-            <Button Icon="delivered-procedure" Danger OnClick="() => NavegarDevolverFacturas(factura.IdFactura)">
-                Devolver
-            </Button>
-        }
+    <ActionColumn Title="Acciones">
+        <div class="icons-list">
+            <Icon Type="edit" Width="2em" Height="2em" Style="cursor: pointer;" Theme="outline" OnClick="() => NavegarEditarFactura(factura.FolioFactura)" />
+            <Icon Type="eye" Width="2em" Height="2em" Style="cursor: pointer;" Theme="outline" OnClick="() => NavegarDetallesFactura(factura.FolioFactura)" />
+            @if (!this.TieneDevolucion(factura.FolioFactura).Result)
+            {
+                <Icon Type="delivered-procedure" Width="2em" Height="2em" Style="cursor: pointer;" Theme="outline" OnClick="() => NavegarDevolverFacturas(factura.IdFactura)" />
+            }
+        </div>
     </ActionColumn>
 </Table>
 
@@ -149,6 +148,11 @@
     public void NavegarDetallesFactura(string ClaveFactura)
     {
         UriHelper.NavigateTo($"/detalles-factura/{ClaveFactura}");
+    }
+
+    public void NavegarEditarFactura(string ClaveFactura)
+    {
+        UriHelper.NavigateTo($"/editar-facturas/{ClaveFactura}");
     }
 
 }

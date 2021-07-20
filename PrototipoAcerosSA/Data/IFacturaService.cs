@@ -13,5 +13,6 @@ namespace PrototipoAcerosSA.Data
         public Task<string> GenerateFolioFactura();
         public Task<Factura> GuardarFactura(Factura factura);
         public Task<Factura> GetFacturaByClave(string Clave);
+        public Task<Factura> EditarFactura(Factura factura);
     }
 }
