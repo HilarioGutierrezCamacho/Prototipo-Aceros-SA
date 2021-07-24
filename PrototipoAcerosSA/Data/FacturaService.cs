@@ -268,5 +268,171 @@ namespace PrototipoAcerosSA.Data
             facturas[facturas.FindIndex(index => index.FolioFactura == factura.FolioFactura)] = factura;
             return factura;
         }
+
+        public async Task<List<ArticuloValor>> GetProductosValor(string mes, string año)
+        {
+            List<Factura> facturasRango = new List<Factura>();
+            foreach (var fact in facturas)
+            {
+                string[] separacion = fact.FechaCaptura.Split(" ");
+                int mesFact = int.Parse(separacion[0].Split("/")[0]);
+                string mesFactura = GetMes(mesFact);
+                string anio = GetAnio(fact.FechaCaptura);
+                if (mesFactura == mes && año == anio)
+                {
+                    facturasRango.Add(fact);
+                }
+            }
+            
+            if (facturasRango.Count() == 0)
+            {
+                return new List<ArticuloValor>();
+            }
+
+            List<ArticuloValor> articulosValor = new List<ArticuloValor>();
+            facturasRango.ForEach(
+                factura =>
+                {
+                    factura.DetallesFactura.ForEach(
+                        detalle =>
+                        {
+                            MapearArticuloValor(articulosValor, detalle, mes, año);
+                        }    
+                    );
+                }    
+            );
+
+            return articulosValor;
+
+        }
+
+        private void MapearArticuloValor(List<ArticuloValor> articulos, DetalleFactura detalle, string mes, string año)
+        {
+            if (articulos.Count() == 0)
+            {
+                articulos.Add(
+                    new ArticuloValor()
+                    {
+                        Nombre = detalle.Articulo.Descripcion,
+                        Valor = detalle.TotalConIVA,
+                        Mes = mes,
+                        Año = año
+                    }
+                );
+                return;
+            }
+
+            bool nuevo = true;
+            articulos.ForEach(
+                articulo =>
+                {
+                    if (articulo.Nombre == detalle.Articulo.Descripcion)
+                    {
+                        nuevo = false;
+                        articulo.Valor = articulo.Valor + detalle.TotalConIVA;
+                        //articulo.Valor = Math.Round(articulo.Valor, 2);
+                    }
+                }    
+            );
+
+            if (nuevo)
+            {
+                articulos.Add(
+                    new ArticuloValor()
+                    {
+                        Nombre = detalle.Articulo.Descripcion,
+                        Valor = detalle.TotalConIVA,
+                        Mes = mes,
+                        Año = año
+                    }
+                );
+            }
+        }
+
+        private string GetAnio(string fechaFactura)
+        {
+            string[] fecha = fechaFactura.Split(" ");
+            return fecha[0].Split("/")[2];
+        }
+
+        public async Task<List<ArticuloUnidad>> GetProductosUnidad(string mes, string año)
+        {
+            List<Factura> facturasRango = new List<Factura>();
+            foreach (var fact in facturas)
+            {
+                string[] separacion = fact.FechaCaptura.Split(" ");
+                int mesFact = int.Parse(separacion[0].Split("/")[0]);
+                string mesFactura = GetMes(mesFact);
+                string anio = GetAnio(fact.FechaCaptura);
+                if (mesFactura == mes && año == anio)
+                {
+                    facturasRango.Add(fact);
+                }
+            }
+
+            if (facturasRango.Count() == 0)
+            {
+                return new List<ArticuloUnidad>();
+            }
+
+            List<ArticuloUnidad> articulosValor = new List<ArticuloUnidad>();
+            facturasRango.ForEach(
+                factura =>
+                {
+                    factura.DetallesFactura.ForEach(
+                        detalle =>
+                        {
+                            MapearArticuloUnidad(articulosValor, detalle, mes, año);
+                        }
+                    );
+                }
+            );
+
+            return articulosValor;
+        }
+
+        private void MapearArticuloUnidad(List<ArticuloUnidad> articulos, DetalleFactura detalle, string mes, string año)
+        {
+            if (articulos.Count() == 0)
+            {
+                articulos.Add(
+                    new ArticuloUnidad()
+                    {
+                        Nombre = detalle.Articulo.Descripcion,
+                        Unidad = detalle.Cantidad,
+                        Mes = mes,
+                        Año = año
+                    }
+                );
+                return;
+            }
+
+            bool nuevo = true;
+            articulos.ForEach(
+                articulo =>
+                {
+                    if (articulo.Nombre == detalle.Articulo.Descripcion)
+                    {
+                        nuevo = false;
+                        articulo.Unidad = articulo.Unidad + detalle.Cantidad;
+                        //articulo.Valor = Math.Round(articulo.Valor, 2);
+                    }
+                }
+            );
+
+            if (nuevo)
+            {
+                articulos.Add(
+                    new ArticuloUnidad()
+                    {
+                        Nombre = detalle.Articulo.Descripcion,
+                        Unidad = detalle.Cantidad,
+                        Mes = mes,
+                        Año = año
+                    }
+                );
+            }
+        }
+
     }
 }

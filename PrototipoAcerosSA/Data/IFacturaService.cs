@@ -14,5 +14,7 @@ namespace PrototipoAcerosSA.Data
         public Task<Factura> GuardarFactura(Factura factura);
         public Task<Factura> GetFacturaByClave(string Clave);
         public Task<Factura> EditarFactura(Factura factura);
+        public Task<List<ArticuloValor>> GetProductosValor(string mes, string año);
+        public Task<List<ArticuloUnidad>> GetProductosUnidad(string mes, string año);
     }
 }
