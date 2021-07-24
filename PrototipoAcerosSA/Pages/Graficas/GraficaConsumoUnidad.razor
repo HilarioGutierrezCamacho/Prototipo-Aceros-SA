@@ -82,7 +82,7 @@
 
         int mes = DateTime.Now.Month;
         List<ArticuloUnidad> articulos = await FacturaService.GetProductosUnidad(GetMes(mes), "2021");
-        articulos.Sort((p, q) => p.Unidad.CompareTo(q.Unidad));
+        articulos = (from articulo in articulos orderby articulo.Unidad descending select articulo).ToList();
 
         data = new object[articulos.Count()];
         for (int i = 0; i < articulos.Count(); i++)
@@ -147,7 +147,7 @@
         DateTime? mesIni = mesInicio.Value;
         DateTime? mesFinal = mesFin.Value;
         List<ArticuloUnidad> articulos = await FacturaService.GetProductosUnidad(GetMes(mesIni.Value.Month), mesIni.Value.Year.ToString());
-        articulos.Sort((p, q) => p.Unidad.CompareTo(q.Unidad));
+        articulos = (from articulo in articulos orderby articulo.Unidad descending select articulo).ToList();
         data = new object[articulos.Count()];
 
         if (articulos.Count() == 0)

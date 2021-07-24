@@ -146,6 +146,7 @@
         DateTime? mesIni = mesInicio.Value;
         DateTime? mesFinal = mesFin.Value;
         List<ArticuloValor> articulos = await FacturaService.GetProductosValor(GetMes(mesIni.Value.Month), mesIni.Value.Year.ToString());
+        articulos = (from articulo in articulos orderby articulo.Valor descending select articulo).ToList();
         data = new object[articulos.Count()];
 
         if (articulos.Count() == 0)
