@@ -3,90 +3,90 @@
 
 @using System.Text.RegularExpressions
 @using PrototipoAcerosSA.Data
+@using PrototipoAcerosSA.Models
+@using System.ComponentModel.DataAnnotations;
 @inject NavigationManager UriHelper
 @inject IJSRuntime js
 
-<style>
-    .about-section {
-        padding: 20px;
-        text-align: center;
-        background-color: #474e5d;
-        color: white;
-        width: 100%;
-    }
-</style>
 
-<div class="about-section">
-    <h3 style="color: white;">@Titulo</h3>
-</div>
-
-<br />
 <div style="background-color: #ffffff; padding: 20px;">
     <div style="background: #ffffff; padding: 20px; border-radius: 5px; width: 100%;">
-        <Form Model="@FormAlmacen">
+        <EditForm Model="@FormAlmacen" OnValidSubmit="@AgregarAlmacen">
+            <Microsoft.AspNetCore.Components.Forms.DataAnnotationsValidator />
             <Card Bordered="true" Style="align-self: center;">
                 <Body>
-                    <Row Gutter="24">
-                        <Col Span="8">
-                        <FormItem Label="Clave:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
-                            <Input @bind-Value="@FormAlmacen.Clave" style="margin: 2px;" />
-                        </FormItem>
-                        </Col>
-                        <Col Span="16">
-                        <FormItem Label="Nombre:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
-                            <Input @bind-Value="@FormAlmacen.Nombre" style="margin: 2px;" />
-                        </FormItem>
-                        </Col>
-                    </Row>
-                    <Row Gutter="24">
-                        <Col Span="8">
-                        <FormItem Label="Alto:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
-                            <Input @bind-Value="@FormAlmacen.Alto" style="margin: 2px;" />
-                        </FormItem>
-                        </Col>
-                        <Col Span="8">
-                        <FormItem Label="Largo:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
-                            <Input @bind-Value="@FormAlmacen.Largo" style="margin: 2px;" />
-                        </FormItem>
-                        </Col>
-                        <Col Span="8">
-                        <FormItem Label="Ancho:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
-                            <Input @bind-Value="@FormAlmacen.Ancho" style="margin: 2px;" />
-                        </FormItem>
-                        </Col>
-                    </Row>
-                    <Row Gutter="24">
-                        <Col Span="8">
-                        <FormItem Label="Estatus:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label for="lastName" class="col-sm-4">Clave: </label>
+                            <InputText id="lastName" class="form-control col-sm-12" @bind-Value="@FormAlmacen.Clave" placeholder="Ingresa la clave"></InputText>
+                            <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormAlmacen.Clave)" />
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="lastName" class="col-sm-4">Nombre: </label>
+                            <InputText id="lastName" class="form-control col-sm-12" @bind-Value="@FormAlmacen.Nombre" placeholder="Ingresa el nombre"></InputText>
+                            <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormAlmacen.Nombre)" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-4">
+                            <label for="lastName" class="col-sm-4">Alto: </label>
+                            <AntDesign.InputNumber @bind-Value="@FormAlmacen.Alto" style="margin: 2px; width: 100%;" />
+                                <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormAlmacen.Alto)" />
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="lastName" class="col-sm-4">Ancho: </label>
+                            <AntDesign.InputNumber @bind-Value="@FormAlmacen.Ancho" style="margin: 2px; width: 100%;" />
+                            <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormAlmacen.Ancho)" />
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="lastName" class="col-sm-4">Largo: </label>
+                            <AntDesign.InputNumber   @bind-Value="@FormAlmacen.Largo" style="margin: 2px; width: 100%;" />
+                            <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormAlmacen.Largo)" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label for="lastName" class="col-sm-4">Tipo de Almacen: </label>
                             <Select DataSource="@est"
                                     DefaultValue="@opcion"
                                     @bind-Value="@FormAlmacen.Estatus"
                                     ValueName="@nameof(Estatus.Nombre)"
                                     LabelName="@nameof(Estatus.Nombre)">
                             </Select>
-                        </FormItem>
-                        </Col>
-                        <Col Span="16">
-                        <FormItem Label="Descripción:" LabelCol="new ColLayoutParam { Span = 24 }" WrapperCol="new ColLayoutParam { Span = 24 }" style="margin: 2px;">
-                            <Input @bind-Value="@FormAlmacen.Descripcion" style="margin: 2px;" />
-                        </FormItem>
-                        </Col>
-                    </Row>
-
+                            <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormAlmacen.IdAlmacen)" />
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="lastName" class="col-sm-4">Descripción: </label>
+                            <InputText @bind-Value="@FormAlmacen.Descripcion" Min="0" style="margin: 2px; width: 100%;" />
+                            <ValidationMessage class="offset-sm-4 col-sm-8" For="@(() => FormAlmacen.Descripcion)" />
+                        </div>
+                    </div>
                 </Body>
                 <ActionTemplate>
                     @if (Titulo == "Nuevo Almacen")
                     {
-                        <CardAction><Icon Type="file-done" Theme="outline" OnClick="() => AddAlmacen()" /> Guardar</CardAction>
+                        <CardAction>
+                            <Button class="w-50" Type="@ButtonType.Primary" HtmlType="submit">
+                                Guardar
+                            </Button>
+                        </CardAction>
                     }
                     else
                     {
-                        <CardAction><Icon Type="edit" Theme="outline" OnClick="() => UpdateAlmacen()" /> Editar</CardAction>
+                        <CardAction>
+                            <Button class="w-50" Type="@ButtonType.Primary" HtmlType="submit">
+                                Guardar
+                            </Button>
+                        </CardAction>
                     }
-                    <CardAction Style="color: red;"><Icon Style="color: red;" Type="rollback" Theme="outline" OnClick="() => Cancelar()" /> Cancelar</CardAction>
+                    <CardAction Style="color: red;">
+                        <Button class="w-50" Danger OnClick="() => Cancelar()">
+                            <Icon Style="color: red;" Type="rollback" Theme="outline" /> Cancelar
+                        </Button>
+                    </CardAction>
                 </ActionTemplate>
             </Card>
-        </Form>
+        </EditForm>
     </div>
 </div>
 
@@ -96,17 +96,31 @@
     public class Almacenn
     {
         public int IdAlmacen { get; set; }
+        [Required(ErrorMessage = "Campo requerido.")]
+        //[RegularExpression(@"^[A-Z]+[0-9]*$", ErrorMessage = "La clave debe ser 2 letras mayusculas, un guion y tres numeros (Ejemplo MP-001)")]
+        [StringLength(6, ErrorMessage = "La clave debe contener solo 6 caracteres, 2 letras mayusculas, un guion y tres números (Ejemplo MP-001)")]
         public string Clave { get; set; }
+        [Required(ErrorMessage = "Campo requerido.")]
+        [RegularExpression(@"^[a-zA-Z]+$", ErrorMessage = "Ingresa solo letras")]
         public string Nombre { get; set; }
+        [Required(ErrorMessage = "Campo requerido.")]
+        [Range(1, int.MaxValue, ErrorMessage = "El valor debe ser mayor a 0")]
         public int Ancho { get; set; }
+        [Required(ErrorMessage = "Campo requerido.")]
+        [Range(1, int.MaxValue, ErrorMessage = "El valor debe ser mayor a 0")]
         public int Largo { get; set; }
+        [Required(ErrorMessage = "Campo requerido.")]
+        [Range(1, int.MaxValue, ErrorMessage = "El valor debe ser mayor a 0")]
         public int Alto { get; set; }
+        [Required(ErrorMessage = "Campo requerido.")]
+        [Range(1, int.MaxValue, ErrorMessage = "Debes seleccionar una opción.")]
         public string Estatus { get; set; }
         public string Descripcion { get; set; }
     }
 
     public string opcion = "Seleccione...";
     public string Titulo = "Nuevo Almacen";
+    public string Clave = "";
     public Almacenn FormAlmacen = new Almacenn();
     public List<Almacenn> almacenes = new List<Almacenn>();
 
@@ -126,7 +140,7 @@
     {
         est.Add(new Estatus() { IdEstatus = 0, Nombre = "Seleccione.." });
         est.Add(new Estatus() { IdEstatus = 1, Nombre = "Activo" });
-        est.Add(new Estatus() { IdEstatus = 1, Nombre = "Inactivo" });
+        est.Add(new Estatus() { IdEstatus = 2, Nombre = "Inactivo" });
 
         try
         {
@@ -224,4 +238,15 @@
         UriHelper.NavigateTo($"listado-almacenes");
     }
 
+    public async Task AgregarAlmacen()
+    {
+        if (Titulo == "Nuevo Almacen")
+        {
+            await AddAlmacen();
+        }
+        else
+        {
+            await UpdateAlmacen();
+        }
+    }
 }

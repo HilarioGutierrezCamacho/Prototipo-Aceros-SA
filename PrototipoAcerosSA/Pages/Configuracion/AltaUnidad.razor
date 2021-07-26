@@ -52,7 +52,7 @@
                     {
                         <CardAction>
                             <Button class="w-50" Type="@ButtonType.Primary" HtmlType="submit">
-                                Editar
+                                Guardar
                             </Button>
                         </CardAction>
                     }
@@ -74,8 +74,10 @@
     {
         public int IdUnidad { get; set; }
         [Required(ErrorMessage = "Campo requerido.")]
+        [StringLength(7, ErrorMessage = "La clave debe contener solo 7 caracteres, 3 letras mayusculas, un guion y tres números (Ejemplo CAJ-001)")]
         public string Clave { get; set; }
         [Required(ErrorMessage = "Campo requerido.")]
+        [RegularExpression(@"^[a-zA-Z]+$", ErrorMessage = "Ingresa solo letras")]
         public string Nombre { get; set; }
         [Required(ErrorMessage = "Campo requerido.")]
         public string Estatus { get; set; }
