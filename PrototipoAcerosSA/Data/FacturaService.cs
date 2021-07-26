@@ -306,7 +306,7 @@ namespace PrototipoAcerosSA.Data
                             Descripcion = detalle.Articulo.Descripcion,
                             Marca = detalle.Articulo.Marca,
                             Almacen = detalle.Articulo.Almacen.Descripcion,
-                            Unidad = detalle.Articulo.Unidad.Descripcion,
+                            Unidad = detalle.Articulo.Unidad.Nombre,
                             Stock = detalle.Cantidad
                         });
                     }
