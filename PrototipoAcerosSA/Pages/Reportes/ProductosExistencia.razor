@@ -1,94 +1,137 @@
 ﻿@page "/existenAlmacen"
-@inject IJSRuntime JsRuntime
+
+@using PrototipoAcerosSA.Data
+@using PrototipoAcerosSA.Models
+@inject NotificationService _notice
+@inject IJSRuntime js
+@inject NavigationManager UriHelper
+@using Syncfusion.XlsIO;
+@using Syncfusion.Drawing;
+@using System.IO;
+@using System.Data;
 
 
-<div class="col-sm-12" style="text-align:center;margin-top:10px;">
-    <h3>Reporte de Existencias en Almacen.</h3>
+<style>
+    .about-section {
+        padding: 20px;
+        text-align: center;
+        background-color: #474e5d;
+        color: white;
+        width: 100%;
+    }
+</style>
+
+<div class="about-section">
+    <h3 style="color: white;">Grafica de Consumo por Unidad</h3>
 </div>
-<div class=" row col-12">
-    <div class="col-6">
-        
-        <label for="personaFiltro" class="col-sm-4 col-form-label">Busqueda por</label>
-        <select class="form-control" aria-label="Default select example">
-            <option value="0" selected>clave</option>
-            <option value="1"> Nombre </option>
-            <option value="2"> Unidad Base </option>
-        </select>
-    </div>
-    <div class="col-6">
-        <label for="personaFiltro" class="col-sm-2 col-form-label">Productos</label>
-        <Search OnChange="(e)=>Handle(e)" EnterButton="true" OnSearch="filtrar" @bind-Value="@txtValue" />
-      
-    </div>
 
-</div>
 <div style="text-align:right; width:87%;">
-    <button  title="Imprimir reporte">Imprimir reporte</button>
+    <Button Type="primary" Icon="download" Size=@size OnClick="@CreateDocument">
+        Descargar Reporte
+    </Button>
 </div>
 <br />
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>clave</th>
-            <th>Nombre</th>
-            <th>Descripción</th>
-            <th>Cantidad en Existencia</th>
-            <th>Unidad Base</th>
-            <th>Existencia máxima</th>
-            <th>Existencia mínima</th>
-            <th>Estatus</th>
-
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <th>01-101010</th>
-            <th>Producto 1</th>
-            <th>Caja de tornillos para soportes</th>
-            <th>30</th>
-            <th>Caja</th>
-            <th>20</th>
-            <th>50</th>
-            <th>bajo</th>
-        </tr>
-        <tr>
-            <th>02-101010</th>
-            <th>Producto 2</th>
-            <th>Hierro puro</th>
-            <th>130</th>
-            <th>kilo</th>
-            <th>100</th>
-            <th>200</th>
-            <th>Medio</th>
-        </tr>
-        <tr>
-            <th>03-101010</th>
-            <th>Producto 3</th>
-            <th>Caja de tornillos para soportes</th>
-            <th>30</th>
-            <th>Caja</th>
-            <th>20</th>
-            <th>50</th>
-            <th>Medio</th>
-        </tr>
-    </tbody>
-</table>
+<Table @ref="table"
+       TItem="ArticuloExistencia"
+       DataSource="@existencias"
+       Total="_total"
+       @bind-PageIndex="_pageIndex"
+       @bind-PageSize="_pageSize"
+       Context="articulo">
+    <AntDesign.Column @bind-Field="@articulo.ClaveArticulo" Sortable />
+    <AntDesign.Column Title="Nombre" @bind-Field="@articulo.Descripcion" Sortable />
+    <AntDesign.Column @bind-Field="@articulo.Marca" Sortable />
+    <AntDesign.Column @bind-Field="@articulo.Almacen" Sortable />
+    <AntDesign.Column @bind-Field="@articulo.Unidad" Sortable />
+    <AntDesign.Column @bind-Field="@articulo.Stock" Sortable />
+</Table>
 
 
 @code {
-    private async Task filtrar()
-    {
-        await JsRuntime.InvokeAsync<object>(identifier: "swal", $"Buscando{txtValue}");
-    }
-    public async Task Eliminar()
-    {
-        await JsRuntime.InvokeAsync<object>(identifier: "deleteSwal");
-    }
-    private string txtValue { get; set; }
 
-    private void Handle(string value)
+    [Inject]
+    private IFacturaService facturaService { get; set; }
+
+    public List<ArticuloExistencia> existencias { get; set; } = new List<ArticuloExistencia>();
+
+    ITable table;
+    int _pageIndex = 1;
+    int _pageSize = 5;
+    int _total = 0;
+    string size = "large";
+
+    protected override async Task OnInitializedAsync()
     {
-        Console.WriteLine(value);
+        existencias = await facturaService.GetExistenciasArticulos();
     }
+
+    public async void CreateDocument()
+    {
+        //Create an instance of ExcelEngine.
+        using (ExcelEngine excelEngine = new ExcelEngine())
+        {
+            IApplication application = excelEngine.Excel;
+            application.DefaultVersion = ExcelVersion.Xlsx;
+
+            //Create a workbook.
+            IWorkbook workbook = application.Workbooks.Create(1);
+            IWorksheet worksheet = workbook.Worksheets[0];
+
+            //Initialize DataTable and data get from SampleDataTable method.
+            DataTable table = SampleDataTable();
+
+            //Export data from DataTable to Excel worksheet.
+            worksheet.ImportDataTable(table, true, 1, 1);
+
+            worksheet.UsedRange.AutofitColumns();
+
+
+            //Save the document as a stream and return the stream.
+            using (MemoryStream stream = new MemoryStream())
+            {
+                //Save the created Excel document to MemoryStream
+                workbook.SaveAs(stream);
+
+                DateTime fecha = DateTime.Now;
+
+                //Download the excel file.
+                await SaveAs("Reporte" + fecha.ToString("dd/MM/yyy") + ".xlsx", stream.ToArray()); ;
+            }
+        }
+    }
+
+    private DataTable SampleDataTable()
+    {
+        DataTable reports = new DataTable();
+        reports.Columns.Add("Clave Articulo");
+        reports.Columns.Add("Descripción");
+        reports.Columns.Add("Marca");
+        reports.Columns.Add("Almacen");
+        reports.Columns.Add("Unidad");
+        reports.Columns.Add("Stock", typeof(int));
+        existencias.ForEach(
+            existencia =>
+            {
+                reports.Rows.Add(
+                    existencia.ClaveArticulo,
+                    existencia.Descripcion,
+                    existencia.Marca,
+                    existencia.Almacen,
+                    existencia.Unidad,
+                    existencia.Stock);
+            }
+        );
+
+        return reports;
+    }
+
+    public async Task SaveAs(string filename, byte[] data)
+    {
+        js.InvokeAsync<object>(
+        "saveAsFile",
+        filename,
+        Convert.ToBase64String(data));
+    }
+
 }

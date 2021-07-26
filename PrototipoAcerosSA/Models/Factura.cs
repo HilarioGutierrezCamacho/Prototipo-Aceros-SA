@@ -9,6 +9,7 @@ namespace PrototipoAcerosSA.Models
     public class Factura
     {
         public int IdFactura { get; set; }
+        [Required(ErrorMessage = "El folio de la factura es requerido.")]
         public string FolioFactura { get; set; }
         [Required(ErrorMessage = "El proveedor es requerido.")]
         [Range(1, int.MaxValue, ErrorMessage = "Debes seleccionar un proveedor.")]

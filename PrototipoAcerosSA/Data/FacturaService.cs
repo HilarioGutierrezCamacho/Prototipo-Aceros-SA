@@ -15,6 +15,7 @@ namespace PrototipoAcerosSA.Data
         public readonly IUnidadService _unidadService;
 
         public List<Factura> facturas { get; set; } = new List<Factura>();
+        public List<ArticuloExistencia> existencias { get; set; } = new List<ArticuloExistencia>();
 
         public FacturaService(IProveedorService proveedorService, IFormaPagoService formaPagoService, IArticuloService articuloService, IUnidadService unidadService)
         {
@@ -188,6 +189,7 @@ namespace PrototipoAcerosSA.Data
             factura.Subtotal = Math.Round(factura.Subtotal, 2);
             factura.TotalFactura = Math.Round(factura.TotalFactura, 2);
             facturas.Add(factura);
+            ActualizarStock();
             return factura;
         }
 
@@ -266,7 +268,50 @@ namespace PrototipoAcerosSA.Data
             factura.Subtotal = Math.Round(factura.Subtotal, 2);
             factura.TotalFactura = Math.Round(factura.TotalFactura, 2);
             facturas[facturas.FindIndex(index => index.FolioFactura == factura.FolioFactura)] = factura;
+            ActualizarStock();
             return factura;
+        }
+
+        public async Task ActualizarStock()
+        {
+            existencias = new List<ArticuloExistencia>();
+            facturas.ForEach(
+                factura =>
+                {
+                    MapearExistenciasPorDetalleFactura(factura.DetallesFactura);
+                }    
+            );
+        }
+
+        public async Task MapearExistenciasPorDetalleFactura(List<DetalleFactura> detalles)
+        {
+            detalles.ForEach(
+                detalle =>
+                {
+                    bool existe = false;
+                    existencias.ForEach(
+                        articulo =>
+                        {
+                            if (articulo.ClaveArticulo == detalle.Articulo.Clave)
+                            {
+                                articulo.Stock = articulo.Stock + detalle.Cantidad;
+                                existe = true;
+                            }
+                        }
+                    );
+                    if (!existe)
+                    {
+                        existencias.Add(new ArticuloExistencia() { 
+                            ClaveArticulo = detalle.Articulo.Clave,
+                            Descripcion = detalle.Articulo.Descripcion,
+                            Marca = detalle.Articulo.Marca,
+                            Almacen = detalle.Articulo.Almacen.Descripcion,
+                            Unidad = detalle.Articulo.Unidad.Descripcion,
+                            Stock = detalle.Cantidad
+                        });
+                    }
+                }
+            );
         }
 
         public async Task<List<ArticuloValor>> GetProductosValor(string mes, string año)
@@ -434,5 +479,9 @@ namespace PrototipoAcerosSA.Data
             }
         }
 
+        public async Task<List<ArticuloExistencia>> GetExistenciasArticulos()
+        {
+            return existencias;
+        }
     }
 }
