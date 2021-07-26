@@ -1,4 +1,4 @@
-﻿@page "/editar-requisicion/{ClaveRequisicion}"
+﻿@page "/detalle-requisicion/{ClaveRequisicion}"
 
 @using AntDesign.TableModels
 @using System.Text.RegularExpressions
@@ -39,52 +39,18 @@
                     </div>
                     <div class="form-group row">
                         <label for="lastName" class="col-sm-3">Clave: </label>
-                        <InputText type="text" class="form-control col-sm-3" @bind-Value="@FacturaForm.ClaveResponsable" @onblur="buscarEmpleado" ></InputText>
+                        <InputText type="text" class="form-control col-sm-3" @bind-Value="@FacturaForm.ClaveResponsable" @onblur="buscarEmpleado" Disabled></InputText>
                         <label for="lastName" class="col-sm-2">Firma:</label>
-                        <InputText class="form-control col-sm-3" @bind-Value="@FacturaForm.FirmaResponsableCentroCostos"></InputText>
+                        <InputText class="form-control col-sm-3" @bind-Value="@FacturaForm.FirmaResponsableCentroCostos" Disabled></InputText>
                     </div>
                     <div class="form-group row">
                         <label for="lastName" class="col-sm-3">Nombre:</label>
                         <InputText type="text" class="form-control col-sm-8" @bind-Value="@FacturaForm.NombreResponsable" Disabled></InputText>
                     </div>
-                    <!-- <div class="form-group row">
-                         <label for="comentarios" class="col-sm-4">Comentarios: </label>
-                         <TextArea Placeholder="Introduce tus comentarios..." Class="form-control col-sm-8" AutoSize="true" @bind-Value="@FacturaForm.Observaciones" />
-                     </div>-->
-                    <!-- <div class="form-group row">
-                        <label for="formaPago" class="col-sm-3">Proveedor: </label>
-                        <Select class="col-sm-6" DataSource="@proveedores"
-                                @bind-Value="proveedor_selected"
-                                ValueName="@nameof(Proveedor.IdProveedor)"
-                                LabelName="@nameof(Proveedor.Nombre)"
-                                Placeholder="Selecciona un proveedor">
-                        </Select>
-                        <Button Icon="filter" class="col-sm-2" OnClick="() => AsignarProveedor()">
-                        </Button>
-                    </div>-->
-                    <!--@if (ShowProveedor)
-                    {
-                        <div class="form-group row">
-                            <label for="nombreProveedor" class="col-sm-3">Proveedor: </label>
-                            <InputText Disabled="true" id="nombreProveedor" class="form-control col-sm-8" @bind-Value="@FacturaForm.Proveedor.Nombre"></InputText>
-                        </div>
-                        <div class="form-group row">
-                            <label for="direccion" class="col-sm-3">Dirección: </label>
-                            <InputText Disabled="true" id="direccion" class="form-control col-sm-8" @bind-Value="@FacturaForm.Proveedor.Direccion"></InputText>
-                        </div>
-                        <div class="form-group row">
-                            <label for="ciudad" class="col-sm-3">Ciudad: </label>
-                            <InputText Disabled="true" id="ciudad" class="form-control col-sm-8" @bind-Value="@FacturaForm.Proveedor.Ciudad"></InputText>
-                        </div>
-                        <div class="form-group row">
-                            <label for="cp" class="col-sm-3">CP: </label>
-                            <InputText Disabled="true" id="cp" class="form-control col-sm-8" @bind-Value="@FacturaForm.Proveedor.CP"></InputText>
-                        </div>
-                    }-->
+                    
                 </Body>
                 <ActionTemplate>
-                    <CardAction><Icon Type="file-done" Theme="outline" OnClick="() => GuardarFactura()" /> Guardar</CardAction>
-                    <CardAction><Icon Type="rollback" Theme="outline" /> Cancelar</CardAction>
+                    <CardAction><Icon Type="rollback-done" Theme="outline" OnClick="() => regresar()" /> Regresar</CardAction>
                 </ActionTemplate>
             </Card>
             </Col>
@@ -94,13 +60,13 @@
                 <Body>
                     <div class="form-group row">
                         <label for="lastName" class="col-sm-3">Fecha y hora de recibido: </label>
-                        <InputDate class="form-control col-sm-8" @bind-Value="@FacturaForm.FechaRecibido"> </InputDate>
+                        <InputDate class="form-control col-sm-8" @bind-Value="@FacturaForm.FechaRecibido" Disabled> </InputDate>
                     </div>
                     <div class="form-group row">
                         <label for="lastName" class="col-sm-3">Clave: </label>
-                        <InputText type="text" class="form-control col-sm-3" @bind-Value="@FacturaForm.ClaveSolicitante" @onblur="buscarEmpleado"></InputText>
+                        <InputText type="text" class="form-control col-sm-3" @bind-Value="@FacturaForm.ClaveSolicitante" @onblur="buscarEmpleado" Disabled></InputText>
                         <label for="lastName" class="col-sm-2">Firma:</label>
-                        <InputText class="form-control col-sm-3" @bind-Value="@FacturaForm.FirmaSolicitante"></InputText>
+                        <InputText class="form-control col-sm-3" @bind-Value="@FacturaForm.FirmaSolicitante" Disabled></InputText>
                     </div>
                     <div class="form-group row">
                         <label for="lastName" class="col-sm-3">Nombre:</label>
@@ -117,12 +83,13 @@
                                 @bind-Value="FacturaForm.FormaPago.IdFormaPago"
                                 ValueName="@nameof(FormaPago.IdFormaPago)"
                                 LabelName="@nameof(FormaPago.Descripcion)"
-                                OnSelectedItemChanged="AsignarFormaPago">
+                                OnSelectedItemChanged="AsignarFormaPago"
+                                Disabled>
                         </Select>
                     </div>
                     <div class="form-group row">
                         <label for="comentarios" class="col-sm-4">Comentarios: </label>
-                        <TextArea Placeholder="Introduce tus comentarios..." Class="form-control col-sm-8" AutoSize="true" @bind-Value="@FacturaForm.Observaciones" />
+                        <TextArea Placeholder="Introduce tus comentarios..." Class="form-control col-sm-8" AutoSize="true" @bind-Value="@FacturaForm.Observaciones" Disabled />
                     </div>
                 </Body>
             </Card>
@@ -149,27 +116,6 @@
             <Col Span="24">
             <Card Bordered="false" Title=@("Detalles de la Requisición")>
                 <Body>
-                    <Row Gutter="24">
-                        <Col Span="2">
-                        <label style="margin: 1px;">Clave:</label>
-                        </Col>
-                        <Col Span="3">
-                        <Input Type="text" @bind-Value="@clave_buscar" />
-                        </Col>
-                        <Col Span="5">
-                        <Button Type="primary" Style="margin-bottom:16px" OnClick="() => AgregarFilaDetalle()">
-                            Agregar
-                        </Button>
-                        </Col>
-                        <Col Span="14">
-                        @if (ShowModal)
-                        {
-                            <Alert Type="@AlertType.Error"
-                                   Description="@MensajeResult"
-                                   Closable OnClose="CerrarModal" Style="width: 100%" />
-                        }
-                        </Col>
-                    </Row>
 
                     <hr />
 
@@ -184,11 +130,11 @@
                             <label>@detalle.Articulo.Unidad.Nombre</label>
                         </AntDesign.Column>
                         <AntDesign.Column Title="Cantidad" TData="int">
-                            <Input Type="number" @bind-Value="@detalle.Cantidad" OnPressEnter="() => CalcularTotalDetalle(detalle)" OnBlur="() => CalcularTotalDetalle(detalle)" />
+                            <Input Type="number" @bind-Value="@detalle.Cantidad" OnPressEnter="() => CalcularTotalDetalle(detalle)" OnBlur="() => CalcularTotalDetalle(detalle)" Disabled/>
                         </AntDesign.Column>
 
                         <AntDesign.Column Title="Precio" TData="float">
-                            <Input min="0" Type="number" step="0.01" @bind-Value="@detalle.Articulo.PrecioUnitario" />
+                            <Input min="0" Type="number" step="0.01" @bind-Value="@detalle.Articulo.PrecioUnitario" Disabled/>
                         </AntDesign.Column>
                         <AntDesign.Column Title="Costo" TData="float">
                             <Input Type="text" @bind-Value="@detalle.Costo" disabled />
@@ -206,11 +152,11 @@
                         <AntDesign.Column Title="Total con IVA" TData="float">
                             <Input Type="number" step="0.01" @bind-Value="@detalle.TotalConIVA" />
                         </AntDesign.Column>-->
-                        <ActionColumn Title="Acciones">
+                       <!--<ActionColumn Title="Acciones">
                             <Button Icon="delete" Danger OnClick="() => QuitarFilaDetalle(detalle)">
                                 Eliminar
                             </Button>
-                        </ActionColumn>
+                        </ActionColumn>-->
                     </Table>
                 </Body>
             </Card>
@@ -509,19 +455,14 @@
 
     }
 
-    private async Task GuardarFactura()
+    private async Task regresar()
     {
-        if (FacturaForm.DetallesRequisicion.Count() <= 0)
-        {
-            await js.InvokeAsync<bool>("mensajeGenericoValidaciones", "Cuidado!", "Necesitas agregar al menos un articulo a la requisición.", "warning");
-            return;
-        }
 
-        await RequisicionService.EditarRequisicion(FacturaForm);
-        await js.InvokeAsync<bool>("mensajeExito", "Exito al editar la requisición");
         UriHelper.NavigateTo($"listado-requisiciones");
 
     }
+
+
 }
 
 
