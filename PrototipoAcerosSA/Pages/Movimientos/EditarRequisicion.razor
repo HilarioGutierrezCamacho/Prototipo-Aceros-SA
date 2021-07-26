@@ -84,7 +84,7 @@
                 </Body>
                 <ActionTemplate>
                     <CardAction><Icon Type="file-done" Theme="outline" OnClick="() => GuardarFactura()" /> Guardar</CardAction>
-                    <CardAction><Icon Type="rollback" Theme="outline" /> Cancelar</CardAction>
+                    <CardAction Style="color: red;"><Icon Style="color: red;" Type="rollback" Theme="outline" OnClick="() => Cancelar()" /> Cancelar</CardAction>
                 </ActionTemplate>
             </Card>
             </Col>
@@ -519,6 +519,12 @@
 
         await RequisicionService.EditarRequisicion(FacturaForm);
         await js.InvokeAsync<bool>("mensajeExito", "Exito al editar la requisición");
+        UriHelper.NavigateTo($"listado-requisiciones");
+
+    }
+
+    private async Task Cancelar()
+    {
         UriHelper.NavigateTo($"listado-requisiciones");
 
     }
