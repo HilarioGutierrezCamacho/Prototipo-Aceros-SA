@@ -1,4 +1,4 @@
-﻿@page "/requisiciones"
+﻿@page "/editar-requisicion/{ClaveRequisicion}"
 
 @using AntDesign.TableModels
 @using System.Text.RegularExpressions
@@ -19,7 +19,7 @@
 </style>
 
 <div class="about-section">
-    <h3 style="color: white;">Captura de Requisiciones</h3>
+    <h3 style="color: white;">Editar Requisiciones</h3>
 </div>
 
 <br />
@@ -39,9 +39,9 @@
                     </div>
                     <div class="form-group row">
                         <label for="lastName" class="col-sm-3">Clave: </label>
-                        <InputText type="text" class="form-control col-sm-3" @bind-Value="@FacturaForm.ClaveResponsable" @onblur="buscarEmpleado" ></InputText>
+                        <InputText type="text" class="form-control col-sm-3" @bind-Value="@FacturaForm.ClaveResponsable" @onblur="buscarEmpleado" Disabled></InputText>
                         <label for="lastName" class="col-sm-2">Firma:</label>
-                        <InputText placeholder="SI/NO" class="form-control col-sm-3" @bind-Value="@FacturaForm.FirmaResponsableCentroCostos"></InputText>
+                        <InputText class="form-control col-sm-3" @bind-Value="@FacturaForm.FirmaResponsableCentroCostos"></InputText>
                     </div>
                     <div class="form-group row">
                         <label for="lastName" class="col-sm-3">Nombre:</label>
@@ -94,26 +94,27 @@
                 <Body>
                     <div class="form-group row">
                         <label for="lastName" class="col-sm-3">Fecha y hora de recibido: </label>
-                        <InputDate class="form-control col-sm-8" @bind-Value="@FacturaForm.FechaRecibido"></InputDate>
+                        <InputDate class="form-control col-sm-8" @bind-Value="@FacturaForm.FechaRecibido"> </InputDate>
                     </div>
                     <div class="form-group row">
                         <label for="lastName" class="col-sm-3">Clave: </label>
                         <InputText type="text" class="form-control col-sm-3" @bind-Value="@FacturaForm.ClaveSolicitante" @onblur="buscarEmpleado"></InputText>
                         <label for="lastName" class="col-sm-2">Firma:</label>
-                        <InputText class="form-control col-sm-3" @bind-Value="@FacturaForm.FirmaSolicitante" placeholder="SI/NO"></InputText>
+                        <InputText class="form-control col-sm-3" @bind-Value="@FacturaForm.FirmaSolicitante"></InputText>
                     </div>
                     <div class="form-group row">
                         <label for="lastName" class="col-sm-3">Nombre:</label>
-                        <InputText type="text" class="form-control col-sm-8" @bind-Value="@FacturaForm.NombreSolicitante" Disabled></InputText>
+                        <InputText type="text" class="form-control col-sm-8" @bind-Value="@FacturaForm.NombreSolicitante"></InputText>
                     </div>
                     <div class="form-group row w-75">
                         <label for="subtotal" class="col-sm-4">Total: </label>
-                        <AntDesign.InputNumber Class="form-control col-sm-8" @bind-Value="@FacturaForm.TotalRequisicion" Formatter="FormatoPesos" Parser="ParseoPesos" DefaultValue="1000d" Disabled/>
+                        <AntDesign.InputNumber Class="form-control col-sm-8" @bind-Value="@FacturaForm.TotalRequisicion" Formatter="FormatoPesos" Parser="ParseoPesos" DefaultValue="1000d" />
                     </div>
                     <div class="form-group row w-75">
                         <label for="formaPago" class="col-sm-4">Forma Pago: </label>
                         <Select class="col-sm-8" DataSource="@formasPago"
                                 DefaultValue="@(0)"
+                                @bind-Value="FacturaForm.FormaPago.IdFormaPago"
                                 ValueName="@nameof(FormaPago.IdFormaPago)"
                                 LabelName="@nameof(FormaPago.Descripcion)"
                                 OnSelectedItemChanged="AsignarFormaPago">
@@ -240,6 +241,8 @@
     [Inject]
     public IRequisicionService RequisicionService { get; set; }
 
+    [Parameter]
+    public string ClaveRequisicion { get; set; } = "";
 
     public Requisicion FacturaForm { get; set; } = new Requisicion();
     //public List<DetalleRequisicion> detallesDefault = new List<DetalleRequisicion>();
@@ -258,15 +261,7 @@
     protected override async Task OnInitializedAsync()
     {
 
-        FacturaForm.FolioRequisicion = await RequisicionService.GenerateFolioRequisicion();
-        FacturaForm.FechaCaptura = DateTime.Now.ToString("MM/dd/yyyy H:mm");
-        FacturaForm.ClaveResponsable = "ALM-EMP-001";
-        FacturaForm.Observaciones = "";
-        FacturaForm.Subtotal = 0.00;
-        FacturaForm.Descuento = 0.00;
-        FacturaForm.IVA = 0.0;
-        FacturaForm.TotalRequisicion = 0.00;
-        await buscarEmpleado2();
+        FacturaForm = await RequisicionService.GetRequisicionByClave(ClaveRequisicion);
 
         proveedores = await ProveedorService.GetTodosProveedores();
         formasPago = await FormaPagoService.GetTodasFormaPago();
@@ -516,18 +511,17 @@
 
     private async Task GuardarFactura()
     {
-        Console.WriteLine("FacturaForm.FechaRecibido");
-        Console.WriteLine(FacturaForm.FechaRecibido);
         if (FacturaForm.DetallesRequisicion.Count() <= 0)
         {
             await js.InvokeAsync<bool>("mensajeGenericoValidaciones", "Cuidado!", "Necesitas agregar al menos un articulo a la requisición.", "warning");
             return;
         }
 
-        await RequisicionService.GuardarRequisiciona(FacturaForm);
-        await js.InvokeAsync<bool>("mensajeExito", "Exito al guardar la requisición");
+        await RequisicionService.EditarRequisicion(FacturaForm);
+        await js.InvokeAsync<bool>("mensajeExito", "Exito al editar la requisición");
         UriHelper.NavigateTo($"listado-requisiciones");
 
     }
 }
+
 

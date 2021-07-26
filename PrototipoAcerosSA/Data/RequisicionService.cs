@@ -261,5 +261,11 @@ namespace PrototipoAcerosSA.Data
             }
             return requisicion;
         }
+
+        public async Task<Requisicion> EditarRequisicion(Requisicion req)
+        {
+            requisiciones[requisiciones.FindIndex(index => index.FolioRequisicion == req.FolioRequisicion)] = req;
+            return req;
+        }
     }
 }

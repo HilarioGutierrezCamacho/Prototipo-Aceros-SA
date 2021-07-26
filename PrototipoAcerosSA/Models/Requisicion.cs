@@ -16,12 +16,13 @@ namespace PrototipoAcerosSA.Models
         public string FirmaResponsable { get; set; }
         public string ClaveSolicitante { get; set; }
         public string NombreSolicitante { get; set; }
+
         public string FirmaSolicitante { get; set; }
         public string ClaveResponsableCentroCostos { get; set; }
         public string NombreResponsableCentroCostos { get; set; }
         public string FirmaResponsableCentroCostos { get; set; }
         public string? FechaCaptura { get; set; }
-        public string? FechaRecibido { get; set; }
+        public DateTime? FechaRecibido { get; set; }
         public FormaPago FormaPago { get; set; } = new FormaPago();
         public string Observaciones { get; set; }
         public Double Subtotal { get; set; }

@@ -72,16 +72,11 @@
     </AntDesign.Column>
     <AntDesign.Column @bind-Field="@requisiciones.Observaciones" />
 
-    <ActionColumn Title="Acciones" Class="text-center">
-        <Button Icon="snippets" Type="primary" >
-            Ver detalles
-        </Button>
-        @if (!this.TieneDevolucion(requisiciones.FolioRequisicion).Result)
-        {
-            <Button Icon="delivered-procedure" Danger >
-                Devolver
-            </Button>
-        }
+    <ActionColumn Title="Acciones">
+        <div class="icons-list">
+            <Icon Type="edit" Width="2em" Height="2em" Style="cursor: pointer;" Theme="outline" OnClick="() => NavegarEditarRequisicion(requisiciones.FolioRequisicion)" />
+            <Icon Type="eye" Width="2em" Height="2em" Style="cursor: pointer;" Theme="outline" OnClick="() => NavegarDetallesRequisicion(requisiciones.FolioRequisicion)" />
+        </div>
     </ActionColumn>
 </Table>
 
@@ -146,14 +141,14 @@
         return devolucion == null ? false : true;
     }
 
-    public void NavegarDevolverFacturas(int IdFactura)
-    {
-        UriHelper.NavigateTo($"/devolver-facturas/{IdFactura}");
-    }
-
-    public void NavegarDetallesFactura(string ClaveFactura)
+    public void NavegarDetallesRequisicion(string ClaveFactura)
     {
         UriHelper.NavigateTo($"/detalles-factura/{ClaveFactura}");
+    }
+
+    public void NavegarEditarRequisicion(string ClaveFactura)
+    {
+        UriHelper.NavigateTo($"/editar-requisicion/{ClaveFactura}");
     }
 
 }

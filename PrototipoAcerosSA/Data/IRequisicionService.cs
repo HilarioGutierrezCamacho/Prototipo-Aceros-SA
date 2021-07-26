@@ -6,6 +6,7 @@ namespace PrototipoAcerosSA.Data
 {
     public interface IRequisicionService
     {
+        Task<Requisicion> EditarRequisicion(Requisicion req);
         Task<string> GenerateFolioRequisicion();
         Task<Requisicion> GetRequisicionByClave(string Clave);
         Task<Requisicion> GetRequisicionById(int IdRequisicion);

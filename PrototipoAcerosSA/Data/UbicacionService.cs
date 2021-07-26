@@ -13,9 +13,9 @@ namespace PrototipoAcerosSA.Data
 
         public UbicacionService()
         {
-            ubicaciones.Add(new Ubicacion() { IdUbicacion = 1, Clave = "EST MV-001", Nombre = "Estante 1", IdAlmacen = 1, Pasillo = 1, Estante = 1, nivel = 3,  Estatus = "Activo"});
-            ubicaciones.Add(new Ubicacion() { IdUbicacion = 2, Clave = "EST RF-002", Nombre = "Estante 2", IdAlmacen = 3, Pasillo = 3, Estante = 2, nivel = 0, Estatus = "Activo" });
-            ubicaciones.Add(new Ubicacion() { IdUbicacion = 3, Clave = "EST VA-003", Nombre = "Estante 3", IdAlmacen = 2, Pasillo = 2, Estante = 1, nivel = 3, Estatus = "Activo" });
+            ubicaciones.Add(new Ubicacion() { IdUbicacion = 1, Clave = "EST-001", Nombre = "Estante 1", IdAlmacen = 1, Pasillo = 1, Estante = 1, nivel = 3,  Estatus = "Activo"});
+            ubicaciones.Add(new Ubicacion() { IdUbicacion = 2, Clave = "PAS-002", Nombre = "Estante 2", IdAlmacen = 3, Pasillo = 3, Estante = 2, nivel = 0, Estatus = "Activo" });
+            ubicaciones.Add(new Ubicacion() { IdUbicacion = 3, Clave = "EST-003", Nombre = "Estante 3", IdAlmacen = 2, Pasillo = 2, Estante = 1, nivel = 3, Estatus = "Activo" });
         }
 
         public async Task<List<Ubicacion>> GetTodosUbicacion()
